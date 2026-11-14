@@ -14,7 +14,7 @@ button,input,textarea{font:inherit}.wrap{width:min(1080px,calc(100% - 32px));mar
 header{padding:clamp(14px,3vw,24px) 0 16px}.head{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .brand{display:flex;align-items:center;gap:12px;min-width:0}.logo{width:48px;height:48px;border-radius:15px;box-shadow:0 7px 18px #174c3228;flex:none}
 h1{margin:0;color:var(--forest);font-size:clamp(22px,4vw,32px);font-weight:900}.sub{margin:3px 0 0;color:var(--muted);font-size:clamp(12px,2vw,14px)}
-.actions,.toolbar{display:flex;gap:8px;flex-wrap:wrap}.btn{border:1px solid transparent;border-radius:12px;padding:11px 15px;font-weight:800;cursor:pointer;transition:.18s;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px}
+.actions,.toolbar{display:flex;gap:8px;flex-wrap:wrap}.tabs{display:flex;gap:8px;margin:0 auto 15px}.tab-btn{flex:1;border:1px solid var(--line);background:#fff;color:var(--forest);border-radius:12px;padding:12px;font:inherit;font-weight:900;cursor:pointer}.tab-btn.active{background:var(--forest);color:#fff;border-color:var(--forest)}.tab-panel[hidden]{display:none!important}body.dark .tab-btn{background:#203429;color:#b9e5c7;border-color:#48604e}body.dark .tab-btn.active{background:#397c55;color:#fff}.btn{border:1px solid transparent;border-radius:12px;padding:11px 15px;font-weight:800;cursor:pointer;transition:.18s;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px}
 .btn:active{transform:scale(.98)}.btn-primary{background:var(--forest);color:#fff;box-shadow:0 5px 13px #17623f25}.btn-gold{background:var(--gold);color:#fff}.btn-light{background:#fff;border-color:var(--line);color:var(--forest)}.btn-danger{background:#fff1ef;color:#a43b30;border-color:#f2d4d0}
 main{display:grid;gap:15px}.panel{background:#ffffffed;border:1px solid #dce9df;border-radius:19px;padding:clamp(14px,2.5vw,20px);box-shadow:var(--shadow)}
 .panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.panel h2{font-size:clamp(17px,2.6vw,20px);color:var(--forest);margin:0;font-weight:900}
@@ -94,12 +94,12 @@ footer{text-align:center;color:#74877b;font-size:13px;padding:22px 10px 8px}.hid
  <div class="brand"><img class="logo" src="./icon.svg" alt=""><div><h1>برنامج الزيارات</h1><p class="sub">تسجيل الزيارات الميدانية</p></div></div>
  <div class="actions">
   <button class="btn btn-light hidden" id="installBtn" type="button">＋ تثبيت البرنامج</button>
-  <button class="btn btn-gold" id="whatsappBtn" type="button">☏ إرسال واتساب</button>
-  <button class="btn btn-primary" id="pdfBtn" type="button">⇩ تصدير PDF</button>
  </div>
  <button class="settings-trigger" id="settingsOpen" type="button" aria-label="الإعدادات" title="الإعدادات">⚙</button>
 </div></header>
-<main class="wrap"><section class="panel entry-panel">
+<main class="wrap">
+ <nav class="tabs" aria-label="أقسام البرنامج"><button class="tab-btn active" id="entryTab" type="button" aria-selected="true">إضافة زيارة</button><button class="tab-btn" id="historyTab" type="button" aria-selected="false">سجل الزيارات</button></nav>
+ <section class="panel entry-panel tab-panel" id="entryPanel">
   <div class="panel-head"><h2 id="formTitle">إضافة زيارة جديدة</h2><span class="stats">تسجيل سريع ومنظم</span></div>
   <form id="visitForm" class="form-grid">
    <div class="field"><label for="shopName">اسم المحل</label><input id="shopName" required placeholder="اسم المحل"></div>
@@ -109,8 +109,8 @@ footer{text-align:center;color:#74877b;font-size:13px;padding:22px 10px 8px}.hid
    <div class="form-actions"><button class="btn btn-primary" id="saveVisit" type="submit">＋ حفظ الزيارة</button><button class="btn btn-light" id="cancelEdit" type="button" hidden>إلغاء التعديل</button></div>
   </form>
  </section>
- <section class="panel" id="reportPanel">
-  <div class="panel-head"><h2>سجل الزيارات</h2><div class="stats">جميع الزيارات المسجلة</div></div>
+ <section class="panel tab-panel" id="reportPanel" hidden>
+  <div class="panel-head"><h2>سجل الزيارات</h2><div class="toolbar"><button class="btn btn-gold" id="whatsappBtn" type="button">☏ إرسال واتساب</button><button class="btn btn-primary" id="pdfBtn" type="button">⇩ تصدير PDF</button></div></div>
   <div id="reportCapture">
    <h2 class="report-title">تقرير الزيارة الميدانية</h2>
    <div class="report-meta"><span>اسم مروج: <b id="reportName">—</b></span><span>التاريخ: <b id="reportDate">—</b></span></div>
@@ -182,8 +182,13 @@ applyTheme(localStorage.getItem("visits_theme_v1")||"light");
 $("themeToggle").addEventListener("click",()=>applyTheme(document.body.classList.contains("dark")?"light":"dark"));
 $("settingsLogout").addEventListener("click",()=>{closeSettings();leaveApp();toast("تم تسجيل الخروج")});
 $("switchUser").addEventListener("click",()=>{if(!confirm("تبديل المستخدم؟ سيتم طلب تسجيل اسم جديد، مع الاحتفاظ بسجل الزيارات."))return;localStorage.removeItem(PROFILE);sessionStorage.removeItem(SESSION);closeSettings();showAuth()});
-$("pdfBtn").addEventListener("click",()=>{render();window.print()});
-$("whatsappBtn").addEventListener("click",async()=>{if(!visits.length){toast("ماكو زيارات للإرسال");return}if(!window.html2pdf){toast("تعذر تحميل أداة إنشاء PDF");return}const btn=$("whatsappBtn");btn.disabled=true;btn.textContent="جارٍ تجهيز PDF...";try{render();const report=$("reportCapture").cloneNode(true);report.querySelectorAll(".no-print").forEach(el=>el.remove());report.style.cssText="direction:rtl;font-family:Tajawal,Arial,sans-serif;color:#203b2e;background:#fff;padding:16px;width:100%;";const options={margin:10,filename:"تقرير-الزيارة-الميدانية-"+today()+".pdf",image:{type:"jpeg",quality:.96},html2canvas:{scale:2,useCORS:true,backgroundColor:"#ffffff"},jsPDF:{unit:"mm",format:"a4",orientation:"landscape"}};const blob=await html2pdf().set(options).from(report).outputPdf("blob");const file=new File([blob],options.filename,{type:"application/pdf"});if(!navigator.share||!navigator.canShare||!navigator.canShare({files:[file]})){toast("المشاركة كملف PDF غير مدعومة بهذا المتصفح");return}await navigator.share({files:[file],title:"تقرير الزيارة الميدانية",text:"تقرير الزيارات الميدانية"});toast("تم فتح المشاركة")}catch(e){if(e?.name!=="AbortError")toast("تعذر إرسال التقرير، حاول مرة ثانية")}finally{btn.disabled=false;btn.textContent="☏ إرسال واتساب"}});
+function switchTab(tab){const history=tab==="history";$("entryPanel").hidden=history;$("reportPanel").hidden=!history;$("entryTab").classList.toggle("active",!history);$("historyTab").classList.toggle("active",history);$("entryTab").setAttribute("aria-selected",String(!history));$("historyTab").setAttribute("aria-selected",String(history));if(history)render()}
+$("entryTab").addEventListener("click",()=>switchTab("entry"));$("historyTab").addEventListener("click",()=>switchTab("history"));
+function makeReport(){const report=$("reportCapture").cloneNode(true);report.querySelectorAll(".no-print").forEach(el=>el.remove());report.style.cssText="direction:rtl;font-family:Tajawal,Arial,sans-serif;color:#203b2e;background:#fff;padding:16px;width:100%;";const style=document.createElement("style");style.textContent=".report-title{text-align:center;margin:0 0 12px;color:#174b32;font-size:22px;font-weight:900}.report-meta{display:flex;justify-content:space-between;gap:12px;margin:0 0 14px;padding:10px 12px;background:#f0f6f1;border:1px solid #dce8de;border-radius:10px;font-size:15px;font-weight:800}.table-wrap{overflow:visible;border:1px solid #d9e6dd;border-radius:10px}table{width:100%;border-collapse:collapse;min-width:0}th{background:#eaf4ed;color:#285b40;font-size:14px;padding:11px;text-align:right}td{padding:10px;border-top:1px solid #edf2ee;font-size:13px;line-height:1.5;vertical-align:middle;overflow-wrap:anywhere}.report-footer{text-align:center;color:#64766b;font-size:12px;margin-top:13px}";report.prepend(style);return report}
+function pdfOptions(){return{margin:10,filename:"تقرير-الزيارة-الميدانية-"+today()+".pdf",image:{type:"jpeg",quality:.96},html2canvas:{scale:2,useCORS:true,backgroundColor:"#ffffff"},jsPDF:{unit:"mm",format:"a4",orientation:"landscape"}}}
+async function buildReportPdf(){render();return await html2pdf().set(pdfOptions()).from(makeReport()).outputPdf("blob")}
+$("pdfBtn").addEventListener("click",async()=>{const btn=$("pdfBtn");if(btn.disabled)return;if(!visits.length){toast("ماكو زيارات للحفظ");return}if(!window.html2pdf){toast("تعذر تحميل أداة إنشاء PDF");return}btn.disabled=true;btn.textContent="جارٍ تجهيز PDF...";try{const blob=await buildReportPdf();const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=pdfOptions().filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);toast("تم تجهيز PDF")}catch(e){toast("تعذر إنشاء PDF، حاول مرة ثانية")}finally{btn.disabled=false;btn.textContent="⇩ تصدير PDF"}});
+$("whatsappBtn").addEventListener("click",async()=>{const btn=$("whatsappBtn");if(btn.disabled)return;if(!visits.length){toast("ماكو زيارات للإرسال");return}if(!window.html2pdf){toast("تعذر تحميل أداة إنشاء PDF");return}btn.disabled=true;btn.textContent="جارٍ تجهيز PDF...";try{const blob=await buildReportPdf(),file=new File([blob],pdfOptions().filename,{type:"application/pdf"});if(!navigator.share||!navigator.canShare||!navigator.canShare({files:[file]})){toast("المشاركة كملف PDF غير مدعومة بهذا المتصفح");return}await navigator.share({files:[file],title:"تقرير الزيارة الميدانية",text:"تقرير الزيارات الميدانية"});toast("تم فتح المشاركة")}catch(e){if(e?.name!=="AbortError")toast("تعذر إرسال التقرير، حاول مرة ثانية")}finally{btn.disabled=false;btn.textContent="☏ إرسال واتساب"}});
 function updateInstallButton(){const standalone=window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;$("installBtn").classList.toggle("hidden",standalone)}
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e;updateInstallButton();$("installBtn").classList.remove("hidden")});
 window.addEventListener("appinstalled",()=>{$("installBtn").classList.add("hidden");installPrompt=null;toast("تم تثبيت البرنامج")});
