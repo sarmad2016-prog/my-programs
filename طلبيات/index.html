@@ -793,10 +793,9 @@ function buildXlsxFile(fname){
   }
   return wb.xlsx.writeBuffer().then(function(buf){return new File([buf],fname,{type:XLSX_MIME});});
 }
-/* يرجع ملف xlsx؛ وإن تعذّر تحميل المكتبة (بدون إنترنت) يرجع النسخة القديمة xls */
+/* لا ننشئ ملفاً بامتداد Excel إلا إذا كان XLSX حقيقياً */
 function getExportFile(base){
-  return preloadExcelJS().then(function(){return buildXlsxFile(base+'.xlsx');})
-    .catch(function(){return new File([buildExcelBlob()],base+'.xls',{type:'application/vnd.ms-excel'});});
+  return preloadExcelJS().then(function(){return buildXlsxFile(base+'.xlsx');});
 }
 /* تجهيز الملف مسبقاً في الخلفية حتى تتم المشاركة لحظة الضغط (المتصفح يشترط ذلك) */
 var cachedExport={sig:'',file:null,promise:null};
@@ -834,22 +833,25 @@ function shareExcelWhatsApp(){
   saveOrder(false);
   var o=findOrder(currentOrderId);
   if(!o||!o.items.length){alert('الطلبية فارغة');return;}
-  var sig=orderSig();
-  /* 1) الملف جاهز مسبقاً -> مشاركة فورية */
-  if(cachedExport.file&&cachedExport.sig===sig){shareFileNow(cachedExport.file);return;}
-  /* 2) المكتبة محمّلة لكن الملف لم يجهز بعد -> يُبنى بسرعة ثم يُشارك */
-  if(window.ExcelJS){
-    prepareExport().then(function(f){shareFileNow(f);});
-    return;
-  }
-  /* 3) المكتبة لم تُحمَّل بعد -> نشارك فوراً النسخة البسيطة بدون انتظار الشبكة */
-  shareFileNow(new File([buildExcelBlob()],fileBase()+'.xls',{type:'application/vnd.ms-excel'}));
+  prepareExport().then(function(file){
+    if(file)shareFileNow(file);
+  }).catch(function(){
+    alert('تعذر إنشاء ملف Excel حقيقي. تأكد من اتصال الإنترنت ثم أعد المحاولة؛ لم يتم إنشاء ملف بصيغة غير متوافقة.');
+  });
 }
 function downloadExcel(){
   var o=findOrder(currentOrderId);
   if(!o||!o.items.length){alert('الطلبية فارغة');return;}
-  downloadBlobAs(buildExcelBlob(),fileBase()+'.xls');
-  toast('تم تنزيل ملف الإكسل 📊');
+  var btn=document.querySelector('button[onclick="downloadExcel()"]');
+  if(btn){btn.disabled=true;btn.textContent='⏳ جاري تجهيز Excel...';}
+  getExportFile(fileBase()).then(function(file){
+    downloadBlobAs(file,file.name);
+    toast('تم تنزيل ملف Excel Workbook حقيقي (.xlsx) ✅');
+  }).catch(function(){
+    alert('تعذر إنشاء ملف Excel حقيقي. تأكد من اتصال الإنترنت ثم اضغط تنزيل إكسل مرة ثانية.');
+  }).then(function(){
+    if(btn){btn.disabled=false;btn.textContent='📊 تنزيل إكسل';}
+  });
 }
 
 /* ---------------- تصدير PDF ---------------- */
