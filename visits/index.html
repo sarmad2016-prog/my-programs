@@ -93,7 +93,7 @@ footer{text-align:center;color:#74877b;font-size:13px;padding:22px 10px 8px}.hid
  <div class="brand"><img class="logo" src="./icon.svg" alt=""><div><h1>برنامج الزيارات</h1><p class="sub">تسجيل الزيارات الميدانية</p></div></div>
  <div class="actions">
   <button class="btn btn-light hidden" id="installBtn" type="button">＋ تثبيت البرنامج</button>
-  <button class="btn btn-gold" id="imageBtn" type="button">▧ تصدير صورة</button>
+  <button class="btn btn-gold" id="whatsappBtn" type="button">☏ إرسال واتساب</button>
   <button class="btn btn-primary" id="pdfBtn" type="button">⇩ تصدير PDF</button>
  </div>
  <button class="settings-trigger" id="settingsOpen" type="button" aria-label="الإعدادات" title="الإعدادات">⚙</button>
@@ -144,7 +144,7 @@ footer{text-align:center;color:#74877b;font-size:13px;padding:22px 10px 8px}.hid
  </section>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 const $=id=>document.getElementById(id),KEY="visits_log_v1",PROFILE="visits_profile_v1",SESSION="visits_session_v1";
 const today=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)};
@@ -182,7 +182,7 @@ $("themeToggle").addEventListener("click",()=>applyTheme(document.body.classList
 $("settingsLogout").addEventListener("click",()=>{closeSettings();leaveApp();toast("تم تسجيل الخروج")});
 $("switchUser").addEventListener("click",()=>{if(!confirm("تبديل المستخدم؟ سيتم طلب تسجيل اسم جديد، مع الاحتفاظ بسجل الزيارات."))return;localStorage.removeItem(PROFILE);sessionStorage.removeItem(SESSION);closeSettings();showAuth()});
 $("pdfBtn").addEventListener("click",()=>{render();window.print()});
-$("imageBtn").addEventListener("click",async()=>{if(!visits.length){toast("ماكو زيارات لتصديرها");return}if(!window.html2canvas){toast("تعذر تحميل أداة تصدير الصورة");return}try{const canvas=await html2canvas($("reportCapture"),{scale:2,backgroundColor:"#ffffff",useCORS:true});const a=document.createElement("a");a.download="تقرير-الزيارة-الميدانية-"+today()+".png";a.href=canvas.toDataURL("image/png");a.click();toast("تم تصدير الصورة")}catch(e){toast("تعذر إنشاء الصورة")}});
+$("whatsappBtn").addEventListener("click",async()=>{if(!visits.length){toast("ماكو زيارات للإرسال");return}if(!window.html2pdf){toast("تعذر تحميل أداة إنشاء PDF");return}const btn=$("whatsappBtn");btn.disabled=true;btn.textContent="جارٍ تجهيز PDF...";try{render();const report=$("reportCapture").cloneNode(true);report.querySelectorAll(".no-print").forEach(el=>el.remove());report.style.cssText="direction:rtl;font-family:Tajawal,Arial,sans-serif;color:#203b2e;background:#fff;padding:16px;width:100%;";const options={margin:10,filename:"تقرير-الزيارة-الميدانية-"+today()+".pdf",image:{type:"jpeg",quality:.96},html2canvas:{scale:2,useCORS:true,backgroundColor:"#ffffff"},jsPDF:{unit:"mm",format:"a4",orientation:"landscape"}};const blob=await html2pdf().set(options).from(report).outputPdf("blob");const file=new File([blob],options.filename,{type:"application/pdf"});if(!navigator.share||!navigator.canShare||!navigator.canShare({files:[file]})){toast("المشاركة كملف PDF غير مدعومة بهذا المتصفح");return}await navigator.share({files:[file],title:"تقرير الزيارة الميدانية",text:"تقرير الزيارات الميدانية"});toast("تم فتح المشاركة")}catch(e){if(e?.name!=="AbortError")toast("تعذر إرسال التقرير، حاول مرة ثانية")}finally{btn.disabled=false;btn.textContent="☏ إرسال واتساب"}});
 function updateInstallButton(){const standalone=window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;$("installBtn").classList.toggle("hidden",standalone)}
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e;updateInstallButton();$("installBtn").classList.remove("hidden")});
 window.addEventListener("appinstalled",()=>{$("installBtn").classList.add("hidden");installPrompt=null;toast("تم تثبيت البرنامج")});
