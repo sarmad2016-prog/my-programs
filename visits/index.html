@@ -88,8 +88,7 @@ footer{text-align:center;color:#74877b;font-size:13px;padding:22px 10px 8px}.hid
   </form>
  </section>
  <section class="panel" id="reportPanel">
-  <div class="panel-head"><h2>سجل الزيارات</h2><div class="toolbar"><button class="btn btn-light" id="clearSearch" type="button">مسح البحث</button></div></div>
-  <div class="field search-box" style="margin-bottom:12px"><input id="search" placeholder="بحث باسم المحل أو رقم الزبون أو الملاحظات..."></div>
+  <div class="panel-head"><h2>سجل الزيارات</h2><div class="stats">جميع الزيارات المسجلة</div></div>
   <div id="reportCapture">
    <h2 class="report-title">تقرير الزيارة الميدانية</h2>
    <div class="report-meta"><span>اسم مروج: <b id="reportName">—</b></span><span>التاريخ: <b id="reportDate">—</b></span></div>
@@ -125,7 +124,7 @@ $("loginBtn").addEventListener("click",enterApp);
 $("logoutBtn").addEventListener("click",()=>{leaveApp();toast("تم تسجيل الخروج")});
 $("userName").addEventListener("change",()=>{const p=getProfile()||{};p.name=$("userName").value.trim();saveProfile(p);$("userLine").textContent="أهلاً "+p.name+" · "+fmtDate(p.date);render();toast("تم حفظ الاسم")});
 $("loginDate").addEventListener("change",()=>{const p=getProfile()||{};p.date=$("loginDate").value||today();saveProfile(p);$("userLine").textContent="أهلاً "+p.name+" · "+fmtDate(p.date);render();toast("تم تحديث التاريخ")});
-function render(){const q=$("search").value.trim().toLowerCase(),filtered=visits.filter(v=>[v.shop,v.customer,v.notes,v.date].join(" ").toLowerCase().includes(q));$("count").textContent=visits.length;$("visitRows").innerHTML=filtered.length?filtered.map((v,i)=>'<tr><td>'+(i+1)+'</td><td><strong>'+esc(v.shop)+'</strong></td><td>'+esc(v.customer||"—")+'</td><td>'+esc(v.notes||"—")+'</td><td>'+fmtDate(v.date)+'</td><td class="no-print"><div class="row-actions"><button class="mini" data-edit="'+v.id+'">تعديل</button><button class="mini del" data-delete="'+v.id+'">حذف</button></div></td></tr>').join(""):'<tr><td colspan="6" class="empty">لا توجد نتائج</td></tr>';const p=getProfile()||{};$("reportName").textContent=p.name||"—";$("reportDate").textContent=fmtDate(p.date||today())}
+function render(){$("count").textContent=visits.length;$("visitRows").innerHTML=visits.length?visits.map((v,i)=>'<tr><td>'+(i+1)+'</td><td data-label="اسم المحل"><strong>'+esc(v.shop)+'</strong></td><td data-label="رقم الزبون">'+esc(v.customer||"—")+'</td><td data-label="ملاحظات">'+esc(v.notes||"—")+'</td><td data-label="تاريخ الزيارة">'+fmtDate(v.date)+'</td><td class="no-print"><div class="row-actions"><button class="mini" data-edit="'+v.id+'">تعديل</button><button class="mini del" data-delete="'+v.id+'">حذف</button></div></td></tr>').join(""):'<tr><td colspan="6" class="empty">لا توجد زيارات مسجلة لحد الآن</td></tr>';const p=getProfile()||{};$("reportName").textContent=p.name||"—";$("reportDate").textContent=fmtDate(p.date||today())}
 function resetForm(){editingId=null;$("visitForm").reset();$("visitDate").value=today();$("formTitle").textContent="إضافة زيارة جديدة";$("saveVisit").textContent="＋ حفظ الزيارة";$("cancelEdit").hidden=true}
 $("visitForm").addEventListener("submit",e=>{e.preventDefault();const shop=$("shopName").value.trim();if(!shop){toast("اكتب اسم المحل أولاً");return}const record={id:editingId||Date.now().toString(36)+Math.random().toString(36).slice(2,7),shop,customer:$("customerNo").value.trim(),notes:$("notes").value.trim(),date:$("visitDate").value||today()};if(editingId){visits=visits.map(v=>v.id===editingId?record:v);toast("تم تعديل الزيارة")}else{visits.unshift(record);toast("تمت إضافة الزيارة")}saveVisits();resetForm();render()});
 $("cancelEdit").addEventListener("click",resetForm);
