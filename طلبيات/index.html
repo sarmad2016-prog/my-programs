@@ -653,12 +653,12 @@ function saveOrder(showMsg){
   o.date=document.getElementById('orderDate').value||todayStr();
   persist();
   if(showMsg){
-    toast('تم حفظ الطلبية، جاري تجهيز ملف الإكسل…');
     savedExportSig='';
+    if(!o.items||!o.items.length){toast('تم حفظ الطلبية ✅');return;}
     prepareExport().then(function(file){
       if(file && orderSig()===cachedExport.sig){
         savedExportSig=cachedExport.sig;
-        toast('الملف جاهز للإرسال عبر واتساب ✅');
+        toast('تم حفظ الفاتورة وتجهيز ملف الإكسل، جاهز للإرسال ✅');
       }
     }).catch(function(){
       savedExportSig='';
