@@ -652,7 +652,19 @@ function saveOrder(showMsg){
   o.customer=document.getElementById('customerName').value.trim();
   o.date=document.getElementById('orderDate').value||todayStr();
   persist();
-  if(showMsg)toast('تم حفظ الطلبية ✅');
+  if(showMsg){
+    toast('تم حفظ الطلبية، جاري تجهيز ملف الإكسل…');
+    savedExportSig='';
+    prepareExport().then(function(file){
+      if(file && orderSig()===cachedExport.sig){
+        savedExportSig=cachedExport.sig;
+        toast('الملف جاهز للإرسال عبر واتساب ✅');
+      }
+    }).catch(function(){
+      savedExportSig='';
+      alert('تم حفظ الفاتورة، لكن تعذر تجهيز ملف الإكسل. تحقق من اتصال الإنترنت ثم اضغط حفظ مرة ثانية.');
+    });
+  }
 }
 function deleteOrder(id){
   var o=findOrder(id);
@@ -842,8 +854,9 @@ function buildXlsxFile(fname){
 function getExportFile(base){
   return preloadExcelJS().then(function(){return buildXlsxFile(base+'.xlsx');});
 }
-/* تجهيز الملف مسبقاً في الخلفية حتى تتم المشاركة لحظة الضغط (المتصفح يشترط ذلك) */
+/* تجهيز ملف الإكسل عند الضغط على حفظ فقط، والاحتفاظ به مؤقتاً في الذاكرة */
 var cachedExport={sig:'',file:null,promise:null};
+var savedExportSig='';
 function orderSig(){var o=findOrder(currentOrderId);return o?JSON.stringify([o.customer,o.date,o.items]):'';}
 function prepareExport(){
   var o=findOrder(currentOrderId);
@@ -851,49 +864,53 @@ function prepareExport(){
   var sig=orderSig();
   if(cachedExport.sig===sig&&cachedExport.promise)return cachedExport.promise;
   cachedExport.sig=sig;cachedExport.file=null;
-  cachedExport.promise=getExportFile(fileBase()).then(function(f){if(cachedExport.sig===sig)cachedExport.file=f;return f;});
+  cachedExport.promise=getExportFile(fileBase()).then(function(f){
+    if(cachedExport.sig===sig)cachedExport.file=f;
+    return f;
+  });
   return cachedExport.promise;
 }
-setInterval(function(){try{if(window.ExcelJS)prepareExport();}catch(e){}},1500);
-
-/* بديل عند تعذّر المشاركة المباشرة: تنزيل الملف + فتح تطبيق واتساب لإرفاقه يدوياً */
-function shareFallback(file,reason){
-  try{downloadBlobAs(file,file.name);}catch(e){}
-  alert('تعذّرت المشاركة المباشرة للملف ('+reason+')\n\nتم تنزيل الملف: '+file.name+'\nسيُفتح تطبيق واتساب — أرفق الملف من 📎 (المستندات).\n\nللمشاركة المباشرة افتح الصفحة من رابط https داخل متصفح Chrome.');
-  window.location.href='whatsapp://send';
-}
-function shareFileNow(file){
-  if(typeof navigator.share!=='function'){shareFallback(file,'المتصفح لا يدعم المشاركة');return;}
-  var data={files:[file]};
-  if(typeof navigator.canShare==='function'){
-    var ok=false;try{ok=!!navigator.canShare(data);}catch(e){ok=false;}
-    if(!ok){shareFallback(file,'المتصفح لا يدعم مشاركة هذا النوع من الملفات');return;}
-  }
-  var pr;
-  try{pr=navigator.share(data);}catch(e){shareFallback(file,e&&e.name?e.name:'خطأ');return;}
-  pr.then(function(){toast('اختر تطبيق واتساب ثم المحادثة 🟢');})
-    .catch(function(err){if(err&&err.name==='AbortError')return;shareFallback(file,err&&err.name?err.name:'خطأ');});
-}
+/* الملف لا يُنزّل إلى الجهاز؛ يُمسح مرجعه المؤقت عند مغادرة الصفحة */
+window.addEventListener('pagehide',function(){
+  cachedExport.file=null;
+  cachedExport.promise=null;
+  cachedExport.sig='';
+  savedExportSig='';
+});
 function shareExcelWhatsApp(){
-  saveOrder(false);
   var o=findOrder(currentOrderId);
-  if(!o||!o.items.length){alert('الطلبية فارغة');return;}
+  if(!o||!o.items||!o.items.length){alert('الفاتورة فارغة');return;}
   var sig=orderSig();
-
-  /* يجب استدعاء navigator.share مباشرةً أثناء ضغطة المستخدم؛
-     لذلك نشارك الملف الجاهز فوراً ولا نؤخر الاستدعاء داخل Promise.then */
-  if(cachedExport.sig===sig && cachedExport.file){
-    shareFileNow(cachedExport.file);
+  if(savedExportSig!==sig){
+    alert('احفظ الفاتورة أولاً من زر 💾 حفظ، وبعدها اضغط إرسال عبر واتساب.');
     return;
   }
-
-  prepareExport().then(function(file){
-    if(file){
-      toast('ملف الإكسل أصبح جاهزاً. اضغط زر واتساب مرة ثانية للإرسال المباشر.');
+  if(cachedExport.sig!==sig||!cachedExport.file){
+    alert('ملف الإكسل لم يجهز بعد. انتظر اكتمال الحفظ ثم اضغط إرسال مرة ثانية.');
+    return;
+  }
+  var file=cachedExport.file;
+  if(typeof navigator.share!=='function'){
+    alert('المتصفح الحالي لا يدعم إرسال الملفات مباشرة. لم يتم تنزيل أي ملف.');
+    return;
+  }
+  var data={files:[file]};
+  if(typeof navigator.canShare==='function'){
+    var ok=false;
+    try{ok=!!navigator.canShare(data);}catch(e){ok=false;}
+    if(!ok){
+      alert('المتصفح الحالي لا يدعم مشاركة ملف الإكسل مباشرة. لم يتم تنزيل أي ملف.');
+      return;
     }
-  }).catch(function(){
-    alert('تعذر إنشاء ملف Excel حقيقي. تأكد من اتصال الإنترنت ثم أعد المحاولة؛ لم يتم إنشاء ملف بصيغة غير متوافقة.');
-  });
+  }
+  try{
+    var pr=navigator.share(data);
+    if(pr&&typeof pr.catch==='function')pr.catch(function(err){
+      if(err&&err.name!=='AbortError')console.warn('WhatsApp file sharing failed:',err);
+    });
+  }catch(e){
+    console.warn('WhatsApp file sharing failed:',e);
+  }
 }
 function downloadExcel(){
   var o=findOrder(currentOrderId);
