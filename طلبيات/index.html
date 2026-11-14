@@ -1,12 +1,822 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>طلبيات</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>برنامج الطلبيات</title>
 <style>
-*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:#e3ecea;color:#12352a;font-family:Tajawal,"Segoe UI",Tahoma,Arial,sans-serif}.box{width:min(520px,100%);padding:34px 26px;text-align:center;background:#fff;border:1px solid #cfdcd8;border-radius:22px;box-shadow:0 14px 36px #12352a12}h1{margin:0 0 12px;color:#0d3f29}p{margin:0;color:#59656d;line-height:1.8}
+*{box-sizing:border-box;font-family:'Segoe UI',Tahoma,Arial,sans-serif}
+body{margin:0;background:#faf9fd;color:#1e293b;display:flex;flex-direction:column;min-height:100vh}
+header{background:linear-gradient(135deg,#9333ea,#c084fc);color:#fff;padding:10px 24px;display:flex;align-items:center;gap:14px}
+header img{height:44px;border-radius:8px;background:#fff;padding:3px}
+header h1{margin:0;font-size:22px;flex:1}
+.btn{padding:9px 20px;border:none;border-radius:8px;cursor:pointer;font-size:15px;font-weight:600}
+.btn-home{background:#ffffff22;border:1px solid #ffffff55;color:#fff}
+main{max-width:1100px;margin:24px auto;padding:0 16px;width:100%;flex:1}
+section{display:none}section.visible{display:block}
+.card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px #0001;margin-bottom:20px}
+h2{margin-top:0;color:#9333ea}
+/* القائمة الرئيسية: بطاقات صغيرة في المنتصف مباشرة */
+.menu-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;max-width:720px;margin:20px auto 30px}
+.menu-card{background:#fff;border-radius:14px;padding:20px 14px;text-align:center;cursor:pointer;box-shadow:0 2px 10px #0001;border-top:4px solid #c084fc;transition:.2s}
+.menu-card:hover{transform:translateY(-4px);box-shadow:0 8px 20px #c084fc44}
+.menu-card:nth-child(2){border-top-color:#a855f7}
+.menu-card:nth-child(3){border-top-color:#60a5fa}
+.menu-card .icon{font-size:34px;margin-bottom:8px}
+.menu-card h3{margin:0 0 5px;font-size:17px;color:#1e293b}
+.menu-card p{margin:0;color:#64748b;font-size:13px}
+.menu-card .badge{display:inline-block;background:#a855f7;color:#fff;border-radius:20px;padding:2px 12px;font-size:12px;margin-top:8px}
+.form-grid{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:13px;color:#475569}
+input,select{padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;font-size:15px;min-width:130px}
+input:focus,select:focus{outline:2px solid #c084fc;border-color:#c084fc}
+.btn-primary{background:linear-gradient(135deg,#a855f7,#c084fc);color:#fff}
+.btn-green{background:#16a34a;color:#fff}
+.btn-wa{background:#25d366;color:#fff}
+.btn-blue{background:#3b82f6;color:#fff}
+.btn-purple{background:#a855f7;color:#fff}
+.btn-red{background:#dc2626;color:#fff}
+.btn-gray{background:#64748b;color:#fff}
+.btn-sm{padding:5px 12px;font-size:13px;border-radius:6px}
+table{width:100%;border-collapse:collapse;margin-top:12px}
+th{background:linear-gradient(135deg,#a855f7,#c084fc);color:#fff;padding:10px 8px;font-size:14px}
+td{padding:8px;border-bottom:1px solid #e2e8f0;text-align:center;font-size:14px}
+tr:hover td{background:#faf5ff}
+td input{min-width:80px;width:90px;padding:5px}
+td select{min-width:140px;max-width:220px;padding:5px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.table-wrap table{min-width:640px}
+.empty{color:#94a3b8;text-align:center;padding:30px}
+.toast{position:fixed;bottom:24px;right:24px;background:#a855f7;color:#fff;padding:12px 24px;border-radius:10px;opacity:0;transition:.3s;pointer-events:none;font-weight:600;z-index:99}
+.toast.show{opacity:1}
+.modal-bg{display:none;position:fixed;inset:0;background:#0008;z-index:50;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:12px;padding:24px;width:380px;max-width:95vw;max-height:90vh;overflow:auto}
+.modal.wide{width:560px}
+.modal h3{margin:0 0 16px;color:#9333ea}
+.modal .field{margin-bottom:12px;width:100%}
+.modal input,.modal select{width:100%}
+.modal-actions{display:flex;gap:10px;justify-content:flex-start;margin-top:16px;flex-wrap:wrap}
+.import-preview{max-height:180px;overflow:auto;border:1px solid #e2e8f0;border-radius:8px;margin-top:10px}
+.import-preview table{margin-top:0;min-width:0}
+.import-preview th{background:#475569;font-size:12px;padding:5px}
+.import-preview td{font-size:12px;padding:4px}
+.hint{font-size:12px;color:#64748b;margin-top:6px}
+.autocomplete{position:relative;flex:1;min-width:220px}
+.autocomplete input{width:100%}
+.suggest-box{display:none;position:absolute;top:100%;right:0;left:0;background:#fff;border:1px solid #cbd5e1;border-radius:8px;box-shadow:0 8px 20px #0002;z-index:30;max-height:260px;overflow:auto;margin-top:4px}
+.suggest-item{padding:10px 14px;cursor:pointer;border-bottom:1px solid #f1f5f9;font-size:15px;display:flex;justify-content:space-between;gap:10px}
+.suggest-item:hover{background:#faf5ff}
+.suggest-item small{color:#94a3b8}
+.suggest-item.no-match{color:#94a3b8;cursor:default}
+/* التذييل الاحترافي */
+.app-footer{background:linear-gradient(135deg,#9333ea,#c084fc);color:#fff;margin-top:40px;padding:24px 16px;text-align:center}
+.app-footer img{height:52px;border-radius:10px;background:#fff;padding:4px;margin-bottom:10px}
+.app-footer .fline{font-size:14px;opacity:.95;margin:4px 0}
+.app-footer .fline b{font-weight:700}
+.app-footer a.fbtn{display:inline-block;margin-top:10px;background:#ffffff22;border:1px solid #ffffff66;color:#fff;text-decoration:none;padding:8px 22px;border-radius:24px;font-size:14px;font-weight:600;transition:.2s}
+.app-footer a.fbtn:hover{background:#ffffff3d}
+.app-footer .fsep{width:70px;height:2px;background:#ffffff55;margin:12px auto;border-radius:2px}
+@media (max-width:600px){
+main{margin:12px auto;padding:0 8px}
+.card{padding:12px;border-radius:10px}
+header{padding:8px 12px}header img{height:34px}header h1{font-size:16px}
+.menu-cards{grid-template-columns:1fr;gap:12px;max-width:100%}
+.menu-card{padding:18px 14px}
+.toolbar{gap:8px}.toolbar .btn{flex:1 1 45%;min-height:44px;font-size:14px;padding:10px 8px}
+.form-grid{flex-direction:column;align-items:stretch}.form-grid input{width:100%;min-width:0}
+.modal{padding:16px}.modal-actions .btn{flex:1 1 45%}
+td input{width:64px}td select{min-width:110px;max-width:150px}
+.app-footer{padding:18px 12px}
+}
 </style>
 </head>
-<body><main class="box"><h1>برنامج طلبيات</h1><p>المجلد جاهز. ارفع ملفات البرنامج هنا، وبعدها أرتبه وأضيفه إلى المكتبة.</p></main></body>
+<body>
+
+<header>
+  <img id="logoHeader" alt="SARMAD">
+  <h1>برنامج الطلبيات</h1>
+  <button class="btn btn-home" id="homeBtn" style="display:none" onclick="showTab('home')">🏠 الرئيسية</button>
+</header>
+
+<main>
+  <section id="tab-home" class="visible">
+    <div class="menu-cards">
+      <div class="menu-card" onclick="newOrder()">
+        <div class="icon">🆕</div><h3>طلبية جديدة</h3><p>إنشاء طلبية لعميل جديد بالتاريخ اليوم</p>
+      </div>
+      <div class="menu-card" onclick="showTab('materials')">
+        <div class="icon">⚙️</div><h3>بيانات البرنامج</h3><p>استيراد المواد من ملف • إضافة وتعديل وحذف المواد</p>
+      </div>
+      <div class="menu-card" onclick="showTab('orders')">
+        <div class="icon">📋</div><h3>الطلبيات السابقة</h3><p>فتح أو تعديل طلبية محفوظة</p><span class="badge" id="ordersCount"></span>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-materials">
+    <div class="card">
+      <div class="toolbar">
+        <button class="btn btn-gray" onclick="showTab('home')">🏠 الرئيسية</button>
+        <span style="flex:1"></span>
+        <button class="btn btn-purple" onclick="document.getElementById('importFileInput').click()">📥 استيراد المواد من ملف (Excel / PDF)</button>
+        <button class="btn btn-primary" onclick="openMaterialModal()">➕ إضافة مادة جديدة</button>
+        <button class="btn btn-blue" onclick="saveProgramCopy()">💾 حفظ نسخة من البرنامج (للنقل للهاتف)</button>
+        <input type="file" id="importFileInput" accept=".xlsx,.xls,.csv,.pdf" style="display:none" onchange="onImportFile(event)">
+      </div>
+      <p class="hint">💡 لنسخ المواد إلى جهاز آخر: اضغط "حفظ نسخة من البرنامج" وسيُحمَّل ملف يحتوي كل بياناتك داخله — أرسله للهاتف وافتحه هناك وستجد المواد جاهزة.</p>
+      <h2>المواد (<span id="materialsCount">0</span>)</h2>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>اسم المادة</th><th>الباركود</th><th>الشد</th><th>الوزن</th><th>السعر</th><th>إجراءات</th></tr></thead>
+        <tbody id="materialsBody"></tbody>
+      </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-orders">
+    <div class="card">
+      <div class="toolbar">
+        <button class="btn btn-gray" onclick="showTab('home')">🏠 الرئيسية</button>
+        <span style="flex:1"></span>
+        <button class="btn btn-primary" onclick="newOrder()">🆕 طلبية جديدة</button>
+      </div>
+      <h2>الطلبيات</h2>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>اسم العميل</th><th>التاريخ</th><th>عدد المواد</th><th>إجراءات</th></tr></thead>
+        <tbody id="ordersBody"></tbody>
+      </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-order-view">
+    <div class="card">
+      <div class="toolbar">
+        <button class="btn btn-gray" onclick="showTab('orders')">⬅️ الرجوع إلى القائمة</button>
+        <button class="btn btn-gray" onclick="gotoOrder(-1)">⏮️ السابقة</button>
+        <button class="btn btn-gray" onclick="gotoOrder(1)">التالية ⏭️</button>
+        <button class="btn btn-green" onclick="askNewInvoice()">🆕 فاتورة جديدة</button>
+        <span style="flex:1"></span>
+        <button class="btn btn-green" onclick="saveOrder(true)">💾 حفظ</button>
+        <button class="btn btn-wa" onclick="shareExcelWhatsApp()">🟢 إكسل عبر واتساب</button>
+        <button class="btn btn-blue" onclick="downloadExcel()">📊 تنزيل إكسل</button>
+        <button class="btn btn-red" onclick="exportPDF()">📄 PDF</button>
+        <button class="btn btn-red" onclick="deleteOrder(currentOrderId)">🗑️ حذف</button>
+      </div>
+      <div class="form-grid" style="margin-bottom:16px">
+        <div class="field"><label>اسم العميل</label><input id="customerName" placeholder="اسم العميل" style="min-width:220px"></div>
+        <div class="field"><label>التاريخ</label><input type="date" id="orderDate"></div>
+      </div>
+      <div class="toolbar">
+        <div class="autocomplete">
+          <input id="itemSearch" placeholder="✍️ اكتب اسم المادة لتظهر المواد المطابقة..." autocomplete="off"
+                 oninput="showSuggestions()" onkeydown="if(event.key==='Enter'){event.preventDefault();addItemFromSearch();}"
+                 onblur="setTimeout(hideSuggestions,250)">
+          <div class="suggest-box" id="suggestBox"></div>
+        </div>
+        <button class="btn btn-primary" onclick="addItemFromSearch()">➕ إضافة للطلبية</button>
+      </div>
+      <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>اسم المادة</th><th>الكمية (قطعة)</th><th>المجاني (قطعة)</th>
+          <th>الكمية (كارتون)</th><th>المجاني (كارتون)</th><th>الباركود</th><th>حذف</th>
+        </tr></thead>
+        <tbody id="orderItemsBody"></tbody>
+      </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="app-footer">
+  <img id="logoFooter" alt="SARMAD">
+  <div class="fsep"></div>
+  <div class="fline">جميع حقوق النشر والتعديل محفوظة لصالح المبرمج <b>Sarmad</b> © 2026</div>
+  <a class="fbtn" href="https://www.linkedin.com/in/sarmad-hasaan-a5792060" target="_blank">💼 للتواصل — LinkedIn</a>
+</footer>
+
+<div class="modal-bg" id="materialModal">
+  <div class="modal">
+    <h3 id="materialModalTitle">إضافة مادة جديدة</h3>
+    <div class="field"><label>اسم المادة</label><input id="mName"></div>
+    <div class="field"><label>الباركود</label><input id="mBarcode"></div>
+    <div class="field"><label>الشد</label><input id="mShad"></div>
+    <div class="field"><label>الوزن</label><input id="mWeight"></div>
+    <div class="field"><label>السعر</label><input id="mPrice"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveMaterialModal()">حفظ</button>
+      <button class="btn btn-gray" onclick="closeModal('materialModal')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="newInvoiceModal">
+  <div class="modal">
+    <h3>🆕 فاتورة جديدة</h3>
+    <p>هل تريد حفظ الفاتورة الحالية قبل البدء بفاتورة جديدة؟</p>
+    <div class="modal-actions">
+      <button class="btn btn-green" onclick="newInvoice(true)">✅ نعم، احفظ وابدأ جديدة</button>
+      <button class="btn btn-red" onclick="newInvoice(false)">❌ لا، ابدأ دون حفظ</button>
+      <button class="btn btn-gray" onclick="closeModal('newInvoiceModal')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="importModal">
+  <div class="modal wide">
+    <h3>📥 استيراد المواد — <span id="importFileName"></span></h3>
+    <div class="field"><label>اسم المادة ← عمود</label><select id="mapName"></select></div>
+    <div class="field"><label>الباركود ← عمود</label><select id="mapBarcode"></select></div>
+    <div class="field"><label>الشد ← عمود</label><select id="mapShad"></select></div>
+    <div class="field"><label>الوزن ← عمود</label><select id="mapWeight"></select></div>
+    <div class="field"><label>السعر ← عمود</label><select id="mapPrice"></select></div>
+    <label style="display:block;margin:8px 0"><input type="checkbox" id="skipHeader" checked onchange="renderImportPreview()"> تجاهل الصف الأول (العناوين)</label>
+    <label style="display:block;margin:8px 0"><input type="checkbox" id="replaceMaterials" onchange="renderImportPreview()"> حذف المواد الحالية قبل الاستيراد</label>
+    <div class="hint">معاينة أول 5 صفوف بعد الربط:</div>
+    <div class="import-preview" id="importPreview"></div>
+    <div class="modal-actions">
+      <button class="btn btn-green" onclick="doImport()">✅ تنفيذ الاستيراد</button>
+      <button class="btn btn-gray" onclick="closeModal('importModal')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* الشعار المدمج — يُستخدم في الترويسة والتذييل وأيقونة التبويب */
+var LOGO='data:image/png;base64,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';
+try{
+  var _lh=document.getElementById('logoHeader'), _lf=document.getElementById('logoFooter');
+  if(_lh) _lh.src=LOGO;
+  if(_lf) _lf.src=LOGO;
+  var _lk=document.createElement('link'); _lk.rel='icon'; _lk.href=LOGO; document.head.appendChild(_lk);
+}catch(e){}
+
+/* ---------------- التخزين ---------------- */
+var KEY='orders_app_data_v2';
+var state={materials:[],orders:[]};
+try{var s=localStorage.getItem(KEY);if(s)state=JSON.parse(s);}catch(e){}
+if(!state.materials)state.materials=[];
+if(!state.orders)state.orders=[];
+if(typeof EMBEDDED_DATA!=='undefined'&&EMBEDDED_DATA&&EMBEDDED_DATA.materials&&!state.materials.length&&!state.orders.length){
+  state={materials:EMBEDDED_DATA.materials,orders:EMBEDDED_DATA.orders||[]};persist();
+}
+function persist(){localStorage.setItem(KEY,JSON.stringify(state));}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function esc(x){return String(x===undefined||x===null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+/* ---------------- حفظ نسخة من البرنامج مع البيانات ---------------- */
+function saveProgramCopy(){
+  var data={materials:state.materials,orders:state.orders};
+  var json=JSON.stringify(data).replace(/</g,'\\u003c');
+  var html='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+  var marker='<script>';
+  var inject='<script>window.EMBEDDED_DATA='+json+';</'+'script>\n';
+  var idx=html.indexOf(marker);
+  if(idx>=0)html=html.slice(0,idx)+inject+html.slice(idx);
+  var blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='برنامج-الطلبيات-مع-البيانات.html';a.click();
+  toast('تم إنشاء النسخة — أرسلها للهاتف وافتحها هناك ✅');
+}
+
+/* ---------------- واجهة عامة ---------------- */
+var currentOrderId=null;
+function showTab(name){
+  var tabs=['home','materials','orders','order-view'];
+  for(var i=0;i<tabs.length;i++)document.getElementById('tab-'+tabs[i]).classList.remove('visible');
+  document.getElementById('tab-'+name).classList.add('visible');
+  document.getElementById('homeBtn').style.display=(name==='home')?'none':'inline-block';
+  window.scrollTo(0,0);
+  if(name==='materials')renderMaterials();
+  if(name==='orders')renderOrders();
+  if(name==='home')updateHomeBadge();
+}
+function updateHomeBadge(){document.getElementById('ordersCount').textContent=state.orders.length?(state.orders.length+' طلبية'):'';}
+function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},3500);}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+/* ---------------- المواد ---------------- */
+var editingMaterialId=null;
+function openMaterialModal(id){
+  editingMaterialId=id||null;
+  document.getElementById('materialModalTitle').textContent=id?'تعديل مادة':'إضافة مادة جديدة';
+  var m=null;
+  if(id){for(var i=0;i<state.materials.length;i++)if(state.materials[i].id===id)m=state.materials[i];}
+  document.getElementById('mName').value=m?m.name:'';
+  document.getElementById('mBarcode').value=m?m.barcode:'';
+  document.getElementById('mShad').value=m?m.shad:'';
+  document.getElementById('mWeight').value=m?m.weight:'';
+  document.getElementById('mPrice').value=m?m.price:'';
+  document.getElementById('materialModal').classList.add('open');
+}
+function saveMaterialModal(){
+  var name=document.getElementById('mName').value.trim();
+  if(!name){alert('أدخل اسم المادة');return;}
+  var data={name:name,barcode:document.getElementById('mBarcode').value.trim(),shad:document.getElementById('mShad').value.trim(),weight:document.getElementById('mWeight').value.trim(),price:document.getElementById('mPrice').value.trim()};
+  if(editingMaterialId){
+    for(var i=0;i<state.materials.length;i++){
+      if(state.materials[i].id===editingMaterialId){state.materials[i].name=data.name;state.materials[i].barcode=data.barcode;state.materials[i].shad=data.shad;state.materials[i].weight=data.weight;state.materials[i].price=data.price;}
+    }
+    for(var j=0;j<state.orders.length;j++)for(var k=0;k<state.orders[j].items.length;k++){
+      if(state.orders[j].items[k].materialId===editingMaterialId){state.orders[j].items[k].name=data.name;state.orders[j].items[k].barcode=data.barcode;}
+    }
+    toast('تم تعديل المادة');
+  }else{data.id=uid();state.materials.push(data);toast('تمت إضافة المادة');}
+  persist();closeModal('materialModal');renderMaterials();
+}
+function deleteMaterial(id){
+  if(!confirm('هل تريد حذف هذه المادة؟'))return;
+  var arr=[];for(var i=0;i<state.materials.length;i++)if(state.materials[i].id!==id)arr.push(state.materials[i]);
+  state.materials=arr;persist();renderMaterials();toast('تم حذف المادة');
+}
+function renderMaterials(){
+  document.getElementById('materialsCount').textContent=state.materials.length;
+  var b=document.getElementById('materialsBody');
+  if(!state.materials.length){b.innerHTML='<tr><td colspan="7" class="empty">لا توجد مواد — استوردها من ملف أو أضف مادة جديدة</td></tr>';return;}
+  var html='';
+  for(var i=0;i<state.materials.length;i++){
+    var m=state.materials[i];
+    html+='<tr><td>'+(i+1)+'</td><td>'+esc(m.name)+'</td><td>'+esc(m.barcode)+'</td><td>'+esc(m.shad)+'</td><td>'+esc(m.weight)+'</td><td>'+esc(m.price)+'</td><td><button class="btn btn-sm btn-blue" onclick="openMaterialModal(\''+m.id+'\')">تعديل</button> <button class="btn btn-sm btn-red" onclick="deleteMaterial(\''+m.id+'\')">حذف</button></td></tr>';
+  }
+  b.innerHTML=html;
+}
+
+/* ---------------- استيراد المواد من ملف Excel / CSV / PDF ---------------- */
+var importedRows=[];
+function loadScript(src){return new Promise(function(res,rej){var sc=document.createElement('script');sc.src=src;sc.onload=res;sc.onerror=function(){rej(new Error('load fail'));};document.head.appendChild(sc);});}
+function onImportFile(e){
+  var f=e.target.files[0];if(!f)return;
+  var ext=f.name.split('.').pop().toLowerCase();
+  if(ext==='xlsx'||ext==='xls'||ext==='csv')importSpreadsheet(f);
+  else if(ext==='pdf')importPdf(f);
+  else alert('صيغة غير مدعومة — استخدم Excel أو PDF');
+  e.target.value='';
+}
+function importSpreadsheet(f){
+  loadScript('https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js').then(function(){
+    var reader=new FileReader();
+    reader.onload=function(){
+      try{
+        var wb=XLSX.read(new Uint8Array(reader.result),{type:'array'});
+        var ws=wb.Sheets[wb.SheetNames[0]];
+        var rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:false,defval:''});
+        var clean=[];
+        for(var i=0;i<rows.length;i++){var r=rows[i],out=[];for(var c=0;c<r.length;c++)out.push(String(r[c]).trim().replace(/\.0$/,''));clean.push(out);}
+        if(!clean.length){alert('الملف فارغ');return;}
+        openImportModal(clean,f.name);
+      }catch(err){alert('تعذر قراءة الملف — تأكد أنه ملف Excel صحيح');}
+    };
+    reader.readAsArrayBuffer(f);
+  }).catch(function(){alert('تعذر تحميل أداة القراءة — تأكد من اتصالك بالإنترنت ثم أعد المحاولة');});
+}
+function importPdf(f){
+  loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js').then(function(){
+    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    var reader=new FileReader();
+    reader.onload=function(){
+      pdfjsLib.getDocument({data:new Uint8Array(reader.result)}).promise.then(function(pdf){
+        var allItems=[],chain=Promise.resolve();
+        for(var p=1;p<=pdf.numPages;p++){(function(p){chain=chain.then(function(){return pdf.getPage(p).then(function(page){return page.getTextContent().then(function(tc){for(var i=0;i<tc.items.length;i++){var it=tc.items[i];if(it.str&&it.str.trim())allItems.push({x:it.transform[4],y:it.transform[5],w:it.width||0,s:it.str});}});});});})(p);}
+        chain.then(function(){buildPdfTable(allItems,f.name);});
+      });
+    };
+    reader.readAsArrayBuffer(f);
+  }).catch(function(){alert('تعذر تحميل أداة القراءة — تأكد من اتصالك بالإنترنت. ملاحظة: PDF الممسوح كصورة لا يمكن قراءته، استخدم Excel.');});
+}
+function buildPdfTable(items,fname){
+  items.sort(function(a,b){return (b.y-a.y)||(a.x-b.x);});
+  var rawRows=[],row=[],lastY=null;
+  for(var i=0;i<items.length;i++){
+    if(lastY!==null&&Math.abs(items[i].y-lastY)>3){rawRows.push(row);row=[];}
+    row.push(items[i]);lastY=items[i].y;
+  }
+  if(row.length)rawRows.push(row);
+  var table=[];
+  for(var r=0;r<rawRows.length;r++){
+    var rr=rawRows[r].slice().sort(function(a,b){return a.x-b.x;});
+    var cells=[],cur=rr[0].s,prevEnd=rr[0].x+rr[0].w;
+    for(var c=1;c<rr.length;c++){
+      if(rr[c].x-prevEnd>8){cells.push(cur);cur=rr[c].s;}
+      else cur+=' '+rr[c].s;
+      prevEnd=rr[c].x+rr[c].w;
+    }
+    cells.push(cur);
+    if(cells.join('').trim())table.push(cells);
+  }
+  if(!table.length){alert('لم يتم العثور على نص في الملف — غالباً الـ PDF ممسوح ضوئياً (صورة). استخدم ملف Excel.');return;}
+  openImportModal(table,fname);
+}
+function openImportModal(rows,fname){
+  importedRows=rows;
+  document.getElementById('importFileName').textContent=fname;
+  var nCols=0;
+  for(var i=0;i<rows.length;i++)if(rows[i].length>nCols)nCols=rows[i].length;
+  var header=[];for(var c=0;c<rows[0].length;c++)header.push(String(rows[0][c]));
+  var hasHeader=false;
+  for(var h=0;h<header.length;h++)if(/(اسم|مادة|باركود|سعر|شد|وزن)/.test(header[h])){hasHeader=true;break;}
+  var data=hasHeader?rows.slice(1):rows;
+  function colVals(c){var v=[];for(var i=0;i<data.length;i++)v.push(String(data[i][c]===undefined?'':data[i][c]));return v;}
+  function findByHeader(kw){for(var c=0;c<nCols;c++)if(header[c]&&header[c].indexOf(kw)>=0)return c;return -1;}
+  var guess={};
+  var n1=findByHeader('اسم'),n2=findByHeader('مادة');
+  guess.name=(n1>=0)?n1:n2;
+  guess.barcode=findByHeader('باركود');
+  guess.shad=findByHeader('شد');
+  guess.weight=findByHeader('وزن');
+  guess.price=findByHeader('سعر');
+  if(guess.barcode<0){
+    for(var bc=0;bc<nCols;bc++){
+      var v=colVals(bc).filter(function(x){return x;});
+      var allDigits=v.length>0;
+      for(var q=0;q<v.length;q++)if(!/^\d{8,}$/.test(v[q]))allDigits=false;
+      if(allDigits){guess.barcode=bc;break;}
+    }
+  }
+  if(guess.name<0){
+    var best=-1,bestLen=0;
+    for(var nc=0;nc<nCols;nc++){
+      if(nc===guess.barcode)continue;
+      var vv=colVals(nc).filter(function(x){return x;});
+      if(vv.length){var L=vv.join('').length/vv.length;if(L>bestLen){bestLen=L;best=nc;}}
+    }
+    guess.name=best;
+  }
+  if(guess.price<0){
+    for(var pc=nCols-1;pc>=0;pc--){
+      var pv=colVals(pc).filter(function(x){return x;});
+      if(pc===guess.barcode)continue;
+      var allNum=pv.length>0;
+      for(var q2=0;q2<pv.length;q2++)if(!/^[\d,\.]+$/.test(pv[q2]))allNum=false;
+      if(allNum){guess.price=pc;break;}
+    }
+  }
+  var mapIds=['mapName','mapBarcode','mapShad','mapWeight','mapPrice'];
+  var keys=['name','barcode','shad','weight','price'];
+  for(var mi=0;mi<mapIds.length;mi++){
+    var sel=document.getElementById(mapIds[mi]);
+    var opts='<option value="-1">— بدون —</option>';
+    for(var cc=0;cc<nCols;cc++){
+      var sample=hasHeader?header[cc]:(data[0]?(data[0][cc]===undefined?'':data[0][cc]):'');
+      opts+='<option value="'+cc+'">عمود '+(cc+1)+(sample?' — '+esc(String(sample).slice(0,20)):'')+'</option>';
+    }
+    sel.innerHTML=opts;
+    sel.value=(guess[keys[mi]]!==undefined)?String(guess[keys[mi]]):'-1';
+    sel.onchange=renderImportPreview;
+  }
+  document.getElementById('skipHeader').checked=hasHeader;
+  document.getElementById('replaceMaterials').checked=false;
+  renderImportPreview();
+  document.getElementById('importModal').classList.add('open');
+}
+function renderImportPreview(){
+  var skip=document.getElementById('skipHeader').checked;
+  var data=skip?importedRows.slice(1):importedRows;
+  var ids=['mapName','mapBarcode','mapShad','mapWeight','mapPrice'];
+  var map=[];for(var i=0;i<ids.length;i++)map.push(parseInt(document.getElementById(ids[i]).value));
+  var rowsHtml='';
+  for(var r=0;r<data.length&&r<5;r++){
+    rowsHtml+='<tr>';
+    for(var c=0;c<map.length;c++){var v=(map[c]>=0&&data[r][map[c]]!==undefined)?data[r][map[c]]:'';rowsHtml+='<td>'+esc(v)+'</td>';}
+    rowsHtml+='</tr>';
+  }
+  if(!rowsHtml)rowsHtml='<tr><td colspan="5" class="empty">لا توجد صفوف</td></tr>';
+  var heads=['اسم المادة','الباركود','الشد','الوزن','السعر'];
+  var hh='<tr>';for(var x=0;x<heads.length;x++)hh+='<th>'+heads[x]+'</th>';hh+='</tr>';
+  document.getElementById('importPreview').innerHTML='<table>'+hh+rowsHtml+'</table>';
+}
+function doImport(){
+  var skip=document.getElementById('skipHeader').checked;
+  var replace=document.getElementById('replaceMaterials').checked;
+  var data=skip?importedRows.slice(1):importedRows;
+  var ids=['mapName','mapBarcode','mapShad','mapWeight','mapPrice'];
+  var map=[];for(var i=0;i<ids.length;i++)map.push(parseInt(document.getElementById(ids[i]).value));
+  if(map[0]<0){alert('حدد عمود اسم المادة');return;}
+  if(replace)state.materials=[];
+  var n=0;
+  for(var r=0;r<data.length;r++){
+    var row=data[r];
+    var name=(map[0]>=0&&row[map[0]]!==undefined)?String(row[map[0]]).trim():'';
+    if(!name)continue;
+    state.materials.push({id:uid(),name:name,
+      barcode:(map[1]>=0&&row[map[1]]!==undefined)?String(row[map[1]]).trim().replace(/\.0$/,''):'',
+      shad:(map[2]>=0&&row[map[2]]!==undefined)?String(row[map[2]]).trim():'',
+      weight:(map[3]>=0&&row[map[3]]!==undefined)?String(row[map[3]]).trim():'',
+      price:(map[4]>=0&&row[map[4]]!==undefined)?String(row[map[4]]).trim().replace(/\.0$/,''):''});
+    n++;
+  }
+  persist();closeModal('importModal');renderMaterials();
+  toast('تم استيراد '+n+' مادة ✅');
+}
+
+/* ---------------- الطلبيات ---------------- */
+function findOrder(id){for(var i=0;i<state.orders.length;i++)if(state.orders[i].id===id)return state.orders[i];return null;}
+function renderOrders(){
+  var b=document.getElementById('ordersBody');
+  if(!state.orders.length){b.innerHTML='<tr><td colspan="5" class="empty">لا توجد طلبيات — اضغط "طلبية جديدة"</td></tr>';return;}
+  var html='';
+  for(var i=0;i<state.orders.length;i++){
+    var o=state.orders[i];
+    html+='<tr><td>'+(i+1)+'</td><td>'+esc(o.customer)+'</td><td>'+esc(o.date)+'</td><td>'+o.items.length+'</td><td><button class="btn btn-sm btn-primary" onclick="openOrder(\''+o.id+'\')">فتح / تعديل</button> <button class="btn btn-sm btn-red" onclick="deleteOrder(\''+o.id+'\')">حذف</button></td></tr>';
+  }
+  b.innerHTML=html;
+}
+function newOrder(){var o={id:uid(),customer:'',date:todayStr(),items:[]};state.orders.push(o);persist();openOrder(o.id);}
+function openOrder(id){
+  currentOrderId=id;
+  var o=findOrder(id);if(!o)return;
+  document.getElementById('customerName').value=o.customer||'';
+  document.getElementById('orderDate').value=o.date||todayStr();
+  renderOrderItems();
+  showTab('order-view');
+}
+function gotoOrder(dir){
+  var i=-1;
+  for(var x=0;x<state.orders.length;x++)if(state.orders[x].id===currentOrderId)i=x;
+  var j=i+dir;
+  if(i<0||j<0||j>=state.orders.length){toast('لا توجد طلبية في هذا الاتجاه');return;}
+  saveOrder(false);
+  openOrder(state.orders[j].id);
+}
+function saveOrder(showMsg){
+  var o=findOrder(currentOrderId);if(!o)return;
+  o.customer=document.getElementById('customerName').value.trim();
+  o.date=document.getElementById('orderDate').value||todayStr();
+  persist();
+  if(showMsg)toast('تم حفظ الطلبية ✅');
+}
+function deleteOrder(id){
+  var o=findOrder(id);
+  if(!confirm('حذف طلبية '+(o?o.customer:'')+'؟'))return;
+  var arr=[];for(var i=0;i<state.orders.length;i++)if(state.orders[i].id!==id)arr.push(state.orders[i]);
+  state.orders=arr;persist();
+  if(currentOrderId===id){currentOrderId=null;showTab('orders');}
+  else renderOrders();
+  toast('تم حذف الطلبية');
+}
+
+/* ---------------- فاتورة جديدة ---------------- */
+function askNewInvoice(){document.getElementById('newInvoiceModal').classList.add('open');}
+function newInvoice(saveFirst){
+  closeModal('newInvoiceModal');
+  if(saveFirst){saveOrder(false);}
+  else{
+    var o=findOrder(currentOrderId);
+    if(o&&!(o.customer||'').trim()&&o.items.length===0){
+      var arr=[];for(var i=0;i<state.orders.length;i++)if(state.orders[i].id!==o.id)arr.push(state.orders[i]);
+      state.orders=arr;
+    }
+    persist();
+  }
+  var n={id:uid(),customer:'',date:todayStr(),items:[]};
+  state.orders.push(n);persist();
+  openOrder(n.id);
+  toast('بدأت فاتورة جديدة 🆕');
+}
+
+/* ---------------- بحث المواد التلقائي ---------------- */
+function hideSuggestions(){document.getElementById('suggestBox').style.display='none';}
+function showSuggestions(){
+  var q=document.getElementById('itemSearch').value.trim();
+  var box=document.getElementById('suggestBox');
+  if(!q){box.style.display='none';box.innerHTML='';return;}
+  var matches=[];
+  for(var i=0;i<state.materials.length&&matches.length<8;i++){
+    if(state.materials[i].name.indexOf(q)>=0)matches.push(state.materials[i]);
+  }
+  if(!matches.length){box.innerHTML='<div class="suggest-item no-match">لا توجد مواد مطابقة — ستُضاف يدوياً</div>';box.style.display='block';return;}
+  var html='';
+  for(var m=0;m<matches.length;m++){
+    html+='<div class="suggest-item" onmousedown="pickMaterial(\''+matches[m].id+'\')"><span>'+esc(matches[m].name)+'</span><small>'+esc(matches[m].barcode)+'</small></div>';
+  }
+  box.innerHTML=html;box.style.display='block';
+}
+function pickMaterial(id){
+  var m=null;
+  for(var i=0;i<state.materials.length;i++)if(state.materials[i].id===id)m=state.materials[i];
+  if(!m)return;
+  var o=findOrder(currentOrderId);if(!o)return;
+  o.items.push({materialId:m.id,name:m.name,barcode:m.barcode,qtyP:'',freeP:'',qtyC:'',freeC:''});
+  persist();renderOrderItems();
+  document.getElementById('itemSearch').value='';
+  hideSuggestions();
+  toast('تمت إضافة: '+m.name);
+}
+function addItemFromSearch(){
+  var q=document.getElementById('itemSearch').value.trim();
+  if(!q)return;
+  var m=null;
+  for(var i=0;i<state.materials.length;i++)if(state.materials[i].name===q){m=state.materials[i];break;}
+  if(!m)for(var j=0;j<state.materials.length;j++)if(state.materials[j].name.indexOf(q)>=0){m=state.materials[j];break;}
+  if(m){pickMaterial(m.id);return;}
+  var o=findOrder(currentOrderId);if(!o)return;
+  o.items.push({materialId:null,name:q,barcode:'',qtyP:'',freeP:'',qtyC:'',freeC:''});
+  persist();renderOrderItems();
+  document.getElementById('itemSearch').value='';
+  hideSuggestions();
+  toast('تمت الإضافة يدوياً');
+}
+
+/* ---------------- بنود الطلبية ---------------- */
+function renderOrderItems(){
+  var o=findOrder(currentOrderId);if(!o)return;
+  var b=document.getElementById('orderItemsBody');
+  if(!o.items.length){b.innerHTML='<tr><td colspan="7" class="empty">لا توجد مواد في الطلبية</td></tr>';return;}
+  var html='';
+  for(var i=0;i<o.items.length;i++){
+    var it=o.items[i];
+    html+='<tr><td>'+esc(it.name)+(it.materialId?'':' <small style="color:#94a3b8">(يدوي)</small>')+'</td>'
+      +'<td><input type="number" min="0" value="'+esc(it.qtyP)+'" oninput="updateItem('+i+',\'qtyP\',this.value)"></td>'
+      +'<td><input type="number" min="0" value="'+esc(it.freeP)+'" oninput="updateItem('+i+',\'freeP\',this.value)"></td>'
+      +'<td><input type="number" min="0" value="'+esc(it.qtyC)+'" oninput="updateItem('+i+',\'qtyC\',this.value)"></td>'
+      +'<td><input type="number" min="0" value="'+esc(it.freeC)+'" oninput="updateItem('+i+',\'freeC\',this.value)"></td>'
+      +'<td>'+esc(it.barcode)+'</td>'
+      +'<td><button class="btn btn-sm btn-red" onclick="removeItem('+i+')">🗑️</button></td></tr>';
+  }
+  b.innerHTML=html;
+}
+function updateItem(i,field,value){var o=findOrder(currentOrderId);if(!o)return;o.items[i][field]=value;persist();}
+function removeItem(i){var o=findOrder(currentOrderId);if(!o)return;o.items.splice(i,1);persist();renderOrderItems();}
+
+/* ---------------- ملف الإكسل ---------------- */
+var HDR_COLORS=['#a855f7','#c084fc','#9333ea','#60a5fa','#7c3aed','#d8b4fe'];
+var HEADERS=['اسم المادة','الكمية (قطعة)','المجاني (قطعة)','الكمية (كارتون)','المجاني (كارتون)','الباركود'];
+function headCells(){
+  var h='';
+  for(var i=0;i<HEADERS.length;i++)h+='<th style="background:'+HDR_COLORS[i]+';color:#ffffff;font-size:18pt;font-weight:bold;padding:8px;border:1px solid #94a3b8">'+HEADERS[i]+'</th>';
+  return h;
+}
+function bodyCells(it){
+  var vals=[it.name,it.qtyP,it.freeP,it.qtyC,it.freeC,it.barcode];
+  var h='';
+  for(var i=0;i<vals.length;i++){
+    if(i===5&&/^\d+$/.test(String(vals[i]).trim())&&String(vals[i]).trim()!==''){
+      h+='<td x:num="'+String(vals[i]).trim()+'" style="font-size:18pt;color:#0000FF;padding:8px;border:1px solid #94a3b8;text-align:center;mso-number-format:0">'+esc(vals[i])+'</td>';
+    }else{
+      h+='<td style="font-size:18pt;color:#0000FF;padding:8px;border:1px solid #94a3b8;text-align:center">'+esc(vals[i])+'</td>';
+    }
+  }
+  return h;
+}
+function fileBase(){
+  var o=findOrder(currentOrderId);
+  var cust=((o&&o.customer)?o.customer:'طلبية').replace(/[\\/:*?"<>|]/g,'-').trim();
+  return cust+'-'+((o&&o.date)?o.date:todayStr());
+}
+function buildExcelBlob(){
+  var o=findOrder(currentOrderId);
+  var rows='';
+  for(var i=0;i<o.items.length;i++)rows+='<tr>'+bodyCells(o.items[i])+'</tr>';
+  var html='<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body>'
+    +'<h3 style="font-size:18pt;color:#0000FF">طلبية: '+esc(o.customer)+' — '+esc(o.date)+'</h3>'
+    +'<table border="1"><tr>'+headCells()+'</tr>'+rows+'</table></body></html>';
+  return new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel;charset=utf-8'});
+}
+function excelText(){
+  var o=findOrder(currentOrderId);
+  return '📋 طلبية: '+o.customer+'\n📅 التاريخ: '+o.date+'\n';
+}
+function downloadBlobAs(blob,fname){
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download=fname;
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(a.href);},1000);
+}
+/* ---- ملف xlsx حقيقي (يفتح بدون تحذيرات ويقبله واتساب) ---- */
+var XLSX_MIME='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+var EXCELJS_URL='https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js';
+var excelJsPromise=null;
+function preloadExcelJS(){
+  if(window.ExcelJS)return Promise.resolve();
+  if(!excelJsPromise)excelJsPromise=loadScript(EXCELJS_URL).catch(function(e){excelJsPromise=null;throw e;});
+  return excelJsPromise;
+}
+setTimeout(function(){preloadExcelJS().catch(function(){});},1200);
+function buildXlsxFile(fname){
+  var o=findOrder(currentOrderId);
+  var thin={style:'thin',color:{argb:'FF94A3B8'}};
+  var border={top:thin,left:thin,bottom:thin,right:thin};
+  var center={horizontal:'center',vertical:'middle',wrapText:true};
+  var wb=new ExcelJS.Workbook();
+  var ws=wb.addWorksheet('الطلبية',{views:[{rightToLeft:true}]});
+  ws.columns=[{width:42},{width:20},{width:20},{width:20},{width:20},{width:26}];
+  var t=ws.addRow(['طلبية: '+o.customer+' — '+o.date]);
+  ws.mergeCells(1,1,1,6);
+  t.getCell(1).font={size:18,bold:true,color:{argb:'FF0000FF'}};
+  t.getCell(1).alignment=center;
+  var h=ws.addRow(HEADERS);
+  h.height=32;
+  h.eachCell(function(c,n){
+    c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+HDR_COLORS[n-1].slice(1).toUpperCase()}};
+    c.font={size:18,bold:true,color:{argb:'FFFFFFFF'}};
+    c.alignment=center;c.border=border;
+  });
+  for(var i=0;i<o.items.length;i++){
+    var it=o.items[i];
+    var vals=[it.name,it.qtyP,it.freeP,it.qtyC,it.freeC,it.barcode];
+    for(var k=0;k<vals.length;k++){
+      var s=String(vals[k]===undefined||vals[k]===null?'':vals[k]).trim();
+      if(k>0&&/^\d+(\.\d+)?$/.test(s)&&s.length<=15)vals[k]=Number(s);
+      else vals[k]=s;
+    }
+    var r=ws.addRow(vals);
+    r.height=28;
+    r.eachCell({includeEmpty:true},function(c,n){
+      c.font={size:18,color:{argb:'FF0000FF'}};
+      c.alignment=center;c.border=border;
+      if(typeof c.value==='number')c.numFmt=(n===6?'0':'General');
+    });
+  }
+  return wb.xlsx.writeBuffer().then(function(buf){return new File([buf],fname,{type:XLSX_MIME});});
+}
+/* يرجع ملف xlsx؛ وإن تعذّر تحميل المكتبة (بدون إنترنت) يرجع النسخة القديمة xls */
+function getExportFile(base){
+  return preloadExcelJS().then(function(){return buildXlsxFile(base+'.xlsx');})
+    .catch(function(){return new File([buildExcelBlob()],base+'.xls',{type:'application/vnd.ms-excel'});});
+}
+/* تجهيز الملف مسبقاً في الخلفية حتى تتم المشاركة لحظة الضغط (المتصفح يشترط ذلك) */
+var cachedExport={sig:'',file:null,promise:null};
+function orderSig(){var o=findOrder(currentOrderId);return o?JSON.stringify([o.customer,o.date,o.items]):'';}
+function prepareExport(){
+  var o=findOrder(currentOrderId);
+  if(!o||!o.items||!o.items.length)return Promise.resolve(null);
+  var sig=orderSig();
+  if(cachedExport.sig===sig&&cachedExport.promise)return cachedExport.promise;
+  cachedExport.sig=sig;cachedExport.file=null;
+  cachedExport.promise=getExportFile(fileBase()).then(function(f){if(cachedExport.sig===sig)cachedExport.file=f;return f;});
+  return cachedExport.promise;
+}
+setInterval(function(){try{if(window.ExcelJS)prepareExport();}catch(e){}},1500);
+
+/* بديل عند تعذّر المشاركة المباشرة: تنزيل الملف + فتح تطبيق واتساب لإرفاقه يدوياً */
+function shareFallback(file,reason){
+  try{downloadBlobAs(file,file.name);}catch(e){}
+  alert('تعذّرت المشاركة المباشرة للملف ('+reason+')\n\nتم تنزيل الملف: '+file.name+'\nسيُفتح تطبيق واتساب — أرفق الملف من 📎 (المستندات).\n\nللمشاركة المباشرة افتح الصفحة من رابط https داخل متصفح Chrome.');
+  window.location.href='whatsapp://send';
+}
+function shareFileNow(file){
+  if(typeof navigator.share!=='function'){shareFallback(file,'المتصفح لا يدعم المشاركة');return;}
+  var data={files:[file]};
+  if(typeof navigator.canShare==='function'){
+    var ok=false;try{ok=!!navigator.canShare(data);}catch(e){ok=false;}
+    if(!ok){shareFallback(file,'المتصفح لا يدعم مشاركة هذا النوع من الملفات');return;}
+  }
+  var pr;
+  try{pr=navigator.share(data);}catch(e){shareFallback(file,e&&e.name?e.name:'خطأ');return;}
+  pr.then(function(){toast('اختر تطبيق واتساب ثم المحادثة 🟢');})
+    .catch(function(err){if(err&&err.name==='AbortError')return;shareFallback(file,err&&err.name?err.name:'خطأ');});
+}
+function shareExcelWhatsApp(){
+  saveOrder(false);
+  var o=findOrder(currentOrderId);
+  if(!o||!o.items.length){alert('الطلبية فارغة');return;}
+  var sig=orderSig();
+  /* 1) الملف جاهز مسبقاً -> مشاركة فورية */
+  if(cachedExport.file&&cachedExport.sig===sig){shareFileNow(cachedExport.file);return;}
+  /* 2) المكتبة محمّلة لكن الملف لم يجهز بعد -> يُبنى بسرعة ثم يُشارك */
+  if(window.ExcelJS){
+    prepareExport().then(function(f){shareFileNow(f);});
+    return;
+  }
+  /* 3) المكتبة لم تُحمَّل بعد -> نشارك فوراً النسخة البسيطة بدون انتظار الشبكة */
+  shareFileNow(new File([buildExcelBlob()],fileBase()+'.xls',{type:'application/vnd.ms-excel'}));
+}
+function downloadExcel(){
+  var o=findOrder(currentOrderId);
+  if(!o||!o.items.length){alert('الطلبية فارغة');return;}
+  downloadBlobAs(buildExcelBlob(),fileBase()+'.xls');
+  toast('تم تنزيل ملف الإكسل 📊');
+}
+
+/* ---------------- تصدير PDF ---------------- */
+function exportPDF(){
+  var o=findOrder(currentOrderId);
+  if(!o||!o.items.length){alert('الطلبية فارغة');return;}
+  var rows='';
+  for(var i=0;i<o.items.length;i++)rows+='<tr>'+bodyCells(o.items[i])+'</tr>';
+  var w=window.open('','_blank');
+  w.document.write('<html lang="ar" dir="rtl"><head><meta charset="UTF-8">'
+    +'<title>'+esc(fileBase())+'</title>'
+    +'<style>body{font-family:"Segoe UI",Tahoma,sans-serif;padding:24px}'
+    +'h2{color:#9333ea;margin:0 0 4px;font-size:18pt}.meta{color:#475569;margin-bottom:16px;font-size:18pt}'
+    +'table{width:100%;border-collapse:collapse}</style></head><body>'
+    +'<h2>طلبية: '+esc(o.customer)+'</h2>'
+    +'<div class="meta">التاريخ: '+esc(o.date)+'</div>'
+    +'<table><tr>'+headCells()+'</tr>'+rows+'</table>'
+    +'<br><button onclick="window.print()" style="padding:10px 24px;margin-top:16px;cursor:pointer">🖨️ طباعة / حفظ PDF</button>'
+    +'</body></html>');
+  w.document.close();
+}
+
+updateHomeBadge();
+</script>
+</body>
 </html>
