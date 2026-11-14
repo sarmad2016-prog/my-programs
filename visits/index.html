@@ -204,7 +204,7 @@ $("whatsappBtn").addEventListener("click",async()=>{const btn=$("whatsappBtn");i
 function updateInstallButton(){const standalone=window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;$("installBtn").classList.toggle("hidden",standalone)}
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e;updateInstallButton();$("installBtn").classList.remove("hidden")});
 window.addEventListener("appinstalled",()=>{$("installBtn").classList.add("hidden");installPrompt=null;toast("تم تثبيت البرنامج")});
-$("installBtn").addEventListener("click",async()=>{if(installPrompt){installPrompt.prompt();const result=await installPrompt.userChoice;if(result?.outcome==="accepted")$("installBtn").classList.add("hidden");installPrompt=null}else toast("التثبيت غير متاح من هذا المتصفح حالياً")});
+$("installBtn").addEventListener("click",async()=>{if(installPrompt){installPrompt.prompt();const result=await installPrompt.userChoice;if(result?.outcome==="accepted")$("installBtn").classList.add("hidden");installPrompt=null}else toast("افتح الرابط بمتصفح Chrome، ثم من القائمة ⋮ اختر تثبيت التطبيق أو إضافة إلى الشاشة الرئيسية")});
 updateInstallButton();
 if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 if(getProfile()&&sessionStorage.getItem(SESSION)==="1")enterApp();else showAuth();
