@@ -1,15 +1,909 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>برنامج المطابقة</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام المخزون — مطابقة ومقارنة</title>
 <style>
-body{margin:0;min-height:100vh;display:grid;place-items:center;background:#e3ecea;color:#12352a;font-family:Tahoma,Arial,sans-serif}
-main{width:min(520px,calc(100% - 36px));padding:32px 24px;text-align:center;background:#fff;border:1px solid #cfdcd8;border-radius:24px;box-shadow:0 18px 50px #12352a12}
-.mark{width:76px;height:76px;margin:0 auto 18px;border-radius:22px;display:grid;place-items:center;background:#dcebe4;color:#1d5a40;font-size:38px}
-h1{margin:0 0 10px;font-size:25px}p{margin:0;color:#59656d;line-height:1.8}
+  *{box-sizing:border-box}
+  body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:#eef2f7;margin:0;color:#1b2430}
+  header.app{background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;padding:14px 24px;display:flex;align-items:center;gap:14px}
+  header.app h1{font-size:19px;margin:0}
+  .screen{display:none}
+  .wrap{max-width:1150px;margin:0 auto;padding:20px}
+  /* ===== الواجهة الرئيسية ===== */
+  .hero{max-width:900px;margin:48px auto;text-align:center;padding:0 20px}
+  .hero h1{font-size:32px;margin:0;background:linear-gradient(135deg,#1d4ed8,#7c3aed,#0891b2);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero .sub{color:#64748b;font-size:15px;margin-top:10px}
+  .tiles{display:flex;gap:26px;justify-content:center;margin-top:40px;flex-wrap:wrap}
+  .tile{width:290px;padding:36px 22px;border:none;border-radius:18px;color:#fff;font-size:19px;font-weight:bold;cursor:pointer;box-shadow:0 12px 28px rgba(15,23,42,.18);transition:transform .15s,box-shadow .15s;font-family:inherit}
+  .tile:hover{transform:translateY(-5px);box-shadow:0 18px 36px rgba(15,23,42,.24)}
+  .tile small{display:block;font-weight:normal;font-size:12.5px;opacity:.92;margin-top:10px;line-height:1.7}
+  .tile-match{background:linear-gradient(135deg,#1d4ed8,#0891b2)}
+  .tile-compare{background:linear-gradient(135deg,#7c3aed,#db2777)}
+  /* ===== شريط كل شاشة ===== */
+  .page-band{padding:14px 24px;color:#fff;display:flex;align-items:center;gap:14px}
+  .page-band h2{margin:0;font-size:18px}
+  .band-match{background:linear-gradient(135deg,#1d4ed8,#0891b2)}
+  .band-compare{background:linear-gradient(135deg,#7c3aed,#db2777)}
+  .btn-back{background:rgba(255,255,255,.18);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;font-family:inherit}
+  .btn-back:hover{background:rgba(255,255,255,.3)}
+  /* ===== سمات الألوان لكل صفحة ===== */
+  .page-match{--acc:#1d4ed8;--acc2:#0891b2;--soft:#dbeafe}
+  .page-compare{--acc:#7c3aed;--acc2:#db2777;--soft:#f3e8ff}
+  .page-match .card h3{color:var(--acc)}
+  .page-compare .card h3{color:var(--acc)}
+  .card{background:#fff;border:1px solid #dde4ee;border-radius:12px;padding:14px;box-shadow:0 2px 8px rgba(15,23,42,.06);border-top:3px solid var(--acc)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+  .card.wide{grid-column:1/-1}
+  .card h3{margin:0 0 10px;font-size:15px}
+  .card input[type=file]{width:100%;font-size:13px}
+  .card textarea{width:100%;font-size:13px;font-family:inherit;border:1px solid #c9d3e0;border-radius:8px;padding:8px;resize:vertical}
+  .card textarea:focus,.card input[type=file]:focus{outline:2px solid var(--acc)}
+  .mappers{margin-top:10px;display:flex;flex-direction:column;gap:6px;font-size:12.5px}
+  .mappers label{display:flex;align-items:center;gap:6px;justify-content:space-between}
+  .mappers select{max-width:150px;font-size:12px;padding:2px}
+  .st{font-size:12px;margin-top:8px;display:block}
+  .st.none{color:#98a1b3}.st.warn{color:#b7791f}.st.ok{color:#2f855a}
+  .actions{display:flex;gap:12px;margin:18px 0;justify-content:center;flex-wrap:wrap;align-items:center}
+  button{font-family:inherit;font-size:15px;padding:10px 26px;border:none;border-radius:8px;cursor:pointer}
+  .btn-main{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;box-shadow:0 4px 12px rgba(15,23,42,.15)}
+  .btn-main:hover{filter:brightness(1.1)}
+  .btn-sec{background:#e2e8f0;color:#1e293b}
+  .txt{padding:9px 14px;border:1px solid #c3cddb;border-radius:8px;font-size:14px;font-family:inherit}
+  .txt:focus{outline:2px solid var(--acc)}
+  .restore-bar{display:none;background:#fff7e0;border-bottom:1px solid #ecd9a0;padding:10px 20px;justify-content:center;gap:14px;font-size:13.5px;align-items:center;flex-wrap:wrap}
+  .restore-bar button{font-size:13px;padding:6px 16px}
+  /* ===== التقرير ===== */
+  .reportWrap{background:#fff;border:1px solid #dde4ee;border-radius:12px;padding:18px;margin-top:10px;box-shadow:0 2px 8px rgba(15,23,42,.06)}
+  .rep-title{text-align:center;font-size:19px;font-weight:bold;margin:4px 0 12px;color:var(--acc)}
+  table.report{border-collapse:collapse;width:100%;font-size:13px}
+  table.report th,table.report td{border:1px solid #b9c4d4;padding:6px 8px;text-align:center}
+  table.report thead th{
+    background:linear-gradient(135deg,var(--acc),var(--acc2));
+    color:#fff;font-weight:bold;font-size:13.5px;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  table.report th.itcol{width:90px}
+  table.report td.it{font-weight:bold}
+  table.report td.nm{text-align:right;min-width:120px}
+  table.report tbody tr:hover td{background:#f0f6ff}
+  table.report tr.diff td{background:#fde8e8}
+  #compareScreen table.report tr.diff td{background:#fff3d6}
+  table.report td.neg{color:#c0392b;font-weight:bold}
+  table.report tfoot td{
+    background:var(--soft);font-weight:bold;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .resultActions{display:none;justify-content:center;gap:12px;margin-top:14px;flex-wrap:wrap;align-items:center}
+  .savemsg{color:#2f855a;font-size:13px;font-weight:bold}
+  .hint{font-size:12.5px;color:#64748b;margin-top:14px;line-height:1.8}
+  /* ===== الطباعة / حفظ PDF ===== */
+  @media print{
+    body{background:#fff}
+    header.app,.restore-bar,.page-band,.cards,.actions,.resultActions,.hint,.hero,.tiles{display:none !important}
+    .reportWrap{border:none;padding:0;margin:0;border-radius:0;box-shadow:none}
+    @page{size:A4 landscape;margin:10mm}
+    table.report{page-break-inside:auto}
+    tr{page-break-inside:avoid}
+    table.report thead{display:table-header-group}
+  }
 </style>
 </head>
-<body><main><div class="mark">⇄</div><h1>برنامج المطابقة</h1><p>هذا المجلد جاهز لإضافة ملفات البرنامج.</p></main></body>
+<body>
+<header class="app"><h1>📋 نظام المخزون</h1></header>
+
+<div id="restoreBar" class="restore-bar">
+  <span id="restoreInfo"></span>
+  <button class="btn-sec" onclick="restoreMatch()">↩ استعادة التقرير</button>
+  <button class="btn-sec" onclick="dismissRestore('restoreBar')">تجاهل</button>
+</div>
+
+<!-- ============ الواجهة الرئيسية ============ -->
+<div id="homeScreen" class="screen" style="display:block">
+  <div class="hero">
+    <h1>نظام مطابقة ومقارنة المخزون</h1>
+    <div class="sub">اختر العملية المطلوبة</div>
+    <div class="tiles">
+      <button class="tile tile-match" onclick="showScreen('matchScreen')">🔁 المطابقة الشهرية<small>رصيد أول المدة + المشتريات + المجاني − رصيد آخر المدة = المتاح للبيع ← − المبيعات = الفرق</small></button>
+      <button class="tile tile-compare" onclick="showScreen('compareScreen')">⚖️ مقارنة شهرين<small>الشهر الأول − الشهر الثاني = الفرق</small></button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ شاشة المطابقة الشهرية ============ -->
+<div id="matchScreen" class="screen page-match">
+  <div class="page-band band-match">
+    <button class="btn-back" onclick="showScreen('homeScreen')">← الرئيسية</button>
+    <h2>🔁 المطابقة الشهرية</h2>
+  </div>
+  <div class="wrap">
+    <div class="cards" id="noprint">
+      <div class="card"><h3>1) رصيد أول المدة</h3><input type="file" id="file-opening" accept=".xlsx,.xls,.csv"><div class="mappers" id="map-opening"></div><span class="st none" id="st-opening">لم يتم الرفع</span></div>
+      <div class="card"><h3>2) رصيد آخر المدة</h3><input type="file" id="file-closing" accept=".xlsx,.xls,.csv"><div class="mappers" id="map-closing"></div><span class="st none" id="st-closing">لم يتم الرفع</span></div>
+      <div class="card"><h3>3) المشتريات</h3><input type="file" id="file-purchases" accept=".xlsx,.xls,.csv"><div class="mappers" id="map-purchases"></div><span class="st none" id="st-purchases">لم يتم الرفع</span></div>
+      <div class="card"><h3>4) المبيعات</h3><input type="file" id="file-sales" accept=".xlsx,.xls,.csv"><div class="mappers" id="map-sales"></div><span class="st none" id="st-sales">لم يتم الرفع</span></div>
+      <div class="card wide"><h3>5) المجاني (يُضاف إلى المشتريات)</h3>
+        <textarea id="freeInput" rows="5" placeholder="اكتب كل سطر: رقم البند ثم الكمية — بأي فاصل (مسافة أو : أو ،)&#10;مثال:&#10;1001 5&#10;1002 : 3"></textarea>
+      </div>
+    </div>
+
+    <div class="actions" id="noprint2">
+      <input type="text" id="repName" class="txt" placeholder="اسم التقرير">
+      <label style="font-size:14px">أساس المطابقة:
+        <select id="baseFile" style="font-size:13px;padding:5px">
+          <option value="opening" selected>رصيد أول المدة</option>
+          <option value="closing">رصيد آخر المدة</option>
+          <option value="purchases">المشتريات</option>
+          <option value="sales">المبيعات</option>
+          <option value="all">كل الملفات</option>
+        </select>
+      </label>
+      <button class="btn-main" onclick="runMatch()">⚡ تنفيذ المطابقة</button>
+      <button class="btn-sec" onclick="resetMatch()">🗑 إعادة تعيين</button>
+    </div>
+
+    <div id="reportWrapM" class="reportWrap" style="display:none">
+      <div class="rep-title" id="repTitleM" style="display:none"></div>
+      <table class="report">
+        <thead>
+          <tr>
+            <th class="itcol">رقم البند</th><th>اسم البند</th>
+            <th>رصيد أول المدة</th><th>المشتريات</th><th>المجاني</th><th>رصيد آخر المدة</th>
+            <th>المتاح للبيع</th><th>المبيعات</th><th>الفرق</th>
+          </tr>
+        </thead>
+        <tbody id="reportBody"></tbody>
+        <tfoot>
+          <tr>
+            <td>الإجمالي</td><td></td>
+            <td id="totO"></td><td id="totP"></td><td id="totF"></td><td id="totC"></td>
+            <td id="totA"></td><td id="totS"></td><td id="totD"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div id="resultActionsM" class="resultActions">
+      <button class="btn-main" onclick="window.print()">🖨 حفظ / طباعة PDF</button>
+      <button class="btn-sec" onclick="exportExcel()">📊 تصدير Excel</button>
+      <button class="btn-sec" onclick="saveMatch()">💾 خزن في المتصفح</button>
+      <span id="saveMsgM" class="savemsg"></span>
+    </div>
+
+    <div class="hint" id="noprint3">
+      <b>المعادلة:</b> رصيد أول المدة + المشتريات + المجاني − رصيد آخر المدة = المتاح للبيع ← المتاح للبيع − المبيعات = الفرق.<br>
+      <b>المجاني:</b> كل سطر: رقم البند ثم الكمية (مثال: <code>1001 5</code> أو <code>1001 : 5</code>) — يُضاف تلقائيًا إلى المشتريات.<br>
+      <b>الصيغ المدعومة:</b> xlsx و xlsm و csv (ملفات xls القديمة: احفظها بصيغة xlsx). يعمل بدون إنترنت.
+    </div>
+  </div>
+</div>
+
+<!-- ============ شاشة مقارنة شهرين ============ -->
+<div id="compareScreen" class="screen page-compare">
+  <div class="page-band band-compare">
+    <button class="btn-back" onclick="showScreen('homeScreen')">← الرئيسية</button>
+    <h2>⚖️ مقارنة شهرين</h2>
+  </div>
+  <div id="restoreBarC" class="restore-bar">
+    <span id="restoreInfoC"></span>
+    <button class="btn-sec" onclick="restoreCompare()">↩ استعادة التقرير</button>
+    <button class="btn-sec" onclick="dismissRestore('restoreBarC')">تجاهل</button>
+  </div>
+  <div class="wrap">
+    <div class="cards" id="noprintC">
+      <div class="card"><h3>1) رصيد الشهر الأول</h3><input type="file" id="file-m1" accept=".xlsx,.xls,.csv"><div class="mappers" id="map-m1"></div><span class="st none" id="st-m1">لم يتم الرفع</span></div>
+      <div class="card"><h3>2) رصيد الشهر الثاني</h3><input type="file" id="file-m2" accept=".xlsx,.xls,.csv"><div class="mappers" id="map-m2"></div><span class="st none" id="st-m2">لم يتم الرفع</span></div>
+    </div>
+
+    <div class="actions" id="noprintC2">
+      <input type="text" id="cmpLabel1" class="txt" placeholder="اسم الشهر الأول" style="min-width:150px">
+      <input type="text" id="cmpLabel2" class="txt" placeholder="اسم الشهر الثاني" style="min-width:150px">
+      <input type="text" id="cmpName" class="txt" placeholder="اسم التقرير">
+      <label style="font-size:14px">أساس المقارنة:
+        <select id="cmpBase" style="font-size:13px;padding:5px">
+          <option value="m1" selected>الشهر الأول</option>
+          <option value="m2">الشهر الثاني</option>
+          <option value="all">كل الملفات</option>
+        </select>
+      </label>
+      <button class="btn-main" onclick="runCompare()">⚡ تنفيذ المقارنة</button>
+      <button class="btn-sec" onclick="resetCompare()">🗑 إعادة تعيين</button>
+    </div>
+
+    <div id="reportWrapC" class="reportWrap" style="display:none">
+      <div class="rep-title" id="repTitleC" style="display:none"></div>
+      <table class="report">
+        <thead>
+          <tr>
+            <th class="itcol">رقم البند</th><th>اسم البند</th>
+            <th id="thM1">الشهر الأول</th><th id="thM2">الشهر الثاني</th><th>الفرق</th>
+          </tr>
+        </thead>
+        <tbody id="cmpBody"></tbody>
+        <tfoot>
+          <tr>
+            <td>الإجمالي</td><td></td>
+            <td id="cmpTotA"></td><td id="cmpTotB"></td><td id="cmpTotD"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div id="resultActionsC" class="resultActions">
+      <button class="btn-main" onclick="window.print()">🖨 حفظ / طباعة PDF</button>
+      <button class="btn-sec" onclick="exportCompareExcel()">📊 تصدير Excel</button>
+      <button class="btn-sec" onclick="saveCompare()">💾 خزن في المتصفح</button>
+      <span id="saveMsgC" class="savemsg"></span>
+    </div>
+
+    <div class="hint" id="noprintC3">
+      <b>المعادلة:</b> الشهر الأول − الشهر الثاني = الفرق (حسب رقم البند).<br>
+      <b>أسماء الشهرين:</b> اكتبها كما تريد ظهورها في التقرير وملف Excel (مثال: «يناير 2026» و«فبراير 2026»).<br>
+      <b>الصيغ المدعومة:</b> xlsx و xlsm و csv. يعمل بدون إنترنت.
+    </div>
+  </div>
+</div>
+
+<script>
+/* ====== محلل xlsx / csv مدمج (بدون مكتبات خارجية) ====== */
+function xmlEsc(s){return String(s).replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&#x([0-9a-fA-F]+);/g,(m,h)=>String.fromCodePoint(parseInt(h,16))).replace(/&#([0-9]+);/g,(m,d)=>String.fromCodePoint(parseInt(d,10))).replace(/&amp;/g,'&');}
+function colToIdx(ref){let c=0;for(const ch of ref){if(ch>='A'&&ch<='Z')c=c*26+(ch.charCodeAt(0)-64);else if(ch>='a'&&ch<='z')c=c*26+(ch.charCodeAt(0)-96);else break;}return c-1;}
+async function inflateRaw(u8){
+  let ds=null;
+  try{ ds=new DecompressionStream('deflate-raw'); }catch(e){ ds=null; }
+  if(ds){
+    const stream=new Blob([u8]).stream().pipeThrough(ds);
+    return new Uint8Array(await new Response(stream).arrayBuffer());
+  }
+  if(typeof require!=='undefined'&&typeof process!=='undefined'){const zlib=require('zlib');return new Uint8Array(zlib.inflateRawSync(Buffer.from(u8)));}
+  throw new Error('تعذر فك ضغط الملف');
+}
+function parseZip(buf){
+  const dv=new DataView(buf.buffer,buf.byteOffset,buf.byteLength);
+  let eocd=-1;
+  for(let i=buf.length-22;i>=Math.max(0,buf.length-22-65557);i--){if(dv.getUint32(i,true)===0x06054b50){eocd=i;break;}}
+  if(eocd<0)throw new Error('الملف ليس بصيغة صالحة');
+  const count=dv.getUint16(eocd+10,true);
+  let off=dv.getUint32(eocd+16,true);
+  const entries=new Map();
+  for(let n=0;n<count;n++){
+    if(off+46>buf.length||dv.getUint32(off,true)!==0x02014b50)break;
+    const method=dv.getUint16(off+10,true);
+    const compSize=dv.getUint32(off+20,true);
+    const nameLen=dv.getUint16(off+28,true);
+    const extraLen=dv.getUint16(off+30,true);
+    const commentLen=dv.getUint16(off+32,true);
+    const lho=dv.getUint32(off+42,true);
+    const name=new TextDecoder().decode(buf.subarray(off+46,off+46+nameLen));
+    entries.set(name,{method,compSize,lho});
+    off+=46+nameLen+extraLen+commentLen;
+  }
+  return {
+    async get(name){
+      const e=entries.get(name);if(!e)return null;
+      const lho=e.lho;
+      const nameLen=dv.getUint16(lho+26,true),extraLen=dv.getUint16(lho+28,true);
+      const dataStart=lho+30+nameLen+extraLen;
+      const data=buf.subarray(dataStart,dataStart+e.compSize);
+      if(e.method===0)return new TextDecoder().decode(data);
+      const raw=await inflateRaw(data);
+      return new TextDecoder().decode(raw);
+    },
+    names:[...entries.keys()]
+  };
+}
+function parseSheetXml(sXml,shared){
+  const rowsMap=new Map();
+  for(const rm of sXml.matchAll(/<row\b([^>]*)\/>|<row\b([^>]*)>([\s\S]*?)<\/row>/g)){
+    const attrs=rm[1]||rm[2]||'';const inner=rm[3]||'';
+    const rn=parseInt((attrs.match(/r="(\d+)"/)||[])[1]||'0',10);
+    const cells=[];let maxc=-1;
+    for(const cm of inner.matchAll(/<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)){
+      const ca=cm[1]||'';const cinner=cm[2]||'';
+      const ref=(ca.match(/r="([A-Za-z]+)\d+"/)||[])[1];
+      const t=(ca.match(/t="([^"]+)"/)||[])[1]||'n';
+      let v='';
+      if(t==='inlineStr'){const tm=cinner.match(/<t\b[^>]*>([\s\S]*?)<\/t>/);v=tm?xmlEsc(tm[1]):'';}
+      else if(t==='s'){const vm=cinner.match(/<v\b[^>]*>([\s\S]*?)<\/v>/);if(vm)v=shared[parseInt(xmlEsc(vm[1]),10)]||'';}
+      else{const vm=cinner.match(/<v\b[^>]*>([\s\S]*?)<\/v>/);if(vm)v=xmlEsc(vm[1]);}
+      if(ref){const ci=colToIdx(ref);cells[ci]=v;if(ci>maxc)maxc=ci;}
+    }
+    const ri=(!rn||rn<1)?rowsMap.size:rn-1;
+    const arr=[];for(let i=0;i<=maxc;i++)arr.push(cells[i]===undefined?'':cells[i]);
+    rowsMap.set(ri,arr);
+  }
+  let maxRow=-1;for(const k of rowsMap.keys())if(k>maxRow)maxRow=k;
+  const rows=[];for(let i=0;i<=maxRow;i++)rows.push(rowsMap.get(i)||[]);
+  return rows;
+}
+async function parseXlsx(u8){
+  const zip=parseZip(u8);
+  const wbXml=await zip.get('xl/workbook.xml');
+  if(!wbXml)throw new Error('ملف Excel غير صالح');
+  const relMap={};
+  const relsXml=await zip.get('xl/_rels/workbook.xml.rels');
+  if(relsXml){for(const m of relsXml.matchAll(/<Relationship\b[^>]*>/g)){
+    const id=(m[0].match(/Id="([^"]+)"/)||[])[1];const tg=(m[0].match(/Target="([^"]+)"/)||[])[1];
+    if(id&&tg)relMap[id]=tg;}}
+  const shared=[];
+  const ssXml=await zip.get('xl/sharedStrings.xml');
+  if(ssXml){for(const m of ssXml.matchAll(/<si\b[^>]*>([\s\S]*?)<\/si>|<si\b[^>]*\/>/g)){
+    let t='';const inner=m[1]||'';
+    for(const tm of inner.matchAll(/<t\b[^>]*>([\s\S]*?)<\/t>|<t\b[^>]*\/>/g))t+=tm[1]||'';
+    shared.push(xmlEsc(t));}}
+  const out=[];
+  for(const sm of wbXml.matchAll(/<sheet\b[^>]*>/g)){
+    const a=sm[0];
+    const nm=xmlEsc((a.match(/name="([^"]*)"/)||[])[1]||'');
+    const rid=(a.match(/r:id="([^"]+)"/)||a.match(/r:id='([^']+)'/)||[])[1];
+    let tg=(relMap[rid]||'').replace(/^\//,'');
+    if(!/^xl\//.test(tg))tg='xl/'+tg;
+    const sXml=await zip.get(tg);
+    out.push({name:nm,rows:sXml?parseSheetXml(sXml,shared):[]});
+  }
+  if(!out.length)throw new Error('لا توجد أوراق في الملف');
+  return out;
+}
+function parseCsv(text){
+  if(text.charCodeAt(0)===0xFEFF)text=text.slice(1);
+  const first=(text.split(/\r?\n/,1)[0]||'');
+  const delim=(first.split(';').length>first.split(',').length)?';':((first.split('\t').length>first.split(',').length)?'\t':',');
+  const rows=[[]];let cur='';let inQ=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(inQ){if(ch==='"'){if(text[i+1]==='"'){cur+='"';i++;}else inQ=false;}else cur+=ch;}
+    else if(ch==='"')inQ=true;
+    else if(ch===delim){rows[rows.length-1].push(cur);cur='';}
+    else if(ch==='\n'){rows[rows.length-1].push(cur);cur='';rows.push([]);}
+    else if(ch==='\r'){}
+    else cur+=ch;
+  }
+  rows[rows.length-1].push(cur);
+  while(rows.length&&rows[rows.length-1].every(c=>c===''))rows.pop();
+  return rows;
+}
+async function parseSpreadsheet(buf){
+  const u8=new Uint8Array(buf);
+  if(u8.length>4&&u8[0]===0xD0&&u8[1]===0xCF)throw new Error('هذا ملف xls قديم. الرجاء فتحه في Excel وحفظه بصيغة xlsx ثم رفعه.');
+  if(u8.length>4&&u8[0]===0x50&&u8[1]===0x4B)return await parseXlsx(u8);
+  const text=new TextDecoder().decode(u8);
+  if(/^\s*(<\?xml|<html|<table)/i.test(text.slice(0,300)))throw new Error('صيغة الملف غير مدعومة. الرجاء حفظه بصيغة xlsx.');
+  return [{name:'Sheet1',rows:parseCsv(text)}];
+}
+
+
+/* ================= حالة التطبيق ================= */
+function defFile(key,label,page,qtyHints,wantName){
+  return {key,label,page,qtyHints,wantName,rows:null,sheets:[],sheetNames:[],sheetIdx:0,headerRow:0,mapItem:null,mapQty:null,mapName:null,fileName:null};
+}
+const FILES = {
+  opening:   defFile('opening','رصيد أول المدة','match',['رصيد أول','اول المدة','أول المدة','رصيد اول','الرصيد الافتتاحي','opening','begin','اول'],true),
+  closing:   defFile('closing','رصيد آخر المدة','match',['رصيد آخر','اخر المدة','آخر المدة','رصيد اخر','الرصيد الختامي','closing','end','اخر','آخر'],false),
+  purchases: defFile('purchases','المشتريات','match',['شراء','مشتريات','purchases','purchase','وارد'],false),
+  sales:     defFile('sales','المبيعات','match',['بيع','مبيعات','صرف','sales','صادر'],false),
+  m1:        defFile('m1','الشهر الأول','compare',['رصيد','مخزون','رصيد اول','first','شهر'],true),
+  m2:        defFile('m2','الشهر الثاني','compare',['رصيد','مخزون','رصيد اخر','second','شهر'],false),
+};
+const PAGE_KEYS = { match:['opening','closing','purchases','sales'], compare:['m1','m2'] };
+const STORE_MATCH = 'matabaqah_inventory_report_v1';
+const STORE_CMP = 'matabaqah_compare_v1';
+let LAST_REPORT = null;
+let LAST_COMPARE = null;
+let cmpRestoreDismissed = false;
+
+const ITEM_KEYS = ['رقم البند','رقم البند'.slice(0,4),'رقم','بند','كود','صنف','item','code','sku','رقم الصنف','رقم الصنف'];
+
+function norm(s){ return String(s==null?'':s).trim(); }
+function hasAr(t, keys){ t = norm(t).toLowerCase().replace(/[إأآا]/g,'ا').replace(/ة/g,'ه').replace(/\s+/g,' '); return keys.some(k=> t.includes(norm(k).toLowerCase().replace(/[إأآا]/g,'ا').replace(/ة/g,'ه'))); }
+
+function toNum(v){
+  if(v==null) return 0;
+  if(typeof v==='number') return v;
+  let s = String(v).trim()
+    .replace(/[\u0660-\u0669]/g, d=>String(d.charCodeAt(0)-0x0660))
+    .replace(/[\u06F0-\u06F9]/g, d=>String(d.charCodeAt(0)-0x06F0))
+    .replace(/[,\s\u00A0]/g,'').replace(/٫/g,'.').replace(/٬/g,'');
+  if(s===''||s==='-'||s==='—') return 0;
+  const n = parseFloat(s);
+  return isNaN(n)?0:n;
+}
+function fmt(n){
+  if(n==null||isNaN(n)) return '';
+  const r = Math.round(n*1000)/1000;
+  return r.toLocaleString('en-US',{maximumFractionDigits:3});
+}
+function itemKey(v){
+  let s = String(v==null?'':v).trim()
+    .replace(/[\u0660-\u0669]/g, d=>String(d.charCodeAt(0)-0x0660))
+    .replace(/[\u06F0-\u06F9]/g, d=>String(d.charCodeAt(0)-0x06F0));
+  if(/^-?\d+(\.0+)?$/.test(s)) { s = String(parseFloat(s)); }
+  return s;
+}
+function sortItems(items){
+  return [...items].sort((a,b)=>{
+    const na=parseFloat(a), nb=parseFloat(b);
+    if(!isNaN(na)&&!isNaN(nb)) return na-nb;
+    return a.localeCompare(b,'ar');
+  });
+}
+
+/* ============ التنقل بين الشاشات ============ */
+function showScreen(scr){
+  ['homeScreen','matchScreen','compareScreen'].forEach(id=>{
+    document.getElementById(id).style.display = (id===scr)?'block':'none';
+  });
+  if(scr==='compareScreen') maybeShowCmpRestore();
+  window.scrollTo(0,0);
+}
+
+/* ============ قراءة الملف ============ */
+function handleFile(key, file){
+  const reader = new FileReader();
+  reader.onload = async function(e){
+    try{
+      const parsed = await parseSpreadsheet(e.target.result);
+      const F = FILES[key];
+      F.sheets = parsed.map(s=>s.rows);
+      F.sheetNames = parsed.map(s=>s.name);
+      F.fileName = file.name;
+      detectHeader(F);
+      renderMapper(key);
+      updateStatus(F.page);
+    }catch(err){ alert('تعذر قراءة الملف: '+file.name+'\n'+(err&&err.message||err)); }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function detectHeader(F){
+  const sheets = F.sheets;
+  let best = {score:-1, si:0, ri:0};
+  for(let si=0; si<sheets.length; si++){
+    const rows = sheets[si];
+    const scan = Math.min(rows.length, 15);
+    for(let ri=0; ri<scan; ri++){
+      const row = rows[ri]||[];
+      let sc = 0;
+      row.forEach(c=>{ if(hasAr(c, ITEM_KEYS)) sc+=2; if(hasAr(c, F.qtyHints)) sc+=2; });
+      if(sc>best.score) best={score:sc, si, ri};
+    }
+  }
+  F.sheetIdx = best.si; F.headerRow = best.ri;
+  autoMapColumns(F);
+}
+
+function autoMapColumns(F){
+  const rows = F.sheets[F.sheetIdx];
+  const header = (rows[F.headerRow]||[]).map(norm);
+  let iItem=-1, iQty=-1, iName=-1;
+  for(let i=0;i<header.length;i++){
+    const h=header[i]; if(!h) continue;
+    if(iItem<0 && hasAr(h,['رقم البند','رقم الصنف','رقم البند'.slice(0,5)])) iItem=i;
+  }
+  if(iItem<0) for(let i=0;i<header.length;i++){ if(hasAr(header[i],['رقم','كود','صنف','item','code','sku'])){iItem=i;break;} }
+  if(iItem<0){ for(let i=0;i<Math.min(header.length,6);i++){ if(header[i]!=='' ){iItem=i;break;} } }
+  for(let i=0;i<header.length;i++){ if(i!==iItem && hasAr(header[i],F.qtyHints)){iQty=i;break;} }
+  if(iQty<0){ const cands=[]; for(let i=0;i<header.length;i++){ if(i!==iItem && header[i]!=='' ) cands.push(i);} if(cands.length) iQty=cands[0]; }
+  if(F.wantName) for(let i=0;i<header.length;i++){ if(i!==iItem && hasAr(header[i],['اسم','وصف','بيان','الصنف','name','desc'])){iName=i;break;} }
+  F.mapItem=iItem; F.mapQty=iQty; F.mapName=F.wantName?iName:null;
+}
+
+/* ============ واجهة ربط الأعمدة ============ */
+function renderMapper(key){
+  const F = FILES[key];
+  const box = document.getElementById('map-'+key);
+  const rows = F.sheets[F.sheetIdx];
+  const header = (rows[F.headerRow]||[]).map(norm);
+  const opts = header.map((h,i)=>`<option value="${i}">${h!==''?h:('عمود '+(i+1))}</option>`).join('');
+  const sheetSel = F.sheets.length>1
+    ? `<label>الورقة: <select onchange="FILES.${key}.sheetIdx=+this.value; FILES.${key}.headerRow=0; detectHeader(FILES.${key}); renderMapper('${key}'); updateStatus(FILES.${key}.page);">`
+      + F.sheetNames.map((nm,i)=>`<option value="${i}" ${i===F.sheetIdx?'selected':''}>${nm||('الورقة '+(i+1))}</option>`).join('') + '</select></label>'
+    : '';
+  let html = sheetSel + `<label>عمود رقم البند: <select onchange="FILES.${key}.mapItem=+this.value; updateStatus(FILES.${key}.page);">${opts}</select></label>`;
+  if(F.wantName) html += `<label>عمود اسم البند: <select onchange="FILES.${key}.mapName=+this.value;">${opts}</select></label>`;
+  html += `<label>عمود الكمية / الرصيد: <select onchange="FILES.${key}.mapQty=+this.value; updateStatus(FILES.${key}.page);">${opts}</select></label>`;
+  html += `<label>صف العناوين: <input type="number" min="0" value="${F.headerRow}" style="width:52px" onchange="FILES.${key}.headerRow=Math.max(0,+this.value); autoMapColumns(FILES.${key}); renderMapper('${key}'); updateStatus(FILES.${key}.page);"></label>`;
+  box.innerHTML = html;
+  const sels = box.querySelectorAll('select');
+  let idx = F.sheets.length>1?1:0;
+  if(F.mapItem!=null) sels[idx++].value=F.mapItem;
+  if(F.wantName && F.mapName!=null) sels[idx++].value=F.mapName;
+  if(F.mapQty!=null) sels[idx++].value=F.mapQty;
+}
+
+function extract(key){
+  const F = FILES[key];
+  if(!F.sheets.length || F.mapItem==null) return null;
+  const rows = F.sheets[F.sheetIdx];
+  const out = new Map();
+  for(let r=F.headerRow+1; r<rows.length; r++){
+    const row = rows[r]||[];
+    const item = itemKey(row[F.mapItem]);
+    if(item===''||item==='undefined') continue;
+    const qty = (F.mapQty!=null)? toNum(row[F.mapQty]) : 0;
+    const name = (F.wantName && F.mapName!=null)? norm(row[F.mapName]) : '';
+    const prev = out.get(item) || {qty:0, name:''};
+    prev.qty += qty;
+    if(name) prev.name = name;
+    out.set(item, prev);
+  }
+  return out;
+}
+
+function allReady(page){
+  return PAGE_KEYS[page].every(k=> FILES[k].sheets.length && FILES[k].mapItem!=null && FILES[k].mapQty!=null);
+}
+
+/* ============ حقل المجاني ============ */
+function parseFreeText(){
+  const map=new Map();
+  const txt=document.getElementById('freeInput').value||'';
+  txt.split(/\n+/).forEach(line=>{
+    const toks=line.split(/[\s:،,;=\t]+/).filter(t=>t!=='');
+    if(toks.length<2) return;
+    const it=itemKey(toks[0]);
+    if(it==='') return;
+    const q=toNum(toks[toks.length-1]);
+    map.set(it,(map.get(it)||0)+q);
+  });
+  return map;
+}
+
+/* ============ المطابقة الشهرية ============ */
+function runMatch(){
+  if(!allReady('match')){ alert('الرجاء رفع الملفات الأربعة واختيار الأعمدة أولًا.'); return; }
+  const data = {};
+  PAGE_KEYS.match.forEach(k=> data[k] = extract(k));
+  const freeMap = parseFreeText();
+  const items = new Set();
+  PAGE_KEYS.match.forEach(k=> data[k].forEach((v,it)=> items.add(it)));
+  freeMap.forEach((v,it)=> items.add(it));
+  const baseSel = document.getElementById('baseFile').value;
+  const list = sortItems([...items].filter(it=> baseSel==='all' || data[baseSel].has(it)));
+  let rows=[], hasDiff=false;
+  let tot={o:0,p:0,f:0,c:0,a:0,s:0,d:0};
+  list.forEach(it=>{
+    const o=(data.opening.get(it)||{qty:0}).qty;
+    const c=(data.closing.get(it)||{qty:0}).qty;
+    const p=(data.purchases.get(it)||{qty:0}).qty;
+    const s=(data.sales.get(it)||{qty:0}).qty;
+    const f=freeMap.get(it)||0;
+    const name=(data.opening.get(it)||{name:''}).name;
+    const avail=o+p+f-c;
+    const diff=avail-s;
+    tot.o+=o; tot.p+=p; tot.f+=f; tot.c+=c; tot.a+=avail; tot.s+=s; tot.d+=diff;
+    if(Math.abs(diff)>0.0001) hasDiff=true;
+    rows.push({it, name, o, p, f, c, avail, s, diff});
+  });
+  LAST_REPORT = {rows, tot, hasDiff, name: norm(document.getElementById('repName').value), base: baseSel};
+  renderReport(rows, tot);
+  document.getElementById('reportWrapM').style.display='block';
+  document.getElementById('resultActionsM').style.display='flex';
+  document.getElementById('saveMsgM').textContent='';
+  document.getElementById('reportWrapM').scrollIntoView({behavior:'smooth'});
+}
+
+function renderReport(rows, tot){
+  const body = rows.map(r=>`
+    <tr class="${Math.abs(r.diff)>0.0001?'diff':''}">
+      <td class="it">${r.it}</td><td class="nm">${r.name||''}</td>
+      <td>${fmt(r.o)}</td><td>${fmt(r.p)}</td><td>${fmt(r.f||0)}</td><td>${fmt(r.c)}</td>
+      <td>${fmt(r.avail)}</td><td>${fmt(r.s)}</td><td class="${Math.abs(r.diff)>0.0001?'neg':''}">${fmt(r.diff)}</td>
+    </tr>`).join('');
+  document.getElementById('reportBody').innerHTML = body;
+  document.getElementById('totO').textContent=fmt(tot.o);
+  document.getElementById('totP').textContent=fmt(tot.p);
+  document.getElementById('totF').textContent=fmt(tot.f||0);
+  document.getElementById('totC').textContent=fmt(tot.c);
+  document.getElementById('totA').textContent=fmt(tot.a);
+  document.getElementById('totS').textContent=fmt(tot.s);
+  document.getElementById('totD').textContent=fmt(tot.d);
+  const nameEl = document.getElementById('repTitleM');
+  const nm = norm(document.getElementById('repName').value);
+  if(nm){ nameEl.textContent = nm; nameEl.style.display='block'; }
+  else { nameEl.style.display='none'; }
+}
+
+/* ============ تصدير Excel بنفس تصميم التقرير ============ */
+const CRC_T=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);t[n]=c;}return t;})();
+function crc32(u8){let c=0xFFFFFFFF;for(let i=0;i<u8.length;i++)c=CRC_T[(c^u8[i])&0xFF]^(c>>>8);return (c^0xFFFFFFFF)>>>0;}
+function concatU8(arrs){let len=0;for(const a of arrs)len+=a.length;const out=new Uint8Array(len);let o=0;for(const a of arrs){out.set(a,o);o+=a.length;}return out;}
+function buildZip(files){
+  const enc=new TextEncoder();
+  const parts=[];const central=[];let offset=0;
+  for(const f of files){
+    const nameU8=enc.encode(f.name);
+    const data=typeof f.data==='string'?enc.encode(f.data):f.data;
+    const crc=crc32(data);
+    const lh=new Uint8Array(30+nameU8.length);
+    const dv=new DataView(lh.buffer);
+    dv.setUint32(0,0x04034b50,true);dv.setUint16(4,20,true);
+    dv.setUint32(14,crc,true);dv.setUint32(18,data.length,true);dv.setUint32(22,data.length,true);
+    dv.setUint16(26,nameU8.length,true);
+    lh.set(nameU8,30);
+    parts.push(lh,data);
+    const cd=new Uint8Array(46+nameU8.length);
+    const dv2=new DataView(cd.buffer);
+    dv2.setUint32(0,0x02014b50,true);dv2.setUint16(4,20,true);dv2.setUint16(6,20,true);
+    dv2.setUint32(16,crc,true);dv2.setUint32(20,data.length,true);dv2.setUint32(24,data.length,true);
+    dv2.setUint16(28,nameU8.length,true);dv2.setUint32(42,offset,true);
+    cd.set(nameU8,46);
+    central.push(cd);
+    offset+=lh.length+data.length;
+  }
+  const cdAll=concatU8(central);
+  const eocd=new Uint8Array(22);const dv3=new DataView(eocd.buffer);
+  dv3.setUint32(0,0x06054b50,true);dv3.setUint16(8,files.length,true);dv3.setUint16(10,files.length,true);
+  dv3.setUint32(12,cdAll.length,true);dv3.setUint32(16,offset,true);
+  return new Blob([...parts,cdAll,eocd],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+function colL(i){let s='';i++;while(i>0){s=String.fromCharCode(65+(i-1)%26)+s;i=Math.floor((i-1)/26);}return s;}
+function sanitizeSheetName(s){
+  let t=(s||'').replace(/[\\\/\*\?\[\]:]/g,' ').trim().slice(0,31);
+  return t||'التقرير';
+}
+function makeXlsxReport(opts){
+  const nCols=opts.header.length;
+  const lastL=colL(nCols-1);
+  let rIdx=1,merges='',dataXml='';
+  if(opts.title){
+    dataXml+=`<row r="1" ht="26" customHeight="1"><c r="A1" s="5" t="inlineStr"><is><t>${xmlEsc(opts.title)}</t></is></c></row>`;
+    merges=`<mergeCells count="1"><mergeCell ref="A1:${lastL}1"/></mergeCells>`;
+    rIdx=2;
+  }
+  dataXml+=`<row r="${rIdx}" ht="20" customHeight="1">`+opts.header.map((h,i)=>`<c r="${colL(i)}${rIdx}" s="1" t="inlineStr"><is><t>${xmlEsc(h)}</t></is></c>`).join('')+`</row>`;
+  rIdx++;
+  opts.rows.forEach(r=>{
+    let cells='';
+    r.texts.forEach((t,i)=>{cells+=`<c r="${colL(i)}${rIdx}" s="3" t="inlineStr"><is><t>${xmlEsc(t)}</t></is></c>`;});
+    r.nums.forEach((n,j)=>{cells+=`<c r="${colL(r.texts.length+j)}${rIdx}" s="2"><v>${n}</v></c>`;});
+    dataXml+=`<row r="${rIdx}">${cells}</row>`;rIdx++;
+  });
+  let totCells=`<c r="A${rIdx}" s="5" t="inlineStr"><is><t>الإجمالي</t></is></c>`;
+  for(let i=1;i<nCols;i++)totCells+=`<c r="${colL(i)}${rIdx}" s="5"/>`;
+  opts.totals.forEach((n,j)=>{totCells+=`<c r="${colL(2+j)}${rIdx}" s="4"><v>${n}</v></c>`;});
+  dataXml+=`<row r="${rIdx}">${totCells}</row>`;
+  const colsXml=opts.widths.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('');
+  const sheetXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<sheetViews><sheetView rightToLeft="1" workbookViewId="0"/></sheetViews>
+<sheetFormatPr defaultRowHeight="16"/>
+<cols>${colsXml}</cols>
+<sheetData>${dataXml}</sheetData>${merges}
+</worksheet>`;
+  const stylesXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<fonts count="4">
+<font><sz val="11"/><name val="Arial"/></font>
+<font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Arial"/></font>
+<font><b/><sz val="14"/><name val="Arial"/></font>
+<font><b/><sz val="11"/><name val="Arial"/></font>
+</fonts>
+<fills count="4">
+<fill><patternFill patternType="none"/></fill>
+<fill><patternFill patternType="gray125"/></fill>
+<fill><patternFill patternType="solid"><fgColor rgb="${opts.accent}"/><bgColor indexed="64"/></patternFill></fill>
+<fill><patternFill patternType="solid"><fgColor rgb="${opts.soft}"/><bgColor indexed="64"/></patternFill></fill>
+</fills>
+<borders count="2">
+<border><left/><right/><top/><bottom/><diagonal/></border>
+<border><left style="thin"><color rgb="FF9AA7B8"/></left><right style="thin"><color rgb="FF9AA7B8"/></right><top style="thin"><color rgb="FF9AA7B8"/></top><bottom style="thin"><color rgb="FF9AA7B8"/></bottom><diagonal/></border>
+</borders>
+<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+<cellXfs count="6">
+<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
+<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+<xf numFmtId="4" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1"/>
+<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment horizontal="center"/></xf>
+<xf numFmtId="4" fontId="3" fillId="3" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1"/>
+<xf numFmtId="0" fontId="3" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center"/></xf>
+</cellXfs>
+</styleSheet>`;
+  const filesZip=[
+    {name:'[Content_Types].xml',data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`},
+    {name:'_rels/.rels',data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`},
+    {name:'xl/workbook.xml',data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${xmlEsc(sanitizeSheetName(opts.sheetName))}" sheetId="1" r:id="rId1"/></sheets></workbook>`},
+    {name:'xl/_rels/workbook.xml.rels',data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`},
+    {name:'xl/styles.xml',data:stylesXml},
+    {name:'xl/worksheets/sheet1.xml',data:sheetXml},
+  ];
+  const blob=buildZip(filesZip);
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=(opts.fileName||'تقرير')+'.xlsx';
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},500);
+}
+
+function exportExcel(){
+  if(!LAST_REPORT){ alert('قم بتنفيذ المطابقة أولًا.'); return; }
+  const {rows, tot, name} = LAST_REPORT;
+  makeXlsxReport({
+    title:name, sheetName:name||'تقرير المطابقة', fileName:(name||'تقرير المطابقة'),
+    accent:'FF1D4ED8', soft:'FFDBEAFE',
+    header:['رقم البند','اسم البند','رصيد أول المدة','المشتريات','المجاني','رصيد آخر المدة','المتاح للبيع','المبيعات','الفرق'],
+    widths:[12,26,14,12,10,14,13,12,11],
+    rows:rows.map(r=>({texts:[r.it, r.name||''], nums:[r.o,r.p,r.f||0,r.c,r.avail,r.s,r.diff]})),
+    totals:[tot.o,tot.p,tot.f||0,tot.c,tot.a,tot.s,tot.d]
+  });
+}
+
+/* ============ مقارنة شهرين ============ */
+function runCompare(){
+  if(!allReady('compare')){ alert('الرجاء رفع ملفي الشهرين واختيار الأعمدة أولًا.'); return; }
+  const data={m1:extract('m1'), m2:extract('m2')};
+  const items=new Set();
+  ['m1','m2'].forEach(k=>data[k].forEach((v,it)=>items.add(it)));
+  const baseSel=document.getElementById('cmpBase').value;
+  const l1=norm(document.getElementById('cmpLabel1').value)||'الشهر الأول';
+  const l2=norm(document.getElementById('cmpLabel2').value)||'الشهر الثاني';
+  const list=sortItems([...items].filter(it=> baseSel==='all' || data[baseSel].has(it)));
+  let rows=[], hasDiff=false;
+  let tot={a:0,b:0,d:0};
+  list.forEach(it=>{
+    const a=(data.m1.get(it)||{qty:0}).qty;
+    const b=(data.m2.get(it)||{qty:0}).qty;
+    const name=(data.m1.get(it)||{name:''}).name || (data.m2.get(it)||{name:''}).name;
+    const diff=a-b;
+    tot.a+=a; tot.b+=b; tot.d+=diff;
+    if(Math.abs(diff)>0.0001) hasDiff=true;
+    rows.push({it,name,a,b,diff});
+  });
+  LAST_COMPARE={rows,tot,hasDiff,name:norm(document.getElementById('cmpName').value),l1,l2,base:baseSel};
+  renderCompare(rows,tot,l1,l2);
+  document.getElementById('reportWrapC').style.display='block';
+  document.getElementById('resultActionsC').style.display='flex';
+  document.getElementById('saveMsgC').textContent='';
+  document.getElementById('reportWrapC').scrollIntoView({behavior:'smooth'});
+}
+
+function renderCompare(rows, tot, l1, l2){
+  const body=rows.map(r=>`
+    <tr class="${Math.abs(r.diff)>0.0001?'diff':''}">
+      <td class="it">${r.it}</td><td class="nm">${r.name||''}</td>
+      <td>${fmt(r.a)}</td><td>${fmt(r.b)}</td><td class="${r.diff<0?'neg':''}">${fmt(r.diff)}</td>
+    </tr>`).join('');
+  document.getElementById('cmpBody').innerHTML=body;
+  document.getElementById('cmpTotA').textContent=fmt(tot.a);
+  document.getElementById('cmpTotB').textContent=fmt(tot.b);
+  document.getElementById('cmpTotD').textContent=fmt(tot.d);
+  document.getElementById('thM1').textContent=l1;
+  document.getElementById('thM2').textContent=l2;
+  const nameEl=document.getElementById('repTitleC');
+  const nm=norm(document.getElementById('cmpName').value);
+  if(nm){nameEl.textContent=nm;nameEl.style.display='block';}
+  else{nameEl.style.display='none';}
+}
+
+function exportCompareExcel(){
+  if(!LAST_COMPARE){ alert('قم بتنفيذ المقارنة أولًا.'); return; }
+  const {rows, tot, name, l1, l2} = LAST_COMPARE;
+  makeXlsxReport({
+    title:name, sheetName:name||'مقارنة الشهرين', fileName:(name||'مقارنة الشهرين'),
+    accent:'FF7C3AED', soft:'FFF3E8FF',
+    header:['رقم البند','اسم البند',l1,l2,'الفرق'],
+    widths:[12,26,16,16,12],
+    rows:rows.map(r=>({texts:[r.it, r.name||''], nums:[r.a,r.b,r.diff]})),
+    totals:[tot.a,tot.b,tot.d]
+  });
+}
+
+/* ============ الخزن داخل المتصفح ============ */
+function flashSave(id,msg){
+  const el=document.getElementById(id);
+  el.textContent=msg;
+  setTimeout(()=>{el.textContent='';},2500);
+}
+function saveMatch(){
+  if(!LAST_REPORT){alert('قم بتنفيذ المطابقة أولًا.');return;}
+  LAST_REPORT.name=norm(document.getElementById('repName').value);
+  LAST_REPORT.base=document.getElementById('baseFile').value;
+  try{
+    localStorage.setItem(STORE_MATCH, JSON.stringify({...LAST_REPORT, savedAt:new Date().toISOString()}));
+    flashSave('saveMsgM','تم الخزن ✓');
+  }catch(e){alert('تعذر الخزن في المتصفح: '+e.message);}
+}
+function saveCompare(){
+  if(!LAST_COMPARE){alert('قم بتنفيذ المقارنة أولًا.');return;}
+  LAST_COMPARE.name=norm(document.getElementById('cmpName').value);
+  LAST_COMPARE.l1=norm(document.getElementById('cmpLabel1').value)||'الشهر الأول';
+  LAST_COMPARE.l2=norm(document.getElementById('cmpLabel2').value)||'الشهر الثاني';
+  LAST_COMPARE.base=document.getElementById('cmpBase').value;
+  try{
+    localStorage.setItem(STORE_CMP, JSON.stringify({...LAST_COMPARE, savedAt:new Date().toISOString()}));
+    flashSave('saveMsgC','تم الخزن ✓');
+  }catch(e){alert('تعذر الخزن في المتصفح: '+e.message);}
+}
+function restoreMatch(){
+  try{
+    const raw=localStorage.getItem(STORE_MATCH);
+    if(!raw)return;
+    const s=JSON.parse(raw);
+    document.getElementById('repName').value=s.name||'';
+    if(s.base)document.getElementById('baseFile').value=s.base;
+    renderReport(s.rows||[], s.tot||{o:0,p:0,f:0,c:0,a:0,s:0,d:0});
+    document.getElementById('reportWrapM').style.display='block';
+    document.getElementById('resultActionsM').style.display='flex';
+    document.getElementById('restoreBar').style.display='none';
+    document.getElementById('reportWrapM').scrollIntoView({behavior:'smooth'});
+  }catch(e){alert('تعذر استعادة التقرير المخزن.');}
+}
+function restoreCompare(){
+  try{
+    const raw=localStorage.getItem(STORE_CMP);
+    if(!raw)return;
+    const s=JSON.parse(raw);
+    document.getElementById('cmpName').value=s.name||'';
+    document.getElementById('cmpLabel1').value=(s.l1&&s.l1!=='الشهر الأول')?s.l1:'';
+    document.getElementById('cmpLabel2').value=(s.l2&&s.l2!=='الشهر الثاني')?s.l2:'';
+    if(s.base)document.getElementById('cmpBase').value=s.base;
+    renderCompare(s.rows||[], s.tot||{a:0,b:0,d:0}, s.l1||'الشهر الأول', s.l2||'الشهر الثاني');
+    document.getElementById('reportWrapC').style.display='block';
+    document.getElementById('resultActionsC').style.display='flex';
+    document.getElementById('restoreBarC').style.display='none';
+    document.getElementById('reportWrapC').scrollIntoView({behavior:'smooth'});
+  }catch(e){alert('تعذر استعادة التقرير المخزن.');}
+}
+function dismissRestore(id){
+  document.getElementById(id).style.display='none';
+  if(id==='restoreBarC') cmpRestoreDismissed=true;
+}
+function maybeShowCmpRestore(){
+  if(cmpRestoreDismissed)return;
+  try{
+    const raw=localStorage.getItem(STORE_CMP);
+    if(!raw)return;
+    const s=JSON.parse(raw);
+    const d=s.savedAt?new Date(s.savedAt).toLocaleDateString('ar-EG'):'';
+    document.getElementById('restoreInfoC').textContent='يوجد تقرير مقارنة مخزن'+(d?' بتاريخ '+d:'')+(s.name?' — «'+s.name+'»':'');
+    document.getElementById('restoreBarC').style.display='flex';
+  }catch(e){}
+}
+
+/* ============ إعادة التعيين ============ */
+function resetMatch(){
+  PAGE_KEYS.match.forEach(k=>{ Object.assign(FILES[k], {rows:null,sheets:[],sheetNames:[],sheetIdx:0,headerRow:0,mapItem:null,mapQty:null,mapName:null,fileName:null}); document.getElementById('file-'+k).value=''; document.getElementById('map-'+k).innerHTML=''; });
+  document.getElementById('freeInput').value='';
+  document.getElementById('reportWrapM').style.display='none';
+  document.getElementById('resultActionsM').style.display='none';
+  updateStatus('match');
+}
+function resetCompare(){
+  PAGE_KEYS.compare.forEach(k=>{ Object.assign(FILES[k], {rows:null,sheets:[],sheetNames:[],sheetIdx:0,headerRow:0,mapItem:null,mapQty:null,mapName:null,fileName:null}); document.getElementById('file-'+k).value=''; document.getElementById('map-'+k).innerHTML=''; });
+  document.getElementById('reportWrapC').style.display='none';
+  document.getElementById('resultActionsC').style.display='none';
+  updateStatus('compare');
+}
+
+function updateStatus(page){
+  PAGE_KEYS[page].forEach(k=>{
+    const F=FILES[k];
+    const el=document.getElementById('st-'+k);
+    if(!F.sheets.length){ el.textContent='لم يتم الرفع'; el.className='st none'; }
+    else if(F.mapItem==null){ el.textContent='اختر عمود رقم البند'; el.className='st warn'; }
+    else if(F.mapQty==null){ el.textContent='اختر عمود الكمية'; el.className='st warn'; }
+    else { el.textContent='جاهز ✓ ('+F.fileName+')'; el.className='st ok'; }
+  });
+}
+
+window.addEventListener('DOMContentLoaded', ()=>{
+  Object.keys(FILES).forEach(k=>{
+    document.getElementById('file-'+k).addEventListener('change', e=>{
+      if(e.target.files.length) handleFile(k, e.target.files[0]);
+    });
+  });
+  try{
+    const raw=localStorage.getItem(STORE_MATCH);
+    if(raw){
+      const s=JSON.parse(raw);
+      const d=s.savedAt?new Date(s.savedAt).toLocaleDateString('ar-EG'):'';
+      document.getElementById('restoreInfo').textContent='يوجد تقرير مطابقة مخزن'+(d?' بتاريخ '+d:'')+(s.name?' — «'+s.name+'»':'');
+      document.getElementById('restoreBar').style.display='flex';
+    }
+  }catch(e){}
+});
+</script>
+</body>
 </html>
