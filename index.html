@@ -85,6 +85,33 @@ body{color:#214536!important;background:radial-gradient(ellipse at 12% 15%,#dff6
 }
 .app-card:hover .arrow{background:#fff!important}
 
+
+/* Compact, deeper program cards */
+.app-card{
+  min-height:84px!important;
+  padding:13px 17px!important;
+  border-radius:20px!important;
+  color:#f4fff8!important;
+  background:
+    radial-gradient(ellipse at 15% 0%,#4aab79 0%,#4aab7900 48%),
+    radial-gradient(ellipse at 100% 100%,#0b3827 0%,#0b382700 58%),
+    linear-gradient(125deg,#23794f 0%,#17623f 48%,#10482f 100%)!important;
+  border:1px solid #62b58a!important;
+  box-shadow:0 12px 25px #123f2d38,inset 0 1px 0 #ffffff35!important;
+}
+.app-card:before{
+  background:linear-gradient(105deg,transparent 34%,#ffffff08 44%,#ffffff35 50%,#ffffff08 56%,transparent 66%)!important;
+}
+.app-card:after{
+  width:170px!important;height:170px!important;
+  border-color:#ffffff20!important;
+  box-shadow:0 0 0 18px #ffffff0b,0 0 0 36px #ffffff07!important;
+}
+.app-card h3{color:#f5fff8!important;font-size:18px!important}
+.app-card .open-label{display:none!important}
+.app-card:hover{box-shadow:0 18px 32px #123f2d48,inset 0 1px 0 #ffffff45!important}
+@media(max-width:520px){.app-card{min-height:76px!important;padding:12px 15px!important;border-radius:17px!important}}
+
 </style>
 </head>
 <body>
