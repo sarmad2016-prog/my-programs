@@ -5,50 +5,73 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>my programs</title>
 <meta name="theme-color" content="#0d3f29">
+<meta name="description" content="my programs">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./icon.svg">
 <style>
-:root{--g900:#0d3f29;--g700:#1d5a40;--g500:#2f7a5c;--g100:#dcebe4;--mist:#e3ecea;--sky:#eaf6fc;--ink:#12352a;--muted:#59656d;--line:#cfdcd8}
+:root{--forest:#0d3f29;--deep:#082d21;--green:#1d5a40;--mint:#dcebe4;--mist:#e3ecea;--ink:#12352a;--line:#cfdcd8}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;font-family:Tajawal,"Segoe UI",Tahoma,Arial,sans-serif;background:linear-gradient(160deg,var(--mist),#f7fbf9 55%,var(--sky));color:var(--ink)}
-header{background:linear-gradient(135deg,var(--g900),var(--g700));color:#fff;padding:28px 18px 42px}
-.wrap{width:min(980px,calc(100% - 28px));margin:auto}
-.top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:13px}
-.logo{width:52px;height:52px;border-radius:16px;background:#ffffff1c;display:grid;place-items:center;font-size:28px}
-h1{font-size:clamp(25px,5vw,38px);margin:0}
-.install{border:1px solid #ffffff70;background:#ffffff18;color:white;border-radius:12px;padding:11px 16px;font:inherit;font-weight:700;cursor:pointer}
-main{padding:30px 0 50px}
-.section-head{margin-bottom:17px}
-.section-head h2{margin:0;font-size:23px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,250px));gap:16px}
-.app-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px 20px;box-shadow:0 8px 24px #12352a0d;display:flex;flex-direction:column;align-items:flex-start;min-height:174px;text-decoration:none;color:var(--ink);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
-.app-card:hover{transform:translateY(-4px);box-shadow:0 13px 28px #12352a18;border-color:var(--g500)}
-.app-card:focus-visible{outline:3px solid var(--g500);outline-offset:3px}
-.app-icon{width:62px;height:62px;border-radius:18px;background:var(--g100);display:grid;place-items:center;font-size:32px;margin-bottom:17px}
-.app-card h3{font-size:19px;margin:0}
-@media(max-width:520px){header{padding-top:22px}.top{align-items:center}.install{width:100%}.grid{grid-template-columns:1fr}.app-card{min-height:145px}}
+html{min-height:100%}
+body{margin:0;min-height:100vh;font-family:Tajawal,"Segoe UI",Tahoma,Arial,sans-serif;color:var(--ink);background:radial-gradient(ellipse at 12% 15%,#d5e9df 0,transparent 34%),radial-gradient(ellipse at 90% 85%,#d9edf6 0,transparent 32%),linear-gradient(145deg,#f5faf7,#e8f0ed 55%,#f5fafc);overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;background-image:radial-gradient(#7da995 1px,transparent 1px);background-size:26px 26px;mask-image:linear-gradient(to bottom,black,transparent 75%)}
+.wrap{width:min(1100px,calc(100% - 36px));margin:auto;position:relative}
+header{padding:34px 0 24px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:18px}
+.brand{display:flex;align-items:center;gap:15px}
+.brand-mark{width:58px;height:58px;border-radius:19px;overflow:hidden;box-shadow:0 9px 24px #0d3f2928}
+.brand-mark img{width:100%;height:100%;display:block}
+h1{font-size:clamp(26px,4vw,38px);letter-spacing:-.7px;margin:0;color:var(--forest);font-weight:850}
+.install{display:inline-flex;align-items:center;gap:9px;padding:12px 17px;border:1px solid #b9d1c5;border-radius:15px;background:#ffffffb8;color:var(--forest);font:700 14px inherit;cursor:pointer;box-shadow:0 5px 18px #12352a0a;transition:.2s}
+.install:hover{background:white;transform:translateY(-2px);box-shadow:0 9px 22px #12352a14}
+main{padding:34px 0 80px}
+.section-title{font-size:19px;font-weight:800;margin:0 0 20px;color:#426454;display:flex;align-items:center;gap:11px}
+.section-title:before{content:"";width:5px;height:23px;border-radius:9px;background:linear-gradient(#3e9870,#0d3f29)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),390px));gap:22px}
+.app-card{--shine-duration:5.5s;position:relative;isolation:isolate;min-height:226px;display:flex;align-items:center;gap:22px;padding:27px 25px;overflow:hidden;border-radius:27px;text-decoration:none;color:#f6fff9;background:radial-gradient(circle at 85% 12%,#2d7955 0,transparent 38%),linear-gradient(135deg,#174f39 0%,#0d3f29 55%,#082c20 100%);border:1px solid #ffffff40;box-shadow:0 18px 38px #0b3d2927, inset 0 1px 0 #ffffff35;transition:transform .3s ease,box-shadow .3s ease}
+.app-card:before{content:"";position:absolute;z-index:-1;width:190%;height:230%;top:-65%;left:-145%;transform:rotate(24deg);background:linear-gradient(90deg,transparent 38%,#ffffff08 45%,#ffffff52 50%,#ffffff10 55%,transparent 62%);animation:shine var(--shine-duration) ease-in-out infinite}
+.app-card:after{content:"";position:absolute;z-index:-1;width:210px;height:210px;border:1px solid #ffffff19;border-radius:50%;left:-72px;bottom:-128px;box-shadow:0 0 0 24px #ffffff08,0 0 0 48px #ffffff05}
+.app-card:hover{transform:translateY(-7px) scale(1.012);box-shadow:0 26px 48px #0b3d2938,inset 0 1px 0 #ffffff45}
+.app-card:focus-visible{outline:3px solid #d5b66f;outline-offset:5px}
+.app-art{width:112px;height:112px;flex:0 0 112px;border-radius:29px;display:grid;place-items:center;background:linear-gradient(145deg,#ffffff28,#ffffff0d);border:1px solid #ffffff38;box-shadow:inset 0 1px 0 #ffffff42,0 12px 28px #041c1435;backdrop-filter:blur(9px)}
+.app-art svg{width:78px;height:78px;filter:drop-shadow(0 7px 9px #031b12aa)}
+.app-info{min-width:0;display:flex;flex-direction:column;gap:16px}
+.app-info h3{margin:0;font-size:clamp(21px,3vw,25px);font-weight:850;line-height:1.4}
+.open-label{display:inline-flex;align-items:center;gap:10px;color:#d7ebdf;font-size:14px;font-weight:700}
+.open-label .arrow{width:29px;height:29px;border-radius:50%;display:grid;place-items:center;background:#ffffff20;border:1px solid #ffffff32;transition:transform .25s,background .25s}
+.app-card:hover .arrow{transform:translateX(-5px);background:#ffffff32}
+@keyframes shine{0%,55%{left:-150%}100%{left:150%}}
+@media(max-width:520px){header{padding-top:22px}.wrap{width:calc(100% - 28px)}.brand-mark{width:50px;height:50px;border-radius:16px}.install{padding:10px 12px;font-size:13px}.app-card{min-height:190px;padding:22px 18px;gap:16px;border-radius:23px}.app-art{width:88px;height:88px;flex-basis:88px;border-radius:23px}.app-art svg{width:64px;height:64px}.app-info h3{font-size:20px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
 <header><div class="wrap top">
- <div class="brand"><div class="logo">🗂️</div><div><h1>my programs</h1></div></div>
- <button class="install" id="installLibrary" type="button">⬇ تثبيت المكتبة</button>
+ <div class="brand"><div class="brand-mark"><img src="./icon.svg" alt=""></div><h1>my programs</h1></div>
+ <button class="install" id="installLibrary" type="button"><span aria-hidden="true">↓</span> تثبيت المكتبة</button>
 </div></header>
 <main class="wrap">
- <div class="section-head"><h2>برامجي</h2></div>
+ <h2 class="section-title">برامجي</h2>
  <section class="grid" aria-label="قائمة البرامج">
   <a class="app-card" href="./promoters/" aria-label="فتح نظام المروجين">
-   <div class="app-icon" aria-hidden="true">🏪</div>
-   <h3>نظام المروجين</h3>
+   <div class="app-art" aria-hidden="true">
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+     <path d="M15 39.5 50 19l35 20.5v42a5.5 5.5 0 0 1-5.5 5.5h-59a5.5 5.5 0 0 1-5.5-5.5v-42Z" fill="#DCEBE4"/>
+     <path d="M10 39 50 15l40 24-5 8-35-21-35 21-5-8Z" fill="#E6C47C"/>
+     <path d="M37 87V58a13 13 0 0 1 26 0v29" fill="#1D5A40"/>
+     <path d="M25 53h8v9h-8zm42 0h8v9h-8z" fill="#6FA88B"/>
+     <path d="M43 68h14" stroke="#DCEBE4" stroke-width="3" stroke-linecap="round"/>
+     <circle cx="75" cy="25" r="10" fill="#F5E1B2"/><path d="M71 25h8m-4-4v8" stroke="#8A6931" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+   </div>
+   <div class="app-info"><h3>نظام المروجين</h3><span class="open-label">دخول البرنامج <span class="arrow">←</span></span></div>
   </a>
  </section>
 </main>
 <script>
 let libraryPrompt=null;
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();libraryPrompt=e;});
-async function installPwa(promptRef){if(promptRef){promptRef.prompt();await promptRef.userChoice;return true;}alert("إذا لم تظهر نافذة التثبيت، افتح قائمة المتصفح ⋮ واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».");return false;}
+async function installPwa(promptRef){if(promptRef){promptRef.prompt();await promptRef.userChoice;return;}alert("إذا لم تظهر نافذة التثبيت، افتح قائمة المتصفح واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».");}
 document.getElementById("installLibrary").addEventListener("click",()=>installPwa(libraryPrompt));
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}
 </script>
