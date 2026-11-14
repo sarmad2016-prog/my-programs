@@ -878,8 +878,19 @@ function shareExcelWhatsApp(){
   saveOrder(false);
   var o=findOrder(currentOrderId);
   if(!o||!o.items.length){alert('الطلبية فارغة');return;}
+  var sig=orderSig();
+
+  /* يجب استدعاء navigator.share مباشرةً أثناء ضغطة المستخدم؛
+     لذلك نشارك الملف الجاهز فوراً ولا نؤخر الاستدعاء داخل Promise.then */
+  if(cachedExport.sig===sig && cachedExport.file){
+    shareFileNow(cachedExport.file);
+    return;
+  }
+
   prepareExport().then(function(file){
-    if(file)shareFileNow(file);
+    if(file){
+      toast('ملف الإكسل أصبح جاهزاً. اضغط زر واتساب مرة ثانية للإرسال المباشر.');
+    }
   }).catch(function(){
     alert('تعذر إنشاء ملف Excel حقيقي. تأكد من اتصال الإنترنت ثم أعد المحاولة؛ لم يتم إنشاء ملف بصيغة غير متوافقة.');
   });
