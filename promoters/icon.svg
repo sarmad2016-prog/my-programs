@@ -1,1 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#0d3f29"/><circle cx="256" cy="174" r="76" fill="#dcebe4"/><path d="M104 405c14-87 68-132 152-132s138 45 152 132" fill="#dcebe4"/><path d="M170 380h172" stroke="#2f7a5c" stroke-width="22" stroke-linecap="round"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs>
+ <linearGradient id="b" x1="70" y1="40" x2="430" y2="470" gradientUnits="userSpaceOnUse"><stop stop-color="#286d4d"/><stop offset="1" stop-color="#082d20"/></linearGradient>
+ <linearGradient id="roof" x1="135" y1="120" x2="370" y2="260" gradientUnits="userSpaceOnUse"><stop stop-color="#ffe9b5"/><stop offset="1" stop-color="#d6a64b"/></linearGradient>
+</defs>
+<rect width="512" height="512" rx="112" fill="url(#b)"/>
+<circle cx="390" cy="112" r="82" fill="#ffffff" opacity=".06"/>
+<path d="M82 224 256 111l174 113-23 38-151-98-151 98z" fill="url(#roof)"/>
+<path d="M118 242h276v168a30 30 0 0 1-30 30H148a30 30 0 0 1-30-30z" fill="#e8f4ed"/>
+<path d="M204 440V320a52 52 0 0 1 104 0v120" fill="#1d5a40"/>
+<rect x="146" y="277" width="40" height="54" rx="9" fill="#9bc6ad"/>
+<rect x="326" y="277" width="40" height="54" rx="9" fill="#9bc6ad"/>
+<path d="M222 355h68" stroke="#dcebe4" stroke-width="12" stroke-linecap="round"/>
+<circle cx="365" cy="164" r="37" fill="#f8e6bc"/>
+<path d="M350 164h30m-15-15v30" stroke="#8a6931" stroke-width="8" stroke-linecap="round"/>
+</svg>
