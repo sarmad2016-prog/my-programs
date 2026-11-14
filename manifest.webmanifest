@@ -1,0 +1,20 @@
+{
+  "name": "my programs — برامجي",
+  "short_name": "my programs",
+  "description": "مكتبة تطبيقات وبرامج مستقلة",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#e3ecea",
+  "theme_color": "#0d3f29",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
