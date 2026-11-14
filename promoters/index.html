@@ -71,8 +71,8 @@ button:active{transform:scale(.97)}
 @media(max-width:500px){.admin-edit-fields{grid-template-columns:1fr}}
 @media(max-width:500px){.product{grid-template-columns:minmax(0,1fr) 62px 62px minmax(105px,1fr)}.product .name{font-size:12px}.product input{font-size:12px;padding:8px}}
 @media print{header,.no-print{display:none!important}body{background:#fff}.wrap{max-width:none;padding:0}.card{box-shadow:none;border:1px solid #ddd}}
-</style>
-</head>
+.install-pwa{background:#dcebe4;color:#0d3f29;border:1px solid #b7d3c5;padding:7px 10px;font-size:12px;border-radius:10px;white-space:nowrap}.install-pwa:active{transform:scale(.97)}</style>
+<link rel="manifest" href="./manifest.webmanifest"><meta name="theme-color" content="#0d3f29"><link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="./icon.svg"></head>
 <body>
 <header>
  <div class="wrap">
@@ -83,7 +83,7 @@ button:active{transform:scale(.97)}
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
    <span class="badge gold">نسخة المسؤول</span>
    <div style="display:flex;gap:6px;align-items:center">
-    <div id="syncStatus" style="cursor:pointer" onclick="openSyncInfo()" title="اضغط لعرض حالة المزامنة">⚪ جارٍ التهيئة...</div>
+    <div id="syncStatus" style="cursor:pointer" onclick="openSyncInfo()" title="اضغط لعرض حالة المزامنة">⚪ جارٍ التهيئة...</div><button id="installAppBtn" class="install-pwa" type="button">⬇ تثبيت التطبيق</button>
    </div>
   </div>
  </div>
@@ -992,5 +992,14 @@ document.addEventListener("visibilitychange",()=>{
  if(Date.now()-lastTick>2*60*1000){lastTick=Date.now();syncNow(true)}
  if(Date.now()-lastProd>10*60*1000){lastProd=Date.now();syncProducts()}
 });
+
+let deferredInstallPrompt=null;
+const installBtn=document.getElementById("installAppBtn");
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstallPrompt=e;});
+if(installBtn)installBtn.addEventListener("click",async()=>{
+ if(deferredInstallPrompt){deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;}
+ else{alert("لتثبيت التطبيق: افتح قائمة المتصفح ⋮ ثم اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».");}
+});
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}
 </script>
 </body></html>
