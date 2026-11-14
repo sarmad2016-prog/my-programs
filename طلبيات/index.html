@@ -178,6 +178,7 @@ tr:hover td,.suggest-item:hover{background:#f8f3e5!important}
         <button class="btn btn-gray" onclick="showTab('home')">🏠 الرئيسية</button>
         <span style="flex:1"></span>
         <button class="btn btn-purple" onclick="document.getElementById('importFileInput').click()">📥 استيراد المواد من ملف (Excel / PDF)</button>
+        <button class="btn btn-green" onclick="exportMaterialsExcel()">📊 تصدير المواد إلى Excel</button>
         <button class="btn btn-primary" onclick="openMaterialModal()">➕ إضافة مادة جديدة</button>
         <button class="btn btn-blue" onclick="saveProgramCopy()">💾 حفظ نسخة من البرنامج (للنقل للهاتف)</button>
         <input type="file" id="importFileInput" accept=".xlsx,.xls,.csv,.pdf" style="display:none" onchange="onImportFile(event)">
@@ -394,6 +395,50 @@ function deleteMaterial(id){
   var arr=[];for(var i=0;i<state.materials.length;i++)if(state.materials[i].id!==id)arr.push(state.materials[i]);
   state.materials=arr;persist();renderMaterials();toast('تم حذف المادة');
 }
+function exportMaterialsExcel(){
+  if(!state.materials.length){alert('لا توجد مواد لتصديرها');return;}
+  var btn=document.querySelector('button[onclick="exportMaterialsExcel()"]');
+  if(btn){btn.disabled=true;btn.textContent='⏳ جاري تجهيز Excel...';}
+  preloadExcelJS().then(function(){
+    var wb=new ExcelJS.Workbook();
+    var ws=wb.addWorksheet('المواد',{views:[{rightToLeft:true}]});
+    ws.columns=[
+      {header:'اسم المادة',key:'name',width:38},
+      {header:'الباركود',key:'barcode',width:24},
+      {header:'الشد',key:'shad',width:18},
+      {header:'الوزن',key:'weight',width:18},
+      {header:'السعر',key:'price',width:18}
+    ];
+    var head=ws.getRow(1);head.height=30;
+    head.eachCell(function(cell){
+      cell.font={bold:true,size:14,color:{argb:'FFFFFFFF'}};
+      cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF17623F'}};
+      cell.alignment={horizontal:'center',vertical:'middle'};
+      cell.border={top:{style:'thin'},bottom:{style:'thin'},left:{style:'thin'},right:{style:'thin'}};
+    });
+    for(var i=0;i<state.materials.length;i++){
+      var m=state.materials[i];
+      var row=ws.addRow([String(m.name||''),String(m.barcode||''),String(m.shad||''),String(m.weight||''),String(m.price||'')]);
+      row.height=24;
+      row.eachCell({includeEmpty:true},function(cell,col){
+        cell.alignment={horizontal:'center',vertical:'middle'};
+        cell.border={top:{style:'thin',color:{argb:'FFD1D5DB'}},bottom:{style:'thin',color:{argb:'FFD1D5DB'}},left:{style:'thin',color:{argb:'FFD1D5DB'}},right:{style:'thin',color:{argb:'FFD1D5DB'}}};
+        cell.font={size:12,color:{argb:'FF1E293B'}};
+        if(col===2)cell.numFmt='@';
+      });
+    }
+    return wb.xlsx.writeBuffer().then(function(buf){
+      var blob=new Blob([buf],{type:XLSX_MIME});
+      downloadBlobAs(blob,'المواد-'+todayStr()+'.xlsx');
+      toast('تم تصدير '+state.materials.length+' مادة إلى ملف Excel حقيقي ✅');
+    });
+  }).catch(function(){
+    alert('تعذر إنشاء ملف Excel. تأكد من اتصال الإنترنت ثم أعد المحاولة.');
+  }).then(function(){
+    if(btn){btn.disabled=false;btn.textContent='📊 تصدير المواد إلى Excel';}
+  });
+}
+
 function renderMaterials(){
   document.getElementById('materialsCount').textContent=state.materials.length;
   var b=document.getElementById('materialsBody');
