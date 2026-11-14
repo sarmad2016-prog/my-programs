@@ -32,8 +32,8 @@ td{padding:12px 11px;border-top:1px solid #edf2ee;font-size:15px;line-height:1.5
 
 .settings-trigger{position:absolute;left:12px;top:14px;width:40px;height:40px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--forest);font-size:21px;font-weight:900;cursor:pointer;box-shadow:0 4px 14px #174c3215}
 header{position:relative;padding-left:52px}
-.settings-backdrop{position:fixed;inset:0;background:#102d20a6;z-index:50;display:flex;justify-content:flex-start;align-items:stretch}
-.settings-panel{width:min(390px,88vw);height:100%;overflow:auto;background:#fff;color:var(--ink);padding:20px;box-shadow:12px 0 40px #0002;animation:settingsIn .2s ease}
+.settings-backdrop{position:fixed;inset:0;background:#102d20a6;z-index:50;display:flex;direction:ltr;justify-content:flex-start;align-items:stretch}
+.settings-panel{direction:rtl;width:min(390px,88vw);height:100%;overflow:auto;background:#fff;color:var(--ink);padding:20px;box-shadow:12px 0 40px #0002;animation:settingsIn .2s ease}
 @keyframes settingsIn{from{transform:translateX(-25px);opacity:.7}to{transform:translateX(0);opacity:1}}
 .settings-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
 .settings-head h2{margin:0;color:var(--forest);font-size:24px;font-weight:900}
