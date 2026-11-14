@@ -29,7 +29,6 @@ table{width:100%;border-collapse:collapse;min-width:640px}th{background:#eaf4ed;
 td{padding:12px 11px;border-top:1px solid #edf2ee;font-size:15px;line-height:1.55;vertical-align:middle;overflow-wrap:anywhere}tbody tr:nth-child(even){background:#fbfdfb}
 .empty{text-align:center!important;color:#7b8b81;padding:28px!important}.row-actions{display:flex;gap:7px;white-space:nowrap}.mini{border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 13px;color:var(--forest);font-weight:900;font-size:15px;cursor:pointer;min-height:40px}.mini.del{color:#a43b30;background:#fff6f5}
 .toast{position:fixed;bottom:calc(18px + env(safe-area-inset-bottom));left:50%;transform:translate(-50%,18px);background:#173f2c;color:#fff;padding:12px 18px;border-radius:12px;box-shadow:0 10px 30px #102f2240;opacity:0;pointer-events:none;transition:.22s;z-index:30;font-weight:800;max-width:calc(100% - 28px);text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}
-
 .settings-trigger{position:absolute;left:12px;top:14px;width:40px;height:40px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--forest);font-size:21px;font-weight:900;cursor:pointer;box-shadow:0 4px 14px #174c3215}
 header{position:relative;padding-left:52px}
 .settings-backdrop{position:fixed;inset:0;background:#102d20a6;z-index:50;display:flex;direction:ltr;justify-content:flex-start;align-items:stretch}
@@ -58,7 +57,7 @@ body.dark .mini.del{background:#492c29;color:#ffb8ad}
 body.dark .report-meta{background:#263b2d;border-color:#405a48}
 body.dark .report-title{color:#a8dfba}
 body.dark .settings-backdrop{background:#000a}
-#appScreen{min-height:100svh;display:flex;flex-direction:column}#appScreen main{flex:1}footer{text-align:center;color:#203b2e;font-size:13px;font-weight:800;padding:22px 10px 12px;margin-top:auto}.auth-screen>footer{color:#203b2e;font-weight:800}.hidden{display:none!important}\n
+#appScreen{min-height:100svh;display:flex;flex-direction:column}#appScreen main{flex:1}footer{text-align:center;color:#203b2e;font-size:13px;font-weight:800;padding:22px 10px 12px;margin-top:auto}.auth-screen>footer{color:#203b2e;font-weight:800}.hidden{display:none!important}
 .auth-screen{min-height:100svh;display:grid;place-items:center;padding:22px 0}.auth-card{width:min(440px,100%);text-align:center;padding:clamp(22px,6vw,34px)}.auth-mark{width:72px;height:72px;border-radius:22px;margin:0 auto 14px}.auth-card h1{font-size:clamp(25px,6vw,31px)}.auth-card p{color:var(--muted);font-size:16px;line-height:1.8}.auth-fields{display:grid;gap:12px;text-align:right;margin:20px 0}.auth-card .btn{width:100%;margin-top:8px}.welcome{font-size:19px!important;font-weight:800;color:var(--forest)!important}
 .report-title{text-align:center;margin:0 0 12px;color:#174b32;font-size:22px;font-weight:900}.report-meta{display:flex;justify-content:space-between;gap:12px;margin:0 0 14px;padding:10px 12px;background:#f0f6f1;border:1px solid #dce8de;border-radius:10px;font-size:15px;font-weight:800}
 .report-footer{text-align:center;color:#64766b;font-size:12px;margin-top:13px}
@@ -92,9 +91,7 @@ body.dark .settings-backdrop{background:#000a}
 <div id="appScreen" class="hidden">
 <header class="wrap"><div class="head">
  <div class="brand"><img class="logo" src="./icon.svg" alt=""><div><h1>برنامج الزيارات</h1><p class="sub">تسجيل الزيارات الميدانية</p></div></div>
- <div class="actions">
-  <button class="btn btn-light hidden" id="installBtn" type="button">＋ تثبيت البرنامج</button>
- </div>
+ <div class="actions"><button class="btn btn-light hidden" id="installBtn" type="button">＋ تثبيت البرنامج</button></div>
  <button class="settings-trigger" id="settingsOpen" type="button" aria-label="الإعدادات" title="الإعدادات">⚙</button>
 </div></header>
 <main class="wrap">
@@ -114,38 +111,22 @@ body.dark .settings-backdrop{background:#000a}
   <div id="reportCapture">
    <h2 class="report-title">تقرير الزيارة الميدانية</h2>
    <div class="report-meta"><span>اسم مروج: <b id="reportName">—</b></span><span>التاريخ: <b id="reportDate">—</b></span></div>
-   <div class="table-wrap">
-    <table><thead><tr><th style="width:55px">ت</th><th>اسم المحل</th><th>رقم الزبون</th><th>ملاحظات</th><th>تاريخ الزيارة</th><th class="no-print">إجراءات</th></tr></thead>
-    <tbody id="visitRows"><tr><td colspan="6" class="empty">لا توجد زيارات مسجلة لحد الآن</td></tr></tbody></table>
-   </div>
+   <div class="table-wrap"><table><thead><tr><th style="width:55px">ت</th><th>اسم المحل</th><th>رقم الزبون</th><th>ملاحظات</th><th>تاريخ الزيارة</th><th class="no-print">إجراءات</th></tr></thead><tbody id="visitRows"><tr><td colspan="6" class="empty">لا توجد زيارات مسجلة لحد الآن</td></tr></tbody></table></div>
    <div class="report-footer">حقوق النشر والتعديل © sarmad</div>
   </div>
  </section>
 </main>
 <footer>حقوق النشر والتعديل © sarmad</footer>
 </div>
-
 <div class="settings-backdrop hidden" id="settingsBackdrop">
  <section class="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
   <div class="settings-head"><h2 id="settingsTitle">الإعدادات</h2><button class="settings-close" id="settingsClose" type="button" aria-label="إغلاق">×</button></div>
-  <div class="settings-section">
-   <h3>بيانات المستخدم</h3>
-   <div class="field"><label for="userName">اسم المروج</label><input id="userName" autocomplete="name"></div>
-   <div class="field"><label for="loginDate">تاريخ الدخول</label><input id="loginDate" type="date"></div>
-   <button class="btn btn-primary settings-save" id="saveProfileBtn" type="button">حفظ البيانات</button>
-  </div>
-  <div class="settings-section">
-   <h3>المظهر</h3>
-   <div class="theme-row"><span>الوضع الليلي / النهاري</span><button class="theme-switch" id="themeToggle" type="button">الوضع الليلي</button></div>
-  </div>
-  <div class="settings-section settings-account">
-   <button class="btn btn-light" id="settingsLogout" type="button">تسجيل خروج</button>
-   <button class="btn btn-danger" id="switchUser" type="button">تبديل المستخدم</button>
-  </div>
+  <div class="settings-section"><h3>بيانات المستخدم</h3><div class="field"><label for="userName">اسم المروج</label><input id="userName" autocomplete="name"></div><div class="field"><label for="loginDate">تاريخ الدخول</label><input id="loginDate" type="date"></div><button class="btn btn-primary settings-save" id="saveProfileBtn" type="button">حفظ البيانات</button></div>
+  <div class="settings-section"><h3>المظهر</h3><div class="theme-row"><span>الوضع الليلي / النهاري</span><button class="theme-switch" id="themeToggle" type="button">الوضع الليلي</button></div></div>
+  <div class="settings-section settings-account"><button class="btn btn-light" id="settingsLogout" type="button">تسجيل خروج</button><button class="btn btn-danger" id="switchUser" type="button">تبديل المستخدم</button></div>
  </section>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 const $=id=>document.getElementById(id),KEY="visits_log_v1",PROFILE="visits_profile_v1",SESSION="visits_session_v1";
 const today=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)};
@@ -157,24 +138,21 @@ function saveProfile(p){localStorage.setItem(PROFILE,JSON.stringify(p))}
 function toast(msg){const el=$("toast");el.textContent=msg;el.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove("show"),2100)}
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function fmtDate(v){if(!v)return"—";const[y,m,d]=v.split("-");return y&&m&&d?d+"/"+m+"/"+y:v}
-function showAuth(){ $("authScreen").classList.remove("hidden");$("appScreen").classList.add("hidden");const p=getProfile();$("registerBox").classList.toggle("hidden",!!p);$("loginBox").classList.toggle("hidden",!p);$("registerDate").value=p?.date||today();$("registerName").value=p?.name||"";$("welcomeText").textContent="أهلاً بك "+(p?.name||"");}
+function showAuth(){$("authScreen").classList.remove("hidden");$("appScreen").classList.add("hidden");const p=getProfile();$("registerBox").classList.toggle("hidden",!!p);$("loginBox").classList.toggle("hidden",!p);$("registerDate").value=p?.date||today();$("registerName").value=p?.name||"";$("welcomeText").textContent="أهلاً بك "+(p?.name||"")}
 function enterApp(){const p=getProfile();if(!p?.name)return;sessionStorage.setItem(SESSION,"1");$("authScreen").classList.add("hidden");$("appScreen").classList.remove("hidden");$("visitDate").value=today();render()}
 function leaveApp(){sessionStorage.removeItem(SESSION);showAuth()}
 $("registerDate").value=today();
 $("registerBtn").addEventListener("click",()=>{const name=$("registerName").value.trim(),date=$("registerDate").value||today();if(!name){toast("اكتب اسمك أولاً");$("registerName").focus();return}saveProfile({name,date});enterApp()});
 $("loginBtn").addEventListener("click",enterApp);
 $("logoutBtn").addEventListener("click",()=>{leaveApp();toast("تم تسجيل الخروج")});
-
-function render(){const countEl=$("count");if(countEl)countEl.textContent=visits.length;$("visitRows").innerHTML=visits.length?visits.map((v,i)=>'<tr><td>'+(i+1)+'</td><td data-label="اسم المحل"><strong>'+esc(v.shop)+'</strong></td><td data-label="رقم الزبون">'+esc(v.customer||"—")+'</td><td data-label="ملاحظات">'+esc(v.notes||"—")+'</td><td data-label="تاريخ الزيارة">'+fmtDate(v.date)+'</td><td class="no-print"><div class="row-actions"><button class="mini" data-edit="'+v.id+'">تعديل</button><button class="mini del" data-delete="'+v.id+'">حذف</button></div></td></tr>').join(""):'<tr><td colspan="6" class="empty">لا توجد زيارات مسجلة لحد الآن</td></tr>';const p=getProfile()||{};$("reportName").textContent=p.name||"—";$("reportDate").textContent=fmtDate(p.date||today())}
+function render(){$("visitRows").innerHTML=visits.length?visits.map((v,i)=>'<tr><td>'+(i+1)+'</td><td data-label="اسم المحل"><strong>'+esc(v.shop)+'</strong></td><td data-label="رقم الزبون">'+esc(v.customer||"—")+'</td><td data-label="ملاحظات">'+esc(v.notes||"—")+'</td><td data-label="تاريخ الزيارة">'+fmtDate(v.date)+'</td><td class="no-print"><div class="row-actions"><button class="mini" data-edit="'+v.id+'">تعديل</button><button class="mini del" data-delete="'+v.id+'">حذف</button></div></td></tr>').join(""):'<tr><td colspan="6" class="empty">لا توجد زيارات مسجلة لحد الآن</td></tr>';const p=getProfile()||{};$("reportName").textContent=p.name||"—";$("reportDate").textContent=fmtDate(p.date||today())}
 function resetForm(){editingId=null;$("visitForm").reset();$("visitDate").value=today();$("formTitle").textContent="إضافة زيارة جديدة";$("saveVisit").textContent="＋ حفظ الزيارة";$("cancelEdit").hidden=true}
 $("visitForm").addEventListener("submit",e=>{e.preventDefault();const saveBtn=$("saveVisit");if(saveBtn.disabled)return;const shop=$("shopName").value.trim();if(!shop){toast("اكتب اسم المحل أولاً");return}saveBtn.disabled=true;try{const record={id:editingId||Date.now().toString(36)+Math.random().toString(36).slice(2,7),shop,customer:$("customerNo").value.trim(),notes:$("notes").value.trim(),date:$("visitDate").value||today()};if(editingId){visits=visits.map(v=>v.id===editingId?record:v);toast("تم التعديل")}else{visits.unshift(record);toast("تم الحفظ")}saveVisits();render();resetForm()}catch(err){toast("تعذر حفظ الزيارة، حاول مرة ثانية")}finally{saveBtn.disabled=false}});
 $("cancelEdit").addEventListener("click",resetForm);
 $("visitRows").addEventListener("click",e=>{const edit=e.target.closest("[data-edit]"),del=e.target.closest("[data-delete]");if(edit){const v=visits.find(x=>x.id===edit.dataset.edit);if(!v)return;editingId=v.id;$("shopName").value=v.shop;$("customerNo").value=v.customer;$("notes").value=v.notes;$("visitDate").value=v.date;$("formTitle").textContent="تعديل الزيارة";$("saveVisit").textContent="حفظ التعديلات";$("cancelEdit").hidden=false;window.scrollTo({top:0,behavior:"smooth"})}if(del){const v=visits.find(x=>x.id===del.dataset.delete);if(v&&confirm("تحذف زيارة "+v.shop+"؟")){visits=visits.filter(x=>x.id!==v.id);saveVisits();render();toast("تم حذف الزيارة");if(editingId===v.id)resetForm()}}});
-
 function openSettings(){const p=getProfile()||{};$("userName").value=p.name||"";$("loginDate").value=p.date||today();$("settingsBackdrop").classList.remove("hidden")}
 function closeSettings(){$("settingsBackdrop").classList.add("hidden")}
-$("settingsOpen").addEventListener("click",openSettings);
-$("settingsClose").addEventListener("click",closeSettings);
+$("settingsOpen").addEventListener("click",openSettings);$("settingsClose").addEventListener("click",closeSettings);
 $("settingsBackdrop").addEventListener("click",e=>{if(e.target===$("settingsBackdrop"))closeSettings()});
 $("saveProfileBtn").addEventListener("click",()=>{const name=$("userName").value.trim();if(!name){toast("اكتب اسم المروج");return}saveProfile({name,date:$("loginDate").value||today()});render();closeSettings();toast("تم حفظ البيانات")});
 function applyTheme(mode){document.body.classList.toggle("dark",mode==="dark");localStorage.setItem("visits_theme_v1",mode);$("themeToggle").textContent=mode==="dark"?"التبديل إلى النهاري":"التبديل إلى الليلي";document.querySelector('meta[name="theme-color"]').content=mode==="dark"?"#14251b":"#17623f"}
@@ -184,11 +162,45 @@ $("settingsLogout").addEventListener("click",()=>{closeSettings();leaveApp();toa
 $("switchUser").addEventListener("click",()=>{if(!confirm("تبديل المستخدم؟ سيتم طلب تسجيل اسم جديد، مع الاحتفاظ بسجل الزيارات."))return;localStorage.removeItem(PROFILE);sessionStorage.removeItem(SESSION);closeSettings();showAuth()});
 function switchTab(tab){const history=tab==="history";$("entryPanel").hidden=history;$("reportPanel").hidden=!history;$("entryTab").classList.toggle("active",!history);$("historyTab").classList.toggle("active",history);$("entryTab").setAttribute("aria-selected",String(!history));$("historyTab").setAttribute("aria-selected",String(history));if(history)render()}
 $("entryTab").addEventListener("click",()=>switchTab("entry"));$("historyTab").addEventListener("click",()=>switchTab("history"));
-function makeReport(){const report=$("reportCapture").cloneNode(true);report.querySelectorAll(".no-print").forEach(el=>el.remove());report.querySelectorAll("td.empty").forEach(el=>el.colSpan=5);report.style.cssText="direction:rtl;display:flex;flex-direction:column;min-height:180mm;font-family:Tajawal,Arial,sans-serif;color:#203b2e;background:#fff;padding:18px 20px;width:100%;";const style=document.createElement("style");style.textContent="*{box-sizing:border-box}.report-title{text-align:center;margin:0 0 16px;padding:0 0 12px;color:#174b32;font-size:25px;font-weight:900;line-height:1.5;border-bottom:2px solid #dce9df}.report-meta{display:flex;justify-content:space-between;gap:14px;margin:0 0 18px;padding:13px 16px;background:#f1f7f2;border:1px solid #d7e5da;border-right:5px solid #28764d;border-radius:8px;font-size:16px;font-weight:800}.table-wrap{overflow:visible;border:1px solid #d5e2d8;border-radius:8px}table{width:100%;border-collapse:collapse;min-width:0;table-layout:fixed}th{background:#1c6240;color:#fff;font-size:15px;font-weight:900;padding:13px 10px;text-align:right;border:1px solid #1c6240;print-color-adjust:exact;-webkit-print-color-adjust:exact}th:first-child{width:7%;text-align:center}th:nth-child(2){width:24%}th:nth-child(3){width:17%}th:nth-child(4){width:32%}th:nth-child(5){width:20%}td{padding:12px 10px;border:1px solid #dfe8e1;font-size:14px;line-height:1.65;vertical-align:middle;overflow-wrap:anywhere;text-align:right}td:first-child{text-align:center;font-weight:800}tbody tr:nth-child(even){background:#f4f8f5;print-color-adjust:exact;-webkit-print-color-adjust:exact}.report-footer{text-align:center;color:#52685a;font-size:12px;font-weight:800;margin-top:auto;padding-top:18px;border-top:1px solid #dce7df}";report.prepend(style);return report}
-function pdfOptions(){const name=(getProfile()?.name||"المروج").trim().replace(/[\\\\/:*?"<>|]/g,"-").replace(/\\s+/g,"-");return{margin:10,filename:name+".pdf",image:{type:"jpeg",quality:.96},html2canvas:{scale:2,useCORS:true,backgroundColor:"#ffffff"},jsPDF:{unit:"mm",format:"a4",orientation:"landscape"}}}
-async function buildReportPdf(){render();return await html2pdf().set(pdfOptions()).from(makeReport()).outputPdf("blob")}
-$("pdfBtn").addEventListener("click",async()=>{const btn=$("pdfBtn");if(btn.disabled)return;if(!visits.length){toast("ماكو زيارات للحفظ");return}if(!window.html2pdf){toast("تعذر تحميل أداة إنشاء PDF");return}btn.disabled=true;btn.textContent="جارٍ تجهيز PDF...";try{const blob=await buildReportPdf();const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=pdfOptions().filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);toast("تم تجهيز PDF")}catch(e){toast("تعذر إنشاء PDF، حاول مرة ثانية")}finally{btn.disabled=false;btn.textContent="⇩ تصدير PDF"}});
-$("whatsappBtn").addEventListener("click",async()=>{const btn=$("whatsappBtn");if(btn.disabled)return;if(!visits.length){toast("ماكو زيارات للإرسال");return}if(!window.html2pdf){toast("تعذر تحميل أداة إنشاء PDF");return}btn.disabled=true;btn.textContent="جارٍ تجهيز PDF...";try{const blob=await buildReportPdf(),file=new File([blob],pdfOptions().filename,{type:"application/pdf"});if(!navigator.share||!navigator.canShare||!navigator.canShare({files:[file]})){toast("المشاركة كملف PDF غير مدعومة بهذا المتصفح");return}await navigator.share({files:[file],title:"تقرير الزيارة الميدانية",text:"تقرير الزيارات الميدانية"});toast("تم فتح المشاركة")}catch(e){if(e?.name!=="AbortError")toast("تعذر إرسال التقرير، حاول مرة ثانية")}finally{btn.disabled=false;btn.textContent="☏ إرسال واتساب"}});
+function wrapText(ctx,text,maxW){const out=[];String(text).split("\n").forEach(par=>{let line="";par.split(/\s+/).filter(Boolean).forEach(w=>{let t=line?line+" "+w:w;if(ctx.measureText(t).width<=maxW){line=t;return}if(line){out.push(line);line=""}while(ctx.measureText(w).width>maxW&&w.length>1){let k=w.length;while(k>1&&ctx.measureText(w.slice(0,k)).width>maxW)k--;out.push(w.slice(0,k));w=w.slice(k)}line=w});out.push(line)});return out.length?out:[""]}
+async function renderReportPages(){
+const p=getProfile()||{},W=1240,H=1754,M=60,TW=W-2*M,LH=40,PAD=16,GRID="#8fae9b";
+const F=(w,s)=>w+" "+s+"px Tajawal, Tahoma, Arial, sans-serif";
+try{await Promise.all([document.fonts.load(F(900,46)),document.fonts.load(F(800,28)),document.fonts.load(F(400,26))])}catch(e){}
+const cols=[{t:"ت",w:.08,a:"center"},{t:"اسم المحل",w:.28,a:"right"},{t:"رقم الزبون",w:.18,a:"center"},{t:"ملاحظات",w:.30,a:"right"},{t:"تاريخ الزيارة",w:.16,a:"center"}];
+let x=M+TW;cols.forEach(c=>{c.r=x;c.l=x-c.w*TW;x=c.l});
+const pages=[];let cv,ctx,y;
+function footer(){ctx.fillStyle="#203b2e";ctx.font=F(800,22);ctx.textAlign="center";ctx.fillText("حقوق النشر والتعديل © sarmad",W/2,H-34)}
+function cellText(c,lines,ty,bold){ctx.font=F(bold?900:400,bold?28:26);ctx.fillStyle=bold?"#285b40":"#203b2e";ctx.textAlign=c.a;const tx=c.a==="center"?(c.l+c.r)/2:c.r-PAD;lines.forEach((ln,i)=>ctx.fillText(ln,tx,ty+i*LH))}
+function rowBox(h,fill){if(fill){ctx.fillStyle=fill;ctx.fillRect(M,y,TW,h)}ctx.strokeStyle=GRID;ctx.lineWidth=2;ctx.strokeRect(M,y,TW,h);cols.slice(1).forEach(c=>{ctx.beginPath();ctx.moveTo(c.r,y);ctx.lineTo(c.r,y+h);ctx.stroke()})}
+function header(){const h=64;rowBox(h,"#eaf4ed");cols.forEach(c=>cellText(c,[c.t],y+h/2+9,true));y+=h}
+function newPage(first){cv=document.createElement("canvas");cv.width=W;cv.height=H;ctx=cv.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,W,H);ctx.direction="rtl";ctx.textBaseline="alphabetic";pages.push(cv);y=M;
+if(first){ctx.fillStyle="#174b32";ctx.font=F(900,46);ctx.textAlign="center";ctx.fillText("تقرير الزيارة الميدانية",W/2,y+44);y+=76;
+ctx.fillStyle="#f0f6f1";ctx.strokeStyle="#dce8de";ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(M,y,TW,70,14);ctx.fill();ctx.stroke();
+ctx.fillStyle="#203b2e";ctx.font=F(800,28);ctx.textAlign="right";ctx.fillText("اسم مروج: "+(p.name||"—"),M+TW-24,y+45);ctx.textAlign="left";ctx.fillText("التاريخ: "+fmtDate(p.date||today()),M+24,y+45);y+=100}
+header()}
+newPage(true);
+visits.forEach((v,i)=>{const vals=[String(i+1),v.shop,v.customer||"—",v.notes||"—",fmtDate(v.date)];ctx.font=F(400,26);
+const lines=vals.map((t,k)=>wrapText(ctx,t,(cols[k].r-cols[k].l)-2*PAD));const h=Math.max(64,Math.max(...lines.map(l=>l.length))*LH+2*PAD);
+if(y+h>H-100){footer();newPage(false)}
+rowBox(h,i%2?"#fbfdfb":null);cols.forEach((c,k)=>cellText(c,lines[k],y+PAD+28,false));y+=h});
+footer();
+return pages.map(c=>{const u=c.toDataURL("image/jpeg",.95),b=atob(u.split(",")[1]),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return{bytes:a,w:c.width,h:c.height}})}
+function buildPdf(jpgs,W,H){const enc=new TextEncoder(),parts=[],offs=[];let len=0;const push=x=>{const u=typeof x==="string"?enc.encode(x):x;parts.push(u);len+=u.length};const obj=(n,fn)=>{offs[n]=len;push(n+" 0 obj\n");fn();push("\nendobj\n")};
+push("%PDF-1.4\n");const n=jpgs.length;
+obj(1,()=>push("<< /Type /Catalog /Pages 2 0 R >>"));
+obj(2,()=>push("<< /Type /Pages /Count "+n+" /Kids ["+jpgs.map((_,i)=>(3+i*3)+" 0 R").join(" ")+"] >>"));
+jpgs.forEach((j,i)=>{const pg=3+i*3,ct=pg+1,im=pg+2,c="q "+W+" 0 0 "+H+" 0 0 cm /Im0 Do Q";
+obj(pg,()=>push("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 "+W+" "+H+"] /Resources << /XObject << /Im0 "+im+" 0 R >> >> /Contents "+ct+" 0 R >>"));
+obj(ct,()=>push("<< /Length "+c.length+" >>\nstream\n"+c+"\nendstream"));
+obj(im,()=>{push("<< /Type /XObject /Subtype /Image /Width "+j.w+" /Height "+j.h+" /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length "+j.bytes.length+" >>\nstream\n");push(j.bytes);push("\nendstream")})});
+const xr=len,total=3+n*3;push("xref\n0 "+total+"\n0000000000 65535 f \n");for(let i=1;i<total;i++)push(String(offs[i]).padStart(10,"0")+" 00000 n \n");
+push("trailer\n<< /Size "+total+" /Root 1 0 R >>\nstartxref\n"+xr+"\n%%EOF");return new Blob(parts,{type:"application/pdf"})}
+function pdfOptions(){const name=(getProfile()?.name||"المروج").trim().replace(/[\\/:*?"<>|]/g,"-").replace(/\s+/g,"-");return{margin:10,filename:name+".pdf",image:{type:"jpeg",quality:.98},html2canvas:{scale:2,useCORS:true,backgroundColor:"#ffffff",windowWidth:760},pagebreak:{mode:["css","legacy"],avoid:".pdfr-row"},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"}}}
+async function buildReportPdf(){render();return buildPdf(await renderReportPages(),595.28,841.89)}
+function downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}
+$("pdfBtn").addEventListener("click",async()=>{const btn=$("pdfBtn");if(btn.disabled)return;if(!visits.length){toast("ماكو زيارات للحفظ");return}btn.disabled=true;btn.textContent="جارٍ تجهيز PDF...";try{const blob=await buildReportPdf();downloadBlob(blob,pdfOptions().filename);toast("تم تجهيز PDF")}catch(e){toast("تعذر إنشاء PDF، حاول مرة ثانية")}finally{btn.disabled=false;btn.textContent="⇩ تصدير PDF"}});
+$("whatsappBtn").addEventListener("click",async()=>{const btn=$("whatsappBtn");if(btn.disabled)return;if(!visits.length){toast("ماكو زيارات للإرسال");return}btn.disabled=true;btn.textContent="جارٍ تجهيز PDF...";try{const blob=await buildReportPdf(),file=new File([blob],pdfOptions().filename,{type:"application/pdf"});if(!navigator.share||!navigator.canShare||!navigator.canShare({files:[file]})){downloadBlob(blob,file.name);toast("تم تنزيل PDF، ارفعه بالواتساب يدوياً");return}await navigator.share({files:[file],title:"تقرير الزيارة الميدانية",text:"تقرير الزيارات الميدانية"});toast("تم فتح المشاركة")}catch(e){if(e?.name!=="AbortError")toast("تعذر إرسال التقرير، حاول مرة ثانية")}finally{btn.disabled=false;btn.textContent="☏ إرسال واتساب"}});
 function updateInstallButton(){const standalone=window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;$("installBtn").classList.toggle("hidden",standalone)}
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e;updateInstallButton();$("installBtn").classList.remove("hidden")});
 window.addEventListener("appinstalled",()=>{$("installBtn").classList.add("hidden");installPrompt=null;toast("تم تثبيت البرنامج")});
