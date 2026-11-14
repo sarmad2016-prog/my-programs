@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>my programs | برامجي</title>
+<meta name="theme-color" content="#0d3f29">
+<meta name="description" content="مكتبة برامجي — مجموعة تطبيقات وأدوات مستقلة">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon.svg">
+<style>
+:root{--g900:#0d3f29;--g700:#1d5a40;--g500:#2f7a5c;--g100:#dcebe4;--mist:#e3ecea;--sky:#eaf6fc;--ink:#12352a;--muted:#59656d;--line:#cfdcd8}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Tajawal,"Segoe UI",Tahoma,Arial,sans-serif;background:linear-gradient(160deg,var(--mist),#f7fbf9 55%,var(--sky));color:var(--ink)}
+header{background:linear-gradient(135deg,var(--g900),var(--g700));color:#fff;padding:28px 18px 42px}
+.wrap{width:min(980px,calc(100% - 28px));margin:auto}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:13px}
+.logo{width:52px;height:52px;border-radius:16px;background:#ffffff1c;display:grid;place-items:center;font-size:28px}
+h1{font-size:clamp(25px,5vw,38px);margin:0}
+.subtitle{margin:8px 0 0;color:#dcebe4;font-size:15px}
+.install{border:1px solid #ffffff70;background:#ffffff18;color:white;border-radius:12px;padding:11px 16px;font:inherit;font-weight:700;cursor:pointer}
+main{padding:26px 0 50px}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:10px;margin-bottom:16px}
+.section-head h2{margin:0;font-size:23px}
+.section-head p{margin:5px 0 0;color:var(--muted);font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.app-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 8px 24px #12352a0d;display:flex;flex-direction:column;min-height:218px}
+.app-icon{width:54px;height:54px;border-radius:16px;background:var(--g100);display:grid;place-items:center;font-size:28px;margin-bottom:15px}
+.app-card h3{font-size:20px;margin:0 0 8px}
+.app-card p{font-size:14px;line-height:1.8;color:var(--muted);margin:0 0 18px;flex:1}
+.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.open{background:var(--g700);color:white;text-decoration:none;padding:10px 16px;border-radius:11px;font-weight:700}
+.install-app{background:var(--g100);color:var(--g900);border:1px solid #c4ddd0;padding:10px 14px;border-radius:11px;font:inherit;font-weight:700;cursor:pointer}
+footer{text-align:center;color:var(--muted);font-size:13px;padding:12px 0 28px}
+@media(max-width:520px){header{padding-top:22px}.top{align-items:flex-start}.install{width:100%}.app-card{min-height:0}}
+</style>
+</head>
+<body>
+<header><div class="wrap top">
+ <div class="brand"><div class="logo">🗂️</div><div><h1>my programs</h1><p class="subtitle">مكتبة برامجي — أدواتي وتطبيقاتي بمكان واحد</p></div></div>
+ <button class="install" id="installLibrary" type="button">⬇ تثبيت المكتبة</button>
+</div></header>
+<main class="wrap">
+ <div class="section-head"><div><h2>برامجي</h2><p>اختَر البرنامج وافتحه مباشرة، وكل برنامج يعمل بشكل مستقل</p></div></div>
+ <section class="grid" aria-label="قائمة البرامج">
+  <article class="app-card">
+   <div class="app-icon">📋</div>
+   <h3>نظام المروجين</h3>
+   <p>متابعة زيارات المروجين، تسجيل بيانات المحلات والمواد، المزامنة السحابية، والتقارير مع تصدير Excel.</p>
+   <div class="actions"><a class="open" href="./promoters/">فتح البرنامج</a><button class="install-app" type="button" data-install="promoters">تثبيت البرنامج</button></div>
+  </article>
+ </section>
+</main>
+<footer class="wrap">© my programs — مكتبة تطبيقات مستقلة</footer>
+<script>
+let libraryPrompt=null;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();libraryPrompt=e;});
+async function installPwa(promptRef){if(promptRef){promptRef.prompt();await promptRef.userChoice;return true;}alert("إذا لم تظهر نافذة التثبيت، افتح قائمة المتصفح ⋮ واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».");return false;}
+document.getElementById("installLibrary").addEventListener("click",()=>installPwa(libraryPrompt));
+document.querySelectorAll("[data-install]").forEach(button=>button.addEventListener("click",()=>{location.href="./promoters/";}));
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}
+</script>
+</body></html>
