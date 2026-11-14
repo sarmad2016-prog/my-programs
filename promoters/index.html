@@ -1,0 +1,996 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>نظام المروجين — نسخة المسؤول</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Tahoma,Arial,sans-serif;background:#f5f2fb;color:#17324d}
+header{background:linear-gradient(135deg,#4a1f7a,#7b3fbf);color:#fff;padding:16px 18px;position:sticky;top:0;z-index:5;box-shadow:0 2px 10px #4a1f7a44}
+.wrap{max-width:760px;margin:auto;padding:16px}
+header .wrap{padding:0;display:flex;justify-content:space-between;align-items:start;gap:8px}
+h1,h2,h3{margin:0 0 12px}
+.card{background:#fff;border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 3px 12px #4a1f7a1a;border-top:3px solid #7b3fbf}
+label{display:block;font-size:13px;font-weight:bold;margin:10px 0 6px;color:#4a1f7a}
+input,select,textarea{width:100%;padding:13px;border:1px solid #ccd6e0;border-radius:10px;font-size:16px;background:#fff}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#7b3fbf;box-shadow:0 0 0 3px #7b3fbf22}
+button{border:0;border-radius:12px;padding:13px 16px;font-size:16px;font-weight:bold;cursor:pointer;transition:transform .08s,box-shadow .15s}
+button:active{transform:scale(.97)}
+.primary{background:linear-gradient(135deg,#4a1f7a,#7b3fbf);color:#fff;width:100%;box-shadow:0 3px 10px #4a1f7a44}
+.secondary{background:#f1eaff;color:#4a1f7a}
+.green{background:linear-gradient(135deg,#0e9e63,#22c98a);color:#fff;box-shadow:0 3px 10px #12a66a44}
+.red{background:linear-gradient(135deg,#d63c2e,#f0735f);color:#fff;box-shadow:0 3px 10px #d63c2e33}
+.gray{background:#eef2f5;color:#17324d}
+.menu button{margin:6px 0;width:100%;text-align:right;background:#fff;border:1px solid #e1e7ee;border-right:5px solid #7b3fbf}
+.menu button:hover{background:#faf7ff}
+.menu button.red{border-right-color:#d63c2e}
+.menu button.green{border-right-color:#12a66a}
+.menu button.gold{border-right-color:#c9a227}
+.menu .sync-btn{border-right-color:#12a66a}
+.hidden{display:none}
+.muted{color:#65788a;font-size:13px}
+.badge{display:inline-block;padding:5px 10px;border-radius:20px;background:linear-gradient(135deg,#e6f7ef,#d4f3e6);color:#0e9e63;font-size:12px;font-weight:bold}
+.badge.blue{background:linear-gradient(135deg,#f1eaff,#e0d2ff);color:#4a1f7a}
+.badge.gold{background:linear-gradient(135deg,#fff7d6,#ffedb0);color:#8a6d00}
+#syncStatus{font-size:14px;opacity:.97;background:#ffffff22;padding:7px 14px;border-radius:14px;white-space:nowrap;font-weight:bold}
+#syncStatus.pulse{animation:pulseGlow 1.6s ease-in-out infinite}
+@keyframes pulseGlow{0%,100%{box-shadow:0 0 0 0 #22c98a88;background:#ffffff22}50%{box-shadow:0 0 0 9px #22c98a00;background:#22c98a66}}
+.sync-btn{width:100%;text-align:right;background:#fff;border:1px solid #e1e7ee;border-right:5px solid #12a66a;color:#17324d;font-size:16px;font-weight:bold;border-radius:0 12px 12px 0}
+.sync-btn.syncing{background:#fff6e8;border-right-color:#e67e22}
+.sync-btn.fail{background:#fdeeea;border-right-color:#d63c2e}
+.sync-btn .spin{display:inline-block}
+.sync-btn.syncing .spin{animation:spinSync .9s linear infinite}
+@keyframes spinSync{to{transform:rotate(360deg)}}
+.sync-btn.compact{width:auto;padding:7px 14px;font-size:13px;border-radius:10px}
+.back-top{background:#eef2f5;color:#17324d;padding:7px 14px;font-size:13px;border-radius:10px;white-space:nowrap;flex-shrink:0;border:1px solid #d7dfe8}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tabs button{flex:1;background:#eef2f5;color:#17324d;padding:10px 8px;border-radius:10px}
+.tabs .active{background:linear-gradient(135deg,#4a1f7a,#7b3fbf);color:#fff;box-shadow:0 3px 8px #4a1f7a44}
+.search-box{margin-bottom:10px}
+.product{display:grid;grid-template-columns:minmax(0,1fr) 78px 78px minmax(130px,1fr);gap:6px;align-items:center;padding:9px 0;border-bottom:1px solid #edf0f3}
+.product:hover{background:#faf7ff}
+.product .name{font-size:13px;line-height:1.45}
+.product input{padding:9px;text-align:center}.product .note-input{text-align:right}
+.visit{border:1px solid #e2e8ef;border-radius:12px;padding:12px;margin:8px 0;background:#fff;border-right:4px solid #7b3fbf}
+.visit .top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.cloud-tag{font-size:11px;color:#12a66a}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.mng-row{display:flex;gap:6px;margin:6px 0;align-items:center}
+.mng-row input{flex:1;padding:9px}
+.mng-row input.mng-sec{font-weight:bold;color:#4a1f7a;background:#f6f2ff}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#4a1f7a,#7b3fbf);color:#fff;padding:12px 18px;border-radius:12px;display:none;z-index:10;box-shadow:0 4px 14px #0004}
+.app-footer{text-align:center;padding:16px 10px 24px;color:#65788a;font-size:13px;font-weight:bold}
+.app-footer b{color:#4a1f7a}
+.history-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:12px 0}
+.history-rep{background:#f1eaff;border:1px solid #dfd0f7;border-radius:10px;padding:10px;color:#4a1f7a}
+.history-rep b{display:block;font-size:15px;margin-bottom:4px}
+.history-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;align-items:end}
+.history-controls label{margin:4px 0}
+.admin-edit-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:500px){.admin-edit-fields{grid-template-columns:1fr}}
+@media(max-width:500px){.product{grid-template-columns:minmax(0,1fr) 62px 62px minmax(105px,1fr)}.product .name{font-size:12px}.product input{font-size:12px;padding:8px}}
+@media print{header,.no-print{display:none!important}body{background:#fff}.wrap{max-width:none;padding:0}.card{box-shadow:none;border:1px solid #ddd}}
+</style>
+</head>
+<body>
+<header>
+ <div class="wrap">
+  <div>
+   <h2 id="title">نظام المروجين — نسخة المسؤول 👑</h2>
+   <div id="sub" style="font-size:12px">متابعة نشاط المروجين — مزامنة تلقائية</div>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+   <span class="badge gold">نسخة المسؤول</span>
+   <div style="display:flex;gap:6px;align-items:center">
+    <div id="syncStatus" style="cursor:pointer" onclick="openSyncInfo()" title="اضغط لعرض حالة المزامنة">⚪ جارٍ التهيئة...</div>
+   </div>
+  </div>
+ </div>
+</header>
+<main class="wrap">
+<section id="login" class="card">
+ <h2>دخول</h2>
+ <p class="muted">اكتب اسمك مرة واحدة فقط — الجهاز يتذكره ويفتح التطبيق جاهزاً في المرات القادمة.</p>
+ <label>الاسم</label>
+ <input id="rep" type="text" placeholder="مثال: أحمد محمد" autocomplete="name">
+ <label>التاريخ</label>
+ <input id="date" type="date">
+ <button class="primary" onclick="enter()">دخول</button>
+</section>
+<section id="home" class="hidden">
+ <div class="card">
+  <h2>مرحباً <span id="repName"></span> 👋</h2>
+  <span class="badge blue" id="today"></span>
+  <span class="badge" id="visitCount" style="margin-right:6px"></span>
+ </div>
+ <div class="menu no-print">
+  <button class="sync-btn" onclick="syncNow(false)"><span class="spin">🔄</span> مزامنة الآن<br><span class="muted">مزامنة فورية مع السحابة</span></button>
+  <button onclick="newVisit()">➕ زيارة محل جديد<br><span class="muted">تسجيل نشاط زبون</span></button>
+  <button onclick="showHistory()">📋 زيارات اليوم<br><span class="muted">عرض الزيارات المحفوظة</span></button>
+  <button onclick="openReports()">📑 التقارير والطباعة<br><span class="muted">حسب المروج أو التاريخ أو الكل — كل مروج بورقة مستقلة</span></button>
+  <button onclick="openSyncInfo()">⚙️ حالة المزامنة<br><span class="muted">تشخيص المزامنة وعدد الطلبات</span></button>
+  <button style="color:#d63c2e;border-right-color:#d63c2e" onclick="logout()">تبديل المستخدم / خروج</button>
+  <button class="red" onclick="openAdmin()"><span style="font-size:25px;vertical-align:middle">🔒</span> الإدارة فقط<br><span class="muted">إدارة المواد وتصفير البرنامج — برمز سري</span></button>
+ </div>
+</section>
+<section id="visit" class="hidden">
+ <div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+   <h2 id="visitTitle" style="margin:0">زيارة جديدة</h2>
+   <button class="back-top" onclick="editingId=null;adminEditing=false;editingSource=null;home()">↩ رجوع</button>
+  </div>
+  <div id="adminEditFields" class="admin-edit-fields hidden">
+   <div><label>اسم المروج</label><input id="editRep" type="text" autocomplete="off"></div>
+   <div><label>تاريخ الزيارة</label><input id="editDate" type="date"></div>
+  </div>
+  <label>اسم المحل / الزبون</label>
+  <input id="store" list="stores" placeholder="اكتب اسم المحل">
+  <datalist id="stores"></datalist>
+ </div>
+ <div class="card">
+  <input id="search" class="search-box" type="search" placeholder="🔍 ابحث عن منتج...">
+  <div class="tabs" id="tabs"></div>
+  <div class="product" style="font-weight:bold;background:#f1eaff;border-radius:10px;border-bottom:0">
+   <div>المنتج</div><div>المخزن</div><div>المعرض</div><div>ملاحظات</div>
+  </div>
+  <div id="products"></div>
+ </div>
+ <div class="no-print">
+  <button id="saveBtn" class="primary" onclick="saveVisit()">💾 حفظ الزيارة</button>
+ </div>
+</section>
+<section id="history" class="hidden">
+ <div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+   <h2 style="margin:0">زيارات اليوم</h2>
+   <button class="sync-btn compact no-print" onclick="syncNow(false)"><span class="spin">🔄</span> مزامنة</button>
+  </div>
+  <div class="history-controls no-print">
+   <div><label>طريقة العرض</label><select id="historyMode" onchange="updateHistoryDateControls()"><option value="day">يوم محدد</option><option value="range">بين تاريخين</option><option value="week">أسبوعي</option><option value="month">شهري</option></select></div>
+   <div><label id="historyStartLabel">التاريخ</label><input id="historyStart" type="date" onchange="renderHistory()"></div>
+   <div id="historyEndWrap" class="hidden"><label>إلى تاريخ</label><input id="historyEnd" type="date" onchange="renderHistory()"></div>
+   <button class="secondary" onclick="loadHistory(true)">🔄 تحديث البيانات</button>
+  </div>
+  <p id="historyDataStatus" class="muted"></p>
+  <h3 style="margin:16px 0 6px">عدد الزيارات حسب المروج</h3>
+  <div id="historySummary" class="history-summary"></div>
+  <div id="historyList"></div>
+ </div>
+ <div class="actions no-print">
+  <button class="red" onclick="openReports()">📑 التقارير / PDF</button>
+  <button class="secondary" onclick="home()">رجوع</button>
+ </div>
+</section>
+<section id="reports" class="hidden">
+ <div class="card">
+  <h2>📑 التقارير والطباعة</h2>
+  <label>المروج</label>
+  <select id="repFilter" onchange="renderReportPreview()"></select>
+  <label>التاريخ</label>
+  <select id="dateFilter" onchange="renderReportPreview()"></select>
+  <div id="reportsBox"></div>
+  <div class="actions no-print">
+   <button class="gray" onclick="printReportSel()">🖨️ طباعة / PDF</button>
+   <button class="green" onclick="exportReportExcel()">📊 Excel</button>
+  </div>
+  <div class="actions no-print">
+   <button class="green" onclick="exportExcel()">📊 زياراتي اليوم (Excel)</button>
+   <button class="gray" onclick="printReport(false)">🖨️ طباعة زيارات اليوم</button>
+  </div>
+  <div class="actions no-print">
+   <button class="secondary" onclick="backupFile()">💾 نسخة احتياطية (ملف)</button>
+   <button class="secondary" onclick="$('importFile').click()">📂 استيراد نسخة</button>
+  </div>
+  <input type="file" id="importFile" accept=".json" class="hidden" onchange="importBackup(this)">
+  <div class="actions no-print">
+   <button class="secondary" onclick="openReports()">🔄 تحديث البيانات</button>
+   <button class="gray" onclick="home()">رجوع</button>
+  </div>
+  <p class="muted">في الطباعة: كل مروج بورقة مستقلة، وتظهر كل المواد حتى الفارغة. للحفظ PDF اختر Save as PDF من نافذة الطباعة.</p>
+ </div>
+</section>
+<section id="admin" class="hidden">
+ <div class="card">
+  <h2><span style="font-size:28px;vertical-align:middle">🔒</span> الإدارة فقط</h2>
+  <p class="muted">هذه الشاشة للمدير فقط: إدارة المواد والأقسام، وتصفير البرنامج.<br>أي إضافة أو تعديل أو حذف للمواد يُزامَن فوراً لجميع المروجين على كل الأجهزة.</p>
+  <div id="mngList"></div>
+  <div class="actions no-print">
+   <button class="red" onclick="resetAll()">🧹 تصفير البرنامج<br><span class="muted">حذف كل الزيارات والمروجين والمحلات</span></button>
+   <button class="gray" onclick="home()">رجوع</button>
+  </div>
+ </div>
+</section>
+<section id="sync" class="hidden">
+ <div class="card">
+  <h2>⚙️ حالة المزامنة</h2>
+  <div id="syncDetail" class="muted" style="line-height:1.9"></div>
+  <p class="muted">كل من يفتح هذا البرنامج متصل بنفس قاعدة البيانات المشتركة (mandoub1979). السحابة المجانية: 100 مدخل كحد أقصى، و10,000 طلب كل 24 ساعة لكل الأجهزة معاً، وهذا الجهاز يحتفظ بالأرشيف الكامل (يُحذف من السحابة ما أُرشف وعمره أكثر من 5 أيام). خذ «نسخة احتياطية» دورياً لأن الأرشيف على هذا الجهاز فقط.</p>
+  <div class="actions">
+   <button class="secondary" onclick="syncNow(false)">🔄 مزامنة الآن</button>
+   <button class="green" onclick="runDiagnose()">🩺 فحص السحابة</button>
+  </div>
+  <div id="diagBox"></div>
+  <div class="actions">
+   <button class="secondary" onclick="repairCloud()">🛠️ إصلاح السحابة</button>
+   <button class="gray" onclick="home()">رجوع</button>
+  </div>
+ </div>
+</section>
+</main>
+<footer class="app-footer">© جميع حقوق النشر والتعديل محفوظة للمبرمج <b>sarmad</b></footer>
+<div class="toast" id="toast"></div>
+<script>
+/* قائمة المنتجات الافتراضية — التعديلات تُزامَن لجميع المروجين عبر السحابة */
+const DEFAULT_PRODUCTS={"كيري":["جبن كيبي 100 غم *40","جبن كيبي بلم 180 غم*27","جبن كيبي بلم 350 غم*27","كيري 100 غم*60 العودة الى المدارس","كيري 100غم *40 Greek","كيري 100غم *40 بطعم الجبنة البيضاء","كيري 100غم*60","كيري 200 غم دبل 3*12عرض خاص","كيري 200 غم*40 العودة الى المدارس","كيري 200غم*40","كيري 400 غم *16 العودة الى المدارس","كيري 400غم*16","كيري تك 66غم*40","كيري جبنة سنو 200 غم*18 كريك","كيري جبنة سنو 200غم*18","كيري جرة230غم*24","كيري زجاجي 500 غم *6 عرض خاص","كيري سنو 100غم*48","كيري سنو 350*12","كيري شبح 400 غم كريك*16","كيري شبح عرض خاص 800 غم *8","كيري قدح زجاجي 240 غم*24","كيري قدح زجاجي 500 غم*12","كيري لبنة200غم*18","كيري لبنة350 غم*12","لافاش بلوك180 غم*24","لافاش تك 104 غ شيدر*40","لافاش زجاجي 240 غم*24","لافاش زجاجي 500 غم *12","لافاش كيري 112غم *40 تركي","لافاش كيري 112غم*40","لافاش كيري 120 غم*8 عرض خاص","لافاش كيري شرائح برغر 200غم*32","لافاش كيري شرائح سندويش200غم*32","لافاش كيري شرائح شيدر200غم*32","لافاش كيري شرائح لايت200غم*32","لافاش كيري قدح 140 *36 تركي","لافاش كيري قدح بلاستك 140 غم بطعم الثوم *36","لافاش كيري لايت120غم*48","لافاش كيري لايت360غم*16","لافاش كيري مثلث دبل 300غم*12*24"],"هاجدو":["جبنة هاجدو بلاستك هرمي140غم*30","مضلع هاجدو 80 غم *24 شيدر","مضلع هاجدو 80 غم *24 كريمي","هاجدو بلاستك 140غم*36","هاجدو بلاستك شيدر 140 غم *36","هاجدو بلوك 180 غم*24","هاجدو زجاجي 120 غم*24","هاجدو زجاجي 140*24","هاجدو زجاجي 240 غم*24","هاجدو زجاجي 285 غم*12","هاجدو زجاجي 500 غم*12","هاجدو شرائح 100غم*24برغر","هاجدو شرائح 100غم*24شيدر","هاجدو شرائح 100غم*24غودا","هاجدو شرائح 100غم*24مطبوخ","هاجدو مثلث دبل300غم*24","هاجدو مثلث هبي 100 غم*36","هاجدو مضلع بالقشطة 80 غم *32","هاجدو مضلع شيدر 80 غم * 32","هاجدو مضلع كريمي 80 غم*32","هاجدو مربع"]};
+function loadProducts(){try{const s=JSON.parse(localStorage.getItem("productsData"));if(s&&Object.keys(s).length)return s}catch(e){}return JSON.parse(JSON.stringify(DEFAULT_PRODUCTS))}
+let products=loadProducts();
+const SECTIONS=[];const FLAT=[];
+function rebuildFLAT(){SECTIONS.length=0;FLAT.length=0;Object.keys(products).forEach((sec,si)=>{SECTIONS.push(sec);(products[sec]||[]).forEach((p,pi)=>FLAT.push({key:si+"_"+pi,section:sec,name:p}))})}
+const localProductsTs=()=>+(localStorage.getItem("productsUpdated")||0);
+function setLocalProducts(p,ts){products=p;localStorage.setItem("productsData",JSON.stringify(p));localStorage.setItem("productsUpdated",String(ts||Date.now()));rebuildFLAT()}
+/* حفظ محلي + رفع فوري للسحابة ليصلك التعديل على كل الأجهزة */
+function saveProducts(){const ts=Date.now();localStorage.setItem("productsData",JSON.stringify(products));localStorage.setItem("productsUpdated",String(ts));rebuildFLAT();cPut("products",{data:products,updated:ts}).catch(()=>{})}
+/* عند فتح البرنامج: تُفضَّل النسخة الأحدث بين الجهاز والسحابة */
+async function syncProducts(){if(Date.now()<blockedUntil())return;try{const c=await cGet("products");const lt=localProductsTs();if(c&&c.data&&Object.keys(c.data).length&&(c.updated||0)>lt){setLocalProducts(c.data,c.updated||Date.now());if(!$("admin").classList.contains("hidden"))renderMng();if(!$("visit").classList.contains("hidden")){renderTabs();renderProducts()}toast("تم تحديث قائمة المواد من السحابة ✓")}else if(!c||!c.data||!Object.keys(c.data).length||(c.updated||0)<lt){await cPut("products",{data:products,updated:lt||Date.now()})}}catch(e){}}
+rebuildFLAT();
+let currentRep="",currentDate="",sectionIdx=0,draft={},editingId=null,toastTimer=null,syncTimer=null,syncing=false,reportData=[],historyVisits=[],adminEditing=false,editingSource=null,historyCloudReady=false;
+const $=id=>document.getElementById(id);
+const todayLocal=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const uid=()=>Date.now()+"-"+Math.random().toString(36).slice(2,7);
+const storageKey=()=>"visits_"+currentRep+"_"+currentDate;
+const allVisits=()=>{try{return JSON.parse(localStorage.getItem(storageKey())||"[]")}catch(e){return[]}};
+const readKey=k=>{try{return JSON.parse(localStorage.getItem(k)||"[]")}catch(e){return[]}};
+const saveAll=v=>localStorage.setItem(storageKey(),JSON.stringify(v));
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+/* المزامنة على قاعدة البيانات المشتركة mandoub1979
+   حدود السحابة المجانية (mantledb): 100 مدخل للمساحة كلها، 64KB للمدخل، و10,000 طلب كل 24 ساعة لكل الأجهزة معاً.
+   لذلك: لا نرسل/نجلب إلا ما تغيّر فعلاً، ونتوقف مؤقتاً عند الحد، ونعرض سبب أي فشل بوضوح. */
+const CBASE="https://mantledb.sh/v2/mandoub1979/";
+const LISTURL="https://mantledb.sh/v2/list/mandoub1979";
+const MAX_CLOUD_ENTRIES=94;            /* سجلات (مروج × يوم) — الحد الفعلي للسحابة 100 ويُحجز منها مدخلان: _index و products */
+const CACHE_TTL=15*60*1000;
+const BLOCK_MS=15*60*1000;
+const daysAgoISO=n=>{const d=new Date();d.setDate(d.getDate()-n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const blockedUntil=()=>+(localStorage.getItem("syncBlockedUntil")||0);
+function countReq(){try{const t=todayLocal();let s=JSON.parse(localStorage.getItem("reqStat")||"{}");if(s.d!==t)s={d:t,n:0};s.n++;localStorage.setItem("reqStat",JSON.stringify(s))}catch(e){}}
+const reqToday=()=>{try{const s=JSON.parse(localStorage.getItem("reqStat")||"{}");return s.d===todayLocal()?s.n:0}catch(e){return 0}};
+function httpErr(status){const er=new Error(status?"HTTP "+status:"NETWORK");er.status=status;return er}
+async function cFetch(path,opts){
+ let r;countReq();
+ try{r=await fetch(path.indexOf("http")===0?path:CBASE+path,opts)}catch(e){throw httpErr(0)}
+ if(r.status===429)localStorage.setItem("syncBlockedUntil",String(Date.now()+BLOCK_MS));
+ return r;
+}
+async function cGet(path){const r=await cFetch(path,{headers:{Accept:"application/json"}});if(r.status===404)return null;if(!r.ok)throw httpErr(r.status);return r.json()}
+async function cPut(path,obj){const r=await cFetch(path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(obj)});if(!r.ok)throw httpErr(r.status)}
+async function cPatch(path,obj){const r=await cFetch(path,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(obj)});if(!r.ok)throw httpErr(r.status)}
+async function cDel(path){const r=await cFetch(path,{method:"DELETE"});if(!r.ok&&r.status!==404)throw httpErr(r.status)}
+function explainErr(e){
+ const s=e&&e.status;
+ if(s===429)return"تجاوزت السحابة المجانية حدّها اليومي (10,000 طلب كل 24 ساعة لكل الأجهزة معاً)";
+ if(s===413)return"حجم سجل يوم لأحد المروجين تجاوز 64KB (حد السحابة)";
+ if(s===0)return"لا يوجد اتصال بالإنترنت أو أن خدمة السحابة لا تستجيب";
+ if(s>=500)return"خطأ في خادم السحابة (رمز "+s+") — حاول لاحقاً";
+ return"السحابة رفضت العملية (رمز "+s+") — قد يكون السبب امتلاء حد 100 مدخل";
+}
+const pendingDeletes=()=>{try{return JSON.parse(localStorage.getItem("pendingDeletes")||"{}")}catch(e){return{}}};
+const addPendingDelete=(key,id)=>{const d=pendingDeletes();(d[key]=d[key]||[]).push(id);localStorage.setItem("pendingDeletes",JSON.stringify(d))};
+const localKeys=()=>{const o=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf("visits_")===0&&k!=="visits_")o.push(k)}return o};
+function splitKey(k){const meta=k.slice("visits_".length);const i=meta.lastIndexOf("_");return{rep:meta.slice(0,i),date:meta.slice(i+1)}}
+const syncMeta=()=>{try{return JSON.parse(localStorage.getItem("syncMeta")||"{}")}catch(e){return{}}};
+const isDirty=(k,pd)=>((pd||pendingDeletes())[k]||[]).length>0||readKey(k).some(v=>v&&v.synced!==true);
+function setSync(state){const el=$("syncStatus");el.classList.remove("pulse");if(state==="on"){el.textContent="🟢 المزامنة تلقائية";el.classList.add("pulse")}else if(state==="sync")el.textContent="🔄 جارٍ المزامنة...";else if(state==="limit")el.textContent="🟠 حد السحابة اليومي — الحفظ محلي";else if(state==="part")el.textContent="🟠 مزامنة جزئية — اضغط للتفاصيل";else el.textContent="🔴 تعذرت المزامنة — الحفظ محلي"}
+/* أزرار المزامنة: عادية، برتقالية أثناء المزامنة، حمراء عند الفشل */
+function setSyncButtons(state){document.querySelectorAll(".sync-btn").forEach(b=>{b.classList.remove("syncing","fail");if(state==="sync")b.classList.add("syncing");else if(state==="fail")b.classList.add("fail")})}
+function saveSyncInfo(o){try{localStorage.setItem("syncInfo",JSON.stringify({ts:Date.now(),...o}))}catch(e){}}
+function scheduleSync(){clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncNow(true),2000)}
+let syncAgain=false;
+/* دمج نسخة السحابة مع النسخة المحلية ليوم واحد لمروج واحد */
+function mergeKey(locals,c0,pdIds,now){
+ const cv={...(c0.visits||{})},cd={...(c0.deleted||{})};
+ let changed=pdIds.length>0;
+ pdIds.forEach(id=>{cd[id]=now});
+ locals.forEach(lv=>{
+  if(!lv||!lv.id)return;
+  if(cd[lv.id])return;
+  const c=cv[lv.id];
+  if(!c||(lv.updated||0)>(c.updated||0)){cv[lv.id]={...lv,synced:true};changed=true}
+ });
+ Object.keys(cv).forEach(id=>{if(cd[id]){delete cv[id];changed=true}});
+ return{cv,cd,changed};
+}
+function applyIndexPatch(index,patch){
+ Object.keys(patch).forEach(r=>{Object.keys(patch[r]).forEach(d=>{const t=patch[r][d];if(t===null){if(index[r])delete index[r][d]}else{(index[r]=index[r]||{})[d]=t}});if(index[r]&&!Object.keys(index[r]).length)delete index[r]});
+ return index;
+}
+async function syncNow(silent){
+ if(syncing){syncAgain=true;return}
+ if(silent&&Date.now()<blockedUntil()){setSync("limit");return}
+ syncing=true;syncAgain=false;setSync("sync");setSyncButtons("sync");
+ const errors=[];let pushed=0,pulled=0;
+ try{
+  const now=Date.now();
+  const index=(await cGet("_index"))||{};          /* طلب واحد فقط عند عدم وجود تغييرات */
+  const meta=syncMeta(),pd0=pendingDeletes();
+  const keys=new Set(localKeys());
+  Object.keys(pd0).forEach(k=>keys.add(k));
+  if(currentRep)keys.add(storageKey());
+  const cutoff=daysAgoISO(14),probeCut=daysAgoISO(60);
+  const jobs=[];
+  for(const k of keys){
+   const{rep,date}=splitKey(k),r=encodeURIComponent(rep),idxTs=index[r]&&index[r][date];
+   const known=idxTs!=null;
+   let mode=null;
+   if(isDirty(k,pd0))mode="push";
+   else if(known&&meta[k]!==idxTs){
+    if(meta[k]===undefined&&date<cutoff)meta[k]=idxTs;   /* ترقية من النسخة القديمة: نثق بالأيام القديمة بدون جلب */
+    else mode="pull";
+   }else if(!known&&meta[k]===undefined&&date>=probeCut&&readKey(k).length)mode="probe";
+   if(mode)jobs.push({k,rep,date,r,mode,idxTs});
+  }
+  /* إفساح مكان في السحابة قبل الكتابة (كان الخلل: التنظيف يأتي بعد الكتابة فلا يعمل أبداً إذا امتلأت) */
+  const touched={},trim={};
+  const pushJobs=jobs.filter(j=>j.mode==="push");
+  const flat=[];Object.keys(index).forEach(r=>Object.keys(index[r]||{}).forEach(d=>{if(index[r][d]!=null)flat.push({r,d,t:index[r][d]})}));
+  const have=new Set(flat.map(e=>e.r+"/"+e.d)),protect=new Set(pushJobs.map(j=>j.r+"/"+j.date));
+  const newCount=pushJobs.filter(j=>!have.has(j.r+"/"+j.date)).length;
+  const excess=flat.length+newCount-MAX_CLOUD_ENTRIES;
+  if(excess>0){
+   const victims=flat.filter(e=>!protect.has(e.r+"/"+e.d)).sort((a,b)=>String(a.d).localeCompare(String(b.d))||a.t-b.t).slice(0,excess);
+   for(const e of victims){
+    try{await cDel(e.r+"/"+e.d);(trim[e.r]=trim[e.r]||{})[e.d]=null;delete index[e.r][e.d];cloudCache.delete(e.r+"/"+e.d)}
+    catch(er){if(er.status===429||er.status===0)throw er}
+   }
+  }
+  for(const j of jobs){
+   try{
+    const path=j.r+"/"+j.date;
+    const c0=await cGet(path);
+    const locals=readKey(j.k),pdIds=(pd0[j.k]||[]).slice();
+    const{cv,cd,changed}=mergeKey(locals,c0||{},pdIds,now);
+    const doPush=j.mode==="push"&&(changed||!c0);
+    if(doPush){await cPut(path,{visits:cv,deleted:cd});pushed++;cloudCache.delete(path)}
+    else if(j.mode!=="push")pulled++;
+    /* أعد قراءة المحلي الآن: قد يكون المستخدم حفظ/حذف شيئاً أثناء المزامنة ولا يجوز أن نمحوه */
+    const fresh=readKey(j.k),pdNow=pendingDeletes()[j.k]||[];
+    const sent=new Map(locals.map(v=>[v&&v.id,(v&&v.updated)||0]));
+    const out=[],seen=new Set();
+    fresh.forEach(lv=>{
+     if(!lv||!lv.id||cd[lv.id])return;
+     seen.add(lv.id);
+     const w=cv[lv.id];
+     if(w&&(w.updated||0)>(lv.updated||0))out.push({...w,synced:true});
+     else if(sent.has(lv.id)&&(lv.updated||0)===sent.get(lv.id))out.push(lv.synced===true?lv:{...lv,synced:true});
+     else out.push(lv);
+    });
+    Object.keys(cv).forEach(id=>{if(!seen.has(id)&&!cd[id]&&pdNow.indexOf(id)<0)out.push({...cv[id],synced:true})});
+    if(out.length||localStorage.getItem(j.k)!==null)localStorage.setItem(j.k,JSON.stringify(out));
+    if(doPush&&pdIds.length){const pd2=pendingDeletes();if(pd2[j.k]){pd2[j.k]=pd2[j.k].filter(id=>pdIds.indexOf(id)<0);if(!pd2[j.k].length)delete pd2[j.k];localStorage.setItem("pendingDeletes",JSON.stringify(pd2))}}
+    let newTs=j.idxTs;
+    if(doPush)newTs=now+Math.random();
+    else if(j.mode!=="pull"&&j.idxTs==null&&c0)newTs=now+Math.random();   /* موجود في السحابة لكنه غير مفهرس (تحديث فهرس ضائع) → أضفه */
+    if(newTs!=null&&newTs!==j.idxTs)(touched[j.r]=touched[j.r]||{})[j.date]=newTs;
+    meta[j.k]=newTs!=null?newTs:0;
+   }catch(er){
+    if(er.status===429||er.status===0)throw er;
+    errors.push(explainErr(er)+" — "+j.rep+" / "+j.date);
+   }
+  }
+  localStorage.setItem("syncMeta",JSON.stringify(meta));
+  /* تحديث الفهرس بدمج ذرّي (PATCH) حتى لا يمحو جهازٌ ما كتبه جهازٌ آخر */
+  const patch={};
+  [trim,touched].forEach(p=>Object.keys(p).forEach(r=>Object.keys(p[r]).forEach(d=>{(patch[r]=patch[r]||{})[d]=p[r][d]})));
+  if(Object.keys(patch).length){
+   try{await cPatch("_index",patch)}
+   catch(er){
+    if(er.status===429||er.status===0)throw er;
+    const fresh=(await cGet("_index"))||{};
+    await cPut("_index",applyIndexPatch(fresh,patch));
+   }
+  }
+  if(errors.length){
+   saveSyncInfo({ok:false,errors:errors.slice(0,6),pushed,pulled});
+   setSync("part");setSyncButtons("fail");setTimeout(()=>setSyncButtons("ok"),2200);
+   if(!silent)toast("تمت مزامنة جزء من البيانات — اضغط على حالة المزامنة بالأعلى للتفاصيل");
+  }else{
+   saveSyncInfo({ok:true,pushed,pulled});
+   setSync("on");setSyncButtons("ok");
+   if(!silent)toast("تمت المزامنة ✓");
+  }
+  if(!$("history").classList.contains("hidden"))loadHistory();
+  else if(Date.now()-lastArch>10*60*1000&&Date.now()>=blockedUntil())fetchAllCloud().catch(()=>{});
+  if(!$("home").classList.contains("hidden")){const n=allVisits().length;$("visitCount").textContent=n?n+" زيارة مسجلة اليوم":"لا زيارات بعد اليوم"}
+  if(!$("sync").classList.contains("hidden"))renderSyncDetail();
+ }catch(e){
+  const lim=e.status===429;
+  saveSyncInfo({ok:false,errors:[explainErr(e)]});
+  setSync(lim?"limit":"down");setSyncButtons("fail");
+  setTimeout(()=>setSyncButtons("ok"),2200);
+  if(!silent)toast(lim?"السحابة المجانية بلغت حدّها اليومي — بياناتك محفوظة على جهازك":"فشل المزامنة — "+explainErr(e));
+  if(!$("sync").classList.contains("hidden"))renderSyncDetail();
+ }finally{syncing=false;if(syncAgain){syncAgain=false;scheduleSync()}}
+}
+const cloudCache=new Map();
+/* ===== الأرشيف الدائم على جهاز المسؤول (IndexedDB) =====
+   كل سجل (مروج × يوم) يُنسخ من السحابة إلى هنا. بعد أرشفته يُحذف من السحابة عندما يصبح أقدم من 5 أيام،
+   فتبقى السحابة خفيفة وضمن الخطة المجانية، ويبقى الأرشيف الكامل عندك. */
+const ARCHIVE_KEEP_DAYS=5;
+const memArch=new Map();let archOK=true,lastArch=0,_adb=null;
+function adb(){if(!_adb)_adb=new Promise((res,rej)=>{try{const r=indexedDB.open("mandoubArchive",1);r.onupgradeneeded=()=>r.result.createObjectStore("days");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}});return _adb}
+async function archLoadAll(){
+ if(archOK){try{const db=await adb();const m=await new Promise((res,rej)=>{const out=new Map(),rq=db.transaction("days","readonly").objectStore("days").openCursor();rq.onsuccess=()=>{const c=rq.result;if(c){out.set(c.key,c.value);c.continue()}else res(out)};rq.onerror=()=>rej(rq.error)});m.forEach((v,k)=>{const o=memArch.get(k);if(!o||(v.ts||0)>=(o.ts||0))memArch.set(k,v)})}catch(e){archOK=false}}
+ return memArch;
+}
+async function archPut(k,v){memArch.set(k,v);if(!archOK)return;try{const db=await adb();await new Promise((res,rej)=>{const tx=db.transaction("days","readwrite");tx.objectStore("days").put(v,k);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);tx.onabort=()=>rej(tx.error)})}catch(e){archOK=false}}
+async function archClear(){memArch.clear();if(!archOK)return;try{const db=await adb();await new Promise((res,rej)=>{const tx=db.transaction("days","readwrite");tx.objectStore("days").clear();tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error)})}catch(e){}}
+function mergeArch(a,remote,ts){
+ const visits={...((a&&a.visits)||{})},deleted={...((a&&a.deleted)||{}),...(remote.deleted||{})};
+ Object.keys(deleted).forEach(id=>{delete visits[id]});
+ Object.values(remote.visits||{}).forEach(v=>{if(!v||!v.id||deleted[v.id])return;const o=visits[v.id];if(!o||(v.updated||0)>=(o.updated||0))visits[v.id]=v});
+ return{visits,deleted,ts};
+}
+/* حذف السجلات المؤرشفة والأقدم من 5 أيام من السحابة (فقط إذا كان الأرشيف دائماً وبنفس نسخة السحابة تماماً) */
+async function pruneCloud(index,arch){
+ if(!archOK)return;
+ const cut=daysAgoISO(ARCHIVE_KEEP_DAYS),patch={},victims=[];
+ Object.keys(index).forEach(r=>Object.keys(index[r]||{}).forEach(d=>{
+  const ts=index[r][d];if(ts==null||d>=cut)return;
+  let rep;try{rep=decodeURIComponent(r)}catch(e){return}
+  const a=arch.get(rep+"\u0000"+d);if(a&&a.ts===ts)victims.push({r,d});
+ }));
+ for(const v of victims){try{await cDel(v.r+"/"+v.d);(patch[v.r]=patch[v.r]||{})[v.d]=null;cloudCache.delete(v.r+"/"+v.d)}catch(e){if(e.status===429||e.status===0)break}}
+ if(Object.keys(patch).length){try{await cPatch("_index",patch)}catch(e){if(e.status===429||e.status===0)return;const f=(await cGet("_index"))||{};await cPut("_index",applyIndexPatch(f,patch))}}
+}
+async function fetchAllCloud(){
+ lastArch=Date.now();
+ const index=(await cGet("_index"))||{};
+ const arch=await archLoadAll();
+ for(const r of Object.keys(index)){
+  let rep;try{rep=decodeURIComponent(r)}catch(e){continue}
+  for(const date of Object.keys(index[r]||{})){
+   const ts=index[r][date];if(ts==null)continue;
+   const ak=rep+"\u0000"+date,a=arch.get(ak);
+   if(a&&a.ts===ts)continue;                       /* مؤرشف بنفس النسخة: لا طلب */
+   const remote=await cGet(r+"/"+date);
+   if(!remote)continue;
+   await archPut(ak,mergeArch(a,remote,ts));
+  }
+ }
+ try{await pruneCloud(index,arch)}catch(e){}
+ const merged=new Map(),pd=pendingDeletes();
+ const put=(key,rep,date,v,fromCloud)=>{if(!v||!v.id||(pd[key]||[]).includes(v.id))return;const item={...v,rep:v.rep||rep,date:v.date||date,items:v.items||[],notes:v.notes||"",synced:fromCloud?true:v.synced};const comp=rep+"\u0000"+date+"\u0000"+v.id;const old=merged.get(comp);if(!old||(item.updated||0)>=(old.updated||0))merged.set(comp,item)};
+ arch.forEach((a,ak)=>{const i=ak.indexOf("\u0000"),rep=ak.slice(0,i),date=ak.slice(i+1);Object.values(a.visits||{}).forEach(v=>put("visits_"+rep+"_"+date,rep,date,v,true))});
+ localKeys().forEach(key=>{const{rep,date}=splitKey(key);readKey(key).forEach(v=>put(key,rep,date,v,false))});
+ return [...merged.values()];
+}
+/* ===== شاشة حالة المزامنة والتشخيص ===== */
+function openSyncInfo(){hideAll();$("sync").classList.remove("hidden");$("diagBox").innerHTML="";renderSyncDetail()}
+function renderSyncDetail(){
+ let info={};try{info=JSON.parse(localStorage.getItem("syncInfo")||"{}")}catch(e){}
+ const pd=pendingDeletes(),pend=localKeys().reduce((s,k)=>s+readKey(k).filter(v=>v&&v.synced!==true).length,0),del=Object.keys(pd).reduce((s,k)=>s+pd[k].length,0);
+ const bu=blockedUntil(),blocked=bu>Date.now();
+ const when=info.ts?new Date(info.ts).toLocaleTimeString("ar-IQ",{hour:"2-digit",minute:"2-digit"}):"—";
+ $("syncDetail").innerHTML=
+  `<div>آخر محاولة: <b>${esc(when)}</b> — ${info.ts?(info.ok?"<span style='color:#0e9e63'>ناجحة ✓</span>":"<span style='color:#d63c2e'>فشلت</span>"):"لم تتم بعد"}</div>`+
+  (info.errors&&info.errors.length?`<div style="color:#b54708">${info.errors.map(esc).join("<br>")}</div>`:"")+
+  (blocked?`<div style="color:#b54708">⏸ المزامنة التلقائية متوقفة مؤقتاً حتى ${esc(new Date(bu).toLocaleTimeString("ar-IQ",{hour:"2-digit",minute:"2-digit"}))} (زر «مزامنة الآن» يحاول مرة واحدة)</div>`:"")+
+  `<div>الأرشيف على هذا الجهاز: <b>${memArch.size}</b> سجل (مروج × يوم)${archOK?"":" — <span style='color:#d63c2e'>المتصفح لا يسمح بتخزين دائم: لا يُحذف شيء من السحابة</span>"}</div>`+
+  `<div>زيارات بانتظار الرفع: <b>${pend}</b> — حذف بانتظار الرفع: <b>${del}</b></div>`+
+  `<div>طلبات هذا الجهاز اليوم: <b>${reqToday()}</b> (الحد المجاني 10,000 لكل الأجهزة معاً)</div>`;
+}
+async function runDiagnose(){
+ const box=$("diagBox");box.innerHTML="<p class='muted'>جارٍ الفحص...</p>";
+ const lines=[];let cause="";
+ const step=async(label,fn)=>{try{const r=await fn();lines.push("✅ "+label+(r?" — "+r:""));return{ok:true}}catch(e){lines.push("❌ "+label+" — "+(e.status===0?"لا اتصال":"رمز "+e.status));return{ok:false,status:e.status}}};
+ const a=await step("قراءة الفهرس",async()=>{const x=await cGet("_index");return x?Object.keys(x).reduce((s,r)=>s+Object.keys(x[r]).length,0)+" سجل يوم":"فارغ"});
+ let cnt=null;
+ try{const r=await cFetch(LISTURL,{headers:{Accept:"application/json"}});if(r.ok){const j=await r.json();cnt=(j.entries||[]).length;lines.push("ℹ️ عدد المدخلات في السحابة: "+cnt+" من 100")}else lines.push("ℹ️ تعذر عرض قائمة المدخلات (رمز "+r.status+")")}catch(e){}
+ const b=await step("اختبار كتابة مدخل جديد",async()=>{await cPut("_ping",{t:Date.now()});await cDel("_ping").catch(()=>{});return"سليم"});
+ if(a.status===429||b.status===429)cause="السبب: تجاوز حد الطلبات اليومي للسحابة المجانية (10,000/24 ساعة لكل الأجهزة). سيعود العمل تلقائياً عند انخفاض الاستهلاك — هذه النسخة تقلّل الطلبات كثيراً. على كل أجهزة المروجين استخدام نفس النسخة.";
+ else if(a.status===0)cause="السبب: لا يوجد اتصال بالإنترنت، أو أن خدمة mantledb متوقفة/محجوبة على هذه الشبكة.";
+ else if(a.ok&&!b.ok)cause="السبب المرجّح: امتلأ حد 100 مدخل في السحابة فترفض أي سجل جديد. اضغط «إصلاح السحابة» لإعادة ترتيبها.";
+ else if(a.ok&&b.ok)cause="السحابة تعمل بشكل سليم الآن. اضغط «مزامنة الآن».";
+ else cause="تعذر تحديد السبب — أرسل لي الرموز الظاهرة أعلاه.";
+ box.innerHTML="<div class='visit'>"+lines.map(esc).join("<br>")+"<div style='margin-top:8px;font-weight:bold;color:#4a1f7a'>"+esc(cause)+"</div></div>";
+ renderSyncDetail();
+}
+/* إصلاح: إعادة بناء الفهرس من المدخلات الموجودة فعلاً وحذف الأقدم إن زادت عن الحد */
+async function repairCloud(){
+ if(!confirm("سيُعاد بناء فهرس السحابة من الموجود فعلاً، ويُحذف الأقدم تاريخاً إن زاد عدد السجلات عن "+MAX_CLOUD_ENTRIES+". متابعة؟"))return;
+ const box=$("diagBox");box.innerHTML="<p class='muted'>جارٍ الإصلاح...</p>";
+ try{
+  const r=await cFetch(LISTURL,{headers:{Accept:"application/json"}});
+  if(!r.ok)throw httpErr(r.status);
+  const entries=(await r.json()).entries||[];
+  if(!entries.some(e=>e.path==="_index")){box.innerHTML="<div class='visit'>تعذر الإصلاح: قائمة السحابة غير مكتملة. لم يتم تغيير شيء.</div>";return}
+  const norm=s=>{try{return encodeURIComponent(decodeURIComponent(s))}catch(e){return encodeURIComponent(s)}};
+  const days=[];
+  entries.forEach(e=>{const m=/^(.+)\/(\d{4}-\d{2}-\d{2})$/.exec(e.path||"");if(m)days.push({r:norm(m[1]),d:m[2],t:e.updated_at||Date.now(),raw:e.path})});
+  days.sort((a,b)=>String(b.d).localeCompare(String(a.d))||b.t-a.t);
+  const keep=days.slice(0,MAX_CLOUD_ENTRIES),drop=days.slice(MAX_CLOUD_ENTRIES);
+  for(const e of drop)await cDel(e.raw.split("/").map(norm).join("/")).catch(()=>{});
+  const idx={};keep.forEach(e=>{(idx[e.r]=idx[e.r]||{})[e.d]=e.t});
+  await cPut("_index",idx);
+  cloudCache.clear();localStorage.removeItem("syncMeta");
+  box.innerHTML="<div class='visit'>تم الإصلاح ✓ — سجلات محفوظة: "+keep.length+(drop.length?" — محذوف (الأقدم): "+drop.length:"")+"</div>";
+  syncNow(false);
+ }catch(e){box.innerHTML="<div class='visit'>فشل الإصلاح: "+esc(explainErr(e))+"</div>"}
+}
+/* ===== شاشة التقارير ===== */
+async function openReports(){
+ hideAll();$("reports").classList.remove("hidden");
+ $("reportsBox").innerHTML="<p class='muted'>جارٍ جمع البيانات من السحابة...</p>";
+ try{reportData=await fetchAllCloud()}
+ catch(e){$("reportsBox").innerHTML="<p class='muted'>تعذر الجلب — تأكد من الاتصال بالإنترنت ثم اضغط تحديث.</p>";return}
+ const reps=[...new Set(reportData.map(v=>v.rep))].sort((a,b)=>String(a).localeCompare(String(b),"ar"));
+ const dates=[...new Set(reportData.map(v=>v.date))].sort().reverse();
+ const keepR=$("repFilter").value,keepD=$("dateFilter").value;
+ $("repFilter").innerHTML=`<option value="">كل المروجين</option>`+reps.map(r=>`<option value="${esc(r)}"${r===keepR?" selected":""}>${esc(r)}</option>`).join("");
+ $("dateFilter").innerHTML=`<option value="">كل التواريخ</option>`+dates.map(d=>`<option value="${esc(d)}"${d===keepD?" selected":""}>${esc(d)}</option>`).join("");
+ renderReportPreview();
+}
+function filteredReport(){
+ const r=$("repFilter").value,d=$("dateFilter").value;
+ let list=reportData;
+ if(r)list=list.filter(v=>v.rep===r);
+ if(d)list=list.filter(v=>v.date===d);
+ list.sort((a,b)=>String(a.rep).localeCompare(String(b.rep),"ar")||String(a.date).localeCompare(String(b.date))||String(a.time).localeCompare(String(b.time)));
+ return list;
+}
+function renderReportPreview(){
+ const list=filteredReport();
+ if(!list.length){$("reportsBox").innerHTML="<p class='muted'>لا توجد زيارات مطابقة للخيار المختار.</p>";return}
+ const byRep={};list.forEach(v=>{(byRep[v.rep]=byRep[v.rep]||[]).push(v)});
+ $("reportsBox").innerHTML="<div class='visit'>"+Object.keys(byRep).map(r=>{
+  const items=byRep[r].reduce((s,v)=>s+(v.items||[]).length,0);
+ return `<div style="margin:6px 0"><b style="color:#4a1f7a;font: bold 18px Arial,sans-serif">${esc(r)}</b>: ${byRep[r].length} زيارة — ${items} مادة</div>`;
+ }).join("")+"</div>";
+}
+/* كل زيارة تُطبع بكل المواد — حتى الفارغة — بألوان */
+function visitTablesHTML(v){
+ const map={};const orphan={};
+ (v.items||[]).forEach(i=>{
+  if(products[i.section])(map[i.section]=map[i.section]||{})[i.product]={stock:i.stock,show:i.show,note:i.note};
+  else orphan[i.product]={stock:i.stock,show:i.show,note:i.note};
+ });
+ const th='style="border:1px solid #b59ad8;background:#f1eaff;padding:4px;text-align:right;font-size:11px;color:#4a1f7a"';
+ const td='style="border:1px solid #cfc4e4;padding:4px;text-align:right;font-size:11px"';
+ const tc='style="border:1px solid #cfc4e4;padding:4px;text-align:center;font-size:11px"';
+ let row=0;
+ return SECTIONS.map((sec,si)=>{
+  const secMap=map[sec]||{};
+  const pb=si>0?"page-break-before:always;break-before:page;":"";
+  return `<div style="${pb}margin:6px 0"><table style="width:100%;border-collapse:collapse">
+   <tr><th colspan="4" style="border:2px solid #3d1a63;background:#3d1a63;color:#fff;padding:7px;text-align:right;font-size:14px;font-weight:bold;-webkit-print-color-adjust:exact;print-color-adjust:exact">📁 القسم: ${esc(sec)}</th></tr>
+   <tr><th ${th}>المنتج</th><th ${th}>المخزن</th><th ${th}>المعروض</th><th ${th}>ملاحظات</th></tr>
+   ${(products[sec]||[]).map(p=>{const d=secMap[p]||orphan[p]||{};const bg=(++row%2)?"background:#f8f5ff;":"";return `<tr style="${bg}"><td ${td}>${esc(p)}</td><td ${tc}>${esc(d.stock??"")}</td><td ${tc}>${esc(d.show??"")}</td><td ${td}>${esc(d.note||"")}</td></tr>`}).join("")}
+  </table></div>`;
+ }).join("");
+}
+function isoFromUTC(d){return d.getUTCFullYear()+"-"+String(d.getUTCMonth()+1).padStart(2,"0")+"-"+String(d.getUTCDate()).padStart(2,"0")}
+function weekBounds(date){const [y,m,d]=String(date||todayLocal()).split("-").map(Number);const start=new Date(Date.UTC(y,m-1,d));start.setUTCDate(start.getUTCDate()-((start.getUTCDay()+1)%7));const end=new Date(start);end.setUTCDate(end.getUTCDate()+6);return[isoFromUTC(start),isoFromUTC(end)]}
+function countPeriod(visits,rep,start,end){return visits.filter(v=>v.rep===rep&&v.date>=start&&v.date<=end).length}
+function reportDoc(list,context=null){
+ const byRep={};list.forEach(v=>{(byRep[v.rep]=byRep[v.rep]||[]).push(v)});
+ const reps=Object.keys(byRep);
+ const selectedDate=context?context.date:$("dateFilter").value,statsAnchor=selectedDate||todayLocal(),[statsWeekStart,statsWeekEnd]=weekBounds(statsAnchor),statsMonthStart=statsAnchor.slice(0,7)+"-01",statsMonthEnd=statsAnchor.slice(0,7)+"-31";
+ const blocks=reps.map((rep,i)=>{
+  const visits=byRep[rep];
+  const brk=i<reps.length-1?"page-break-after:always;":"";
+  const items=visits.reduce((s,v)=>s+(v.items||[]).length,0);
+  const allCount=countPeriod(reportData,rep,"0000-01-01","9999-12-31"),weekCount=countPeriod(reportData,rep,statsWeekStart,statsWeekEnd),monthCount=countPeriod(reportData,rep,statsMonthStart,statsMonthEnd);
+  return `<div style="${brk}margin-bottom:30px">
+   ${visits.map((v,vi)=>`<div style="${vi>0?"page-break-before:always;break-before:page;":""}margin:14px 0"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;background:linear-gradient(135deg,#4a1f7a,#7b3fbf);color:#fff;padding:10px 14px;border-radius:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact"><b style="font: bold 20px Arial,sans-serif;white-space:nowrap">👤 ${esc(rep)}</b><span style="text-align:left;font-size:12px">${esc(v.store)} — ${esc(v.date)} — ${esc(v.time)}</span></div>${visitTablesHTML(v)}${v.notes?`<div style="font-size:12px;margin-top:3px"><b>ملاحظات عامة:</b> ${esc(v.notes)}</div>`:""}</div>`).join("")}
+   <div style="margin-top:10px;font-weight:bold;font-size:13px;background:#e6f7ef;color:#0e9e63;padding:8px 12px;border-radius:8px">عدد الزيارات: ${allCount} — عدد زيارات الأسبوع: ${weekCount} — عدد زيارات الشهر: ${monthCount}<br><span style="font-size:11px">ضمن التقرير الحالي: ${visits.length} زيارة — ${items} مادة مسجلة</span></div>
+  </div>`;
+ }).join("");
+ const selectedRep=context?context.rep:$("repFilter").value;
+ const meta=`صدر بتاريخ: ${esc(todayLocal())} — ${selectedRep?"المروج: "+esc(selectedRep):"كل المروجين"} — ${selectedDate?"التاريخ: "+esc(selectedDate):"كل التواريخ"}`;
+ return `<html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>تقرير الزيارات</title><style>@page{margin:14mm 12mm 17mm}body{font-family:Tahoma,Arial;padding:0;color:#222}h1{font-size:20px;margin:0;color:#4a1f7a}.report-titleline{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.report-meta{font-size:12px;color:#666;white-space:nowrap}.copyright{position:fixed;bottom:2mm;left:0;right:0;text-align:center;color:#777;font-size:8px}table{page-break-inside:auto}tr{page-break-inside:avoid;page-break-after:auto}</style></head><body>
+ <div class="report-titleline"><h1>📊 تقرير الزيارات</h1><div class="report-meta">${meta}</div></div>
+ ${blocks}<div class="copyright">© جميع حقوق النشر والتعديل محفوظة للمبرمج sarmad</div></body></html>`;
+}
+function printReportSel(){
+ const list=filteredReport();
+ if(!list.length){alert("لا توجد زيارات مطابقة للخيار المختار");return}
+ const w=window.open("","_blank");
+ w.document.write(reportDoc(list));
+ w.document.close();w.focus();
+ setTimeout(()=>w.print(),500);
+ toast("كل مروج بورقة مستقلة — اختر Save as PDF للحفظ");
+}
+/* تصدير Excel منسّق: أعمدة صحيحة + اتجاه عربي + رأس ملوّن */
+function excelRowsHTML(rows,title){
+ const ths=rows[0].map(h=>`<th style="background:#4a1f7a;color:#fff;border:1px solid #666;padding:6px;text-align:center;font-family:Tahoma;font-weight:bold">${esc(h)}</th>`).join("");
+ const trs=rows.slice(1).map((r,i)=>"<tr style='"+(i%2?"background:#f8f5ff;":"")+"'>"+r.map(c=>`<td style="border:1px solid #999;padding:5px;text-align:right;font-family:Tahoma;font-size:12px">${esc(c)}</td>`).join("")+"</tr>").join("");
+ return `<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"><style>table{border-collapse:collapse;direction:rtl}h3{font-family:Tahoma;color:#4a1f7a}</style></head><body><h3>${esc(title)}</h3><table><tr>${ths}</tr>${trs}</table></body></html>`;
+}
+function downloadExcel(rows,filename,title){
+ const blob=new Blob(["\ufeff"+excelRowsHTML(rows,title)],{type:"application/vnd.ms-excel;charset=utf-8"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+ a.download=filename+".xls";a.click();URL.revokeObjectURL(a.href);
+}
+function exportExcel(){
+ const rows=flatten();
+ downloadExcel(rows,`تقرير_${currentRep}_${currentDate}`,`زيارات ${currentRep} — ${currentDate}`);
+ toast("تم تصدير ملف Excel منسّق ✓");
+}
+function exportReportExcel(){
+ const list=filteredReport();
+ if(!list.length){alert("لا توجد زيارات مطابقة للخيار المختار");return}
+ const rows=[["التاريخ","المروج","المحل/الزبون","وقت الزيارة","القسم","المنتج","المخزن","المعرض","ملاحظات المنتج","ملاحظات عامة"]];
+ list.forEach(v=>{
+  if(v.items.length)v.items.forEach(i=>rows.push([v.date,v.rep,v.store,v.time,i.section,i.product,i.stock,i.show,i.note||"",v.notes]));
+  else rows.push([v.date,v.rep,v.store,v.time,"","","","","",v.notes]);
+ });
+ downloadExcel(rows,`تقرير_المروجين_${todayLocal()}`,"تقرير المروجين — "+todayLocal());
+ toast("تم تصدير التقرير المختار ✓");
+}
+/* الإدارة (برمز سري 8844) — كل تعديل يُزامَن فوراً لجميع المروجين */
+function openAdmin(){
+ const pin=prompt("أدخل الرمز السري للإدارة:");
+ if(pin===null)return;
+ if(pin==="8844"){hideAll();$("admin").classList.remove("hidden");renderMng()}
+ else alert("الرمز غير صحيح");
+}
+function renderMng(){
+ $("mngList").innerHTML=SECTIONS.map((sec,si)=>`
+  <div class="visit">
+   <div class="mng-row">
+    <input class="mng-sec" data-si="${si}" value="${esc(sec)}" title="عدّل اسم القسم ثم انقر خارجه">
+    <button class="red" style="padding:6px 10px;font-size:12px" onclick="delSection(${si})">🗑️ حذف القسم</button>
+   </div>
+   ${(products[sec]||[]).map((p,pi)=>`<div class="mng-row"><input value="${esc(p)}" data-si="${si}" data-pi="${pi}" class="mng-name"><button class="red" style="padding:9px 12px" onclick="delProduct(${si},${pi})">🗑️</button></div>`).join("")}
+   <div class="mng-row" style="margin-top:8px">
+    <input id="newP_${si}" placeholder="اسم المادة الجديدة">
+    <button class="green" style="padding:9px 12px" onclick="addProduct(${si})">➕</button>
+   </div>
+  </div>`).join("")+`
+  <div class="visit mng-row">
+   <input id="newSec" placeholder="اسم القسم الجديد (مثال: ألبان)">
+   <button class="green" style="padding:9px 12px" onclick="addSection()">➕ قسم</button>
+  </div>`;
+}
+$("mngList").addEventListener("change",e=>{
+ const t=e.target;
+ if(t.classList.contains("mng-sec")){renameSection(+t.dataset.si,t.value.trim());return}
+ if(!t.classList.contains("mng-name"))return;
+ const si=+t.dataset.si,pi=+t.dataset.pi;
+ const v=t.value.trim();
+ if(!v){toast("الاسم لا يمكن أن يكون فارغاً");renderMng();return}
+ products[SECTIONS[si]][pi]=v;
+ saveProducts();
+ toast("تم حفظ الاسم ومزامنته ✓");
+});
+function renameSection(si,newName){
+ const old=SECTIONS[si];
+ if(!newName){toast("الاسم لا يمكن أن يكون فارغاً");renderMng();return}
+ if(newName===old)return;
+ if(products[newName]){toast("يوجد قسم بهذا الاسم بالفعل");renderMng();return}
+ const np={};
+ Object.keys(products).forEach(k=>{np[k===old?newName:k]=products[k]});
+ products=np;
+ saveProducts();renderMng();
+ toast("تم تغيير اسم القسم ومزامنته ✓");
+}
+function addProduct(si){
+ const el=$("newP_"+si);const v=(el.value||"").trim();
+ if(!v){toast("اكتب اسم المادة أولاً");return}
+ products[SECTIONS[si]].push(v);
+ saveProducts();renderMng();toast("تمت إضافة المادة ومزامنتها ✓");
+}
+function delProduct(si,pi){
+ if(!confirm("حذف هذه المادة من القائمة؟ سيُحذف من جميع المروجين."))return;
+ products[SECTIONS[si]].splice(pi,1);
+ saveProducts();renderMng();toast("تم حذف المادة ومزامنة الحذف");
+}
+function addSection(){
+ const v=($("newSec").value||"").trim();
+ if(!v){toast("اكتب اسم القسم أولاً");return}
+ if(products[v]){toast("يوجد قسم بهذا الاسم");return}
+ products[v]=[];
+ saveProducts();renderMng();toast("تمت إضافة القسم — أضف موادك فيه ✓");
+}
+function delSection(si){
+ const sec=SECTIONS[si];
+ if(!confirm("حذف القسم «"+sec+"» وكل مواده؟ سيُحذف من جميع المروجين."))return;
+ delete products[sec];
+ saveProducts();renderMng();toast("تم حذف القسم ومزامنة الحذف");
+}
+/* تصفير البرنامج */
+async function resetAll(){
+ if(!confirm("⚠️ سيتم حذف كل الزيارات وأسماء المروجين والمحلات نهائياً من هذا الجهاز ومن السحابة المشتركة.\nملاحظة: كل جهاز مروج آخر يجب أن يضغط زر التصفير أيضاً، وإلا ستعود بياناته عند المزامنة.\nهل تريد المتابعة؟"))return;
+ if(!confirm("تأكيد أخير: هل أنت متأكد؟ لا يمكن التراجع عن الحذف."))return;
+ const keys=[];
+ for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&(k.indexOf("visits_")===0||k==="pendingDeletes"||k==="lastRep"||k==="syncMeta"||k==="syncInfo"))keys.push(k)}
+ keys.forEach(k=>localStorage.removeItem(k));
+ currentRep="";currentDate="";draft={};editingId=null;reportData=[];
+ try{
+  const index=(await cGet("_index"))||{};
+  for(const r of Object.keys(index))for(const d of Object.keys(index[r]))await cDel(r+"/"+d).catch(()=>{});
+  await cPut("_index",{});cloudCache.clear();await archClear();
+ }catch(e){}
+ toast("تم تصفير البرنامج بالكامل ✓");
+ setTimeout(logout,600);
+}
+/* النسخ الاحتياطي والاستيراد */
+async function backupFile(){
+ const data={};
+ localKeys().forEach(k=>data[k]=readKey(k));
+ try{const arch=await archLoadAll();data.__archive={};arch.forEach((v,k)=>{data.__archive[k]=v})}catch(e){}
+ data.pendingDeletes=pendingDeletes();
+ data.productsData=products;
+ data.exportedAt=new Date().toISOString();
+ const blob=new Blob([JSON.stringify(data)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+ a.download="نسخة_الزيارات_"+todayLocal()+".json";a.click();URL.revokeObjectURL(a.href);
+ toast("تم تنزيل النسخة — أرسلها للكمبيوتر");
+}
+function importBackup(input){
+ const f=input.files&&input.files[0];if(!f)return;
+ const r=new FileReader();
+ r.onload=()=>{
+  try{
+   const data=JSON.parse(r.result);
+   let added=0,total=0;
+   Object.keys(data).forEach(k=>{
+    if(k.indexOf("visits_")!==0||!Array.isArray(data[k]))return;
+    const cur=readKey(k);
+    const map={};cur.forEach(v=>map[v.id]=v);
+    data[k].forEach(v=>{if(v&&v.id&&(!map[v.id]||(v.updated||0)>(map[v.id].updated||0))){map[v.id]=v;added++}});
+    const merged=Object.values(map);
+    localStorage.setItem(k,JSON.stringify(merged));
+    total+=merged.length;
+   });
+   if(data.__archive){archLoadAll().then(arch=>Object.keys(data.__archive).forEach(k=>{const v=data.__archive[k];archPut(k,mergeArch(arch.get(k),v,Math.max(v.ts||0,(arch.get(k)||{}).ts||0)))}))}
+   if(data.productsData&&Object.keys(data.productsData).length){products=data.productsData;saveProducts()}
+   toast("تم الاستيراد: "+added+" زيارة جديدة من "+total);
+   scheduleSync();
+   if(!$("history").classList.contains("hidden"))showHistory();
+   if(!$("home").classList.contains("hidden"))home();
+  }catch(e){alert("الملف غير صالح — تأكد أنه ملف نسخة احتياطية من هذا التطبيق")}
+  input.value="";
+ };
+ r.readAsText(f);
+}
+/* باقي التطبيق */
+function enter(){
+ const name=$("rep").value.trim();
+ if(!name){alert("اكتب الاسم أولاً");$("rep").focus();return}
+ currentRep=name;
+ localStorage.setItem("lastRep",name);
+ currentDate=$("date").value||todayLocal();
+ $("repName").textContent=currentRep;$("today").textContent=currentDate;
+ home();syncNow(true);
+}
+function hideAll(){["login","home","visit","history","reports","admin","sync"].forEach(x=>$(x).classList.add("hidden"))}
+function home(){
+ hideAll();$("home").classList.remove("hidden");
+ const n=allVisits().length;
+ $("visitCount").textContent=n?n+" زيارة مسجلة اليوم":"لا توجد زيارات اليوم";
+}
+function autoLogin(){
+ const lastRep=localStorage.getItem("lastRep");
+ if(!lastRep){$("login").classList.remove("hidden");return}
+ currentRep=lastRep;currentDate=todayLocal();
+ $("repName").textContent=lastRep;$("today").textContent=currentDate;
+ home();
+}
+function newVisit(){
+ hideAll();$("visit").classList.remove("hidden");
+ $("store").value="";$("search").value="";$("adminEditFields").classList.add("hidden");
+ draft={};editingId=null;adminEditing=false;editingSource=null;sectionIdx=0;
+ $("visitTitle").textContent="زيارة جديدة";
+ $("saveBtn").textContent="💾 حفظ الزيارة";
+ renderTabs();renderProducts();loadStores();
+}
+function keyForVisit(rep,date){return "visits_"+rep+"_"+date}
+function writeLocalVisits(rep,date,visits){localStorage.setItem(keyForVisit(rep,date),JSON.stringify(visits))}
+function fillVisitEditor(v,fromAdmin){
+ hideAll();$("visit").classList.remove("hidden");
+ editingId=v.id;adminEditing=!!fromAdmin;editingSource={rep:v.rep||currentRep,date:v.date||currentDate};
+ $("adminEditFields").classList.toggle("hidden",!adminEditing);
+ if(adminEditing){$("editRep").value=editingSource.rep;$("editDate").value=editingSource.date}
+ $("visitTitle").textContent="تعديل الزيارة";
+ $("saveBtn").textContent="💾 حفظ التعديلات";
+ $("store").value=v.store||"";
+ $("search").value="";
+ draft={};
+ (v.items||[]).forEach(i=>{
+  const f=FLAT.find(x=>x.section===i.section&&x.name===i.product);
+  if(f)draft[f.key]={stock:i.stock??"",show:i.show??"",note:i.note??""};
+ });
+ sectionIdx=0;
+ renderTabs();renderProducts();loadStores();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function editVisit(id){const v=allVisits().find(x=>x.id===id);if(!v){alert("لم يتم العثور على الزيارة");return}fillVisitEditor({...v,rep:currentRep,date:currentDate},false)}
+function editAnyVisit(rep,date,id){const v=historyVisits.find(x=>x.rep===rep&&x.date===date&&x.id===id);if(!v){alert("لم يتم العثور على الزيارة — حدّث البيانات وحاول مجدداً");return}fillVisitEditor(v,true)}
+function loadStores(){
+ const stores=new Set();
+ localKeys().forEach(k=>{
+  const rep=k.slice("visits_".length).split("_")[0];
+  if(rep!==currentRep)return;
+  readKey(k).forEach(v=>v.store&&stores.add(v.store));
+ });
+ $("stores").innerHTML=[...stores].map(s=>`<option value="${esc(s)}">`).join("");
+}
+function setSection(i){sectionIdx=i;$("search").value="";renderTabs();renderProducts()}
+function renderTabs(){
+ $("tabs").innerHTML=SECTIONS.map((s,i)=>`<button class="${i===sectionIdx?'active':''}" onclick="setSection(${i})">📁 ${esc(s)}</button>`).join("");
+}
+function renderProducts(){
+ $("products").innerHTML=FLAT.filter(f=>f.section===SECTIONS[sectionIdx]).map(f=>{
+  const d=draft[f.key]||{};
+  return `<div class="product" data-name="${esc(f.name)}"><div class="name">${esc(f.name)}</div><input type="text" inputmode="text" value="${esc(d.stock??"")}" placeholder="مثال: 60 ق" data-key="${f.key}" data-field="stock"><input type="text" inputmode="text" value="${esc(d.show??"")}" placeholder="مثال: 5 ك" data-key="${f.key}" data-field="show"><input class="note-input" type="text" value="${esc(d.note??"")}" placeholder="ملاحظة" data-key="${f.key}" data-field="note"></div>`;
+ }).join("");
+}
+$("products").addEventListener("input",e=>{
+ const t=e.target,k=t.dataset.key,f=t.dataset.field;
+ if(!k||!f)return;
+ draft[k]=draft[k]||{};
+ draft[k][f]=t.value;
+});
+$("search").addEventListener("input",e=>{
+ const q=e.target.value.trim();
+ document.querySelectorAll("#products .product").forEach(r=>{r.style.display=(!q||r.dataset.name.indexOf(q)>=0)?"":"none"});
+});
+function saveVisit(){
+ const store=$("store").value.trim();
+ if(!store){alert("اكتب اسم المحل / الزبون أولاً");$("store").focus();return}
+ const items=[];
+ FLAT.forEach(f=>{
+  const d=draft[f.key];
+  if(d&&(String(d.stock??"").trim()!==""||String(d.show??"").trim()!==""||String(d.note??"").trim()!=="")){
+   items.push({section:f.section,product:f.name,stock:String(d.stock??"").trim(),show:String(d.show??"").trim(),note:String(d.note||"").trim()});
+  }
+ });
+ const updated=Date.now();
+ if(adminEditing&&editingSource){
+  const nextRep=$("editRep").value.trim(),nextDate=$("editDate").value;
+  if(!nextRep){alert("اكتب اسم المروج");$("editRep").focus();return}
+  if(!nextDate){alert("اختر تاريخ الزيارة");$("editDate").focus();return}
+  const source=editingSource,sourceKey=keyForVisit(source.rep,source.date),targetKey=keyForVisit(nextRep,nextDate),moved=sourceKey!==targetKey;
+  const id=moved?uid():editingId;
+  const edited={...historyVisits.find(x=>x.rep===source.rep&&x.date===source.date&&x.id===editingId),id,rep:nextRep,date:nextDate,store,items,updated,synced:false};
+  const src=readKey(sourceKey).filter(x=>x.id!==editingId);
+  if(moved){writeLocalVisits(source.rep,source.date,src);addPendingDelete(sourceKey,editingId)}
+  const dest=moved?readKey(targetKey):src;
+  dest.push(edited);writeLocalVisits(nextRep,nextDate,dest);
+  editingId=null;adminEditing=false;editingSource=null;scheduleSync();toast(moved?"تم تعديل الزيارة ونقلها للتاريخ أو المروج المحدد":"تم حفظ تعديلات الزيارة");
+  setTimeout(showHistory,500);return;
+ }
+ const v=allVisits();
+ if(editingId!==null){
+  const idx=v.findIndex(x=>x.id===editingId);
+  if(idx>=0){
+   v[idx]={...v[idx],store,items,updated,synced:false};
+   saveAll(v);toast("تم حفظ التعديلات بنجاح");
+  }else{toast("انتهت صلاحية الجلسة — أعد تسجيل الزيارة")}
+ }else{
+  v.push({id:uid(),rep:currentRep,date:currentDate,store,
+   notes:"",
+   time:new Date().toLocaleTimeString("ar-IQ",{hour:"2-digit",minute:"2-digit"}),
+   items,updated,synced:false});
+  saveAll(v);
+  toast("تم حفظ الزيارة بنجاح");
+ }
+ editingId=null;
+ scheduleSync();
+ setTimeout(showHistory,700);
+}
+function deleteVisit(id){deleteAnyVisit(currentRep,currentDate,id)}
+function deleteAnyVisit(rep,date,id){
+ const visit=historyVisits.find(x=>x.rep===rep&&x.date===date&&x.id===id)||readKey(keyForVisit(rep,date)).find(x=>x.id===id);
+ if(!visit)return;
+ if(!confirm("هل أنت متأكد من حذف زيارة «"+visit.store+"»؟\nلا يمكن التراجع عن الحذف."))return;
+ const key=keyForVisit(rep,date);writeLocalVisits(rep,date,readKey(key).filter(x=>x.id!==id));
+ addPendingDelete(key,id);historyVisits=historyVisits.filter(x=>!(x.rep===rep&&x.date===date&&x.id===id));
+ scheduleSync();
+ toast("تم حذف الزيارة");
+ renderHistory();
+}
+function historyBounds(){
+ const mode=$("historyMode").value,start=$("historyStart").value||todayLocal();
+ if(mode==="range"){const end=$("historyEnd").value||start;return start<=end?[start,end]:[end,start]}
+ if(mode==="week")return weekBounds(start);
+ if(mode==="month")return[start.slice(0,7)+"-01",start.slice(0,7)+"-31"];
+ return[start,start];
+}
+function updateHistoryDateControls(){
+ const mode=$("historyMode").value;
+ $("historyEndWrap").classList.toggle("hidden",mode!=="range");
+ $("historyStartLabel").textContent=mode==="week"?"تاريخ ضمن الأسبوع":mode==="month"?"تاريخ ضمن الشهر":"من تاريخ";
+ if(!$("historyStart").value)$("historyStart").value=todayLocal();
+ if(mode==="range"&&!$("historyEnd").value)$("historyEnd").value=$("historyStart").value;
+ renderHistory();
+}
+async function loadHistory(){try{historyVisits=await fetchAllCloud();historyCloudReady=true}catch(e){historyCloudReady=false;historyVisits=[];localKeys().forEach(k=>{const p=splitKey(k);readKey(k).forEach(v=>historyVisits.push({...v,rep:v.rep||p.rep,date:v.date||p.date}))})}renderHistory()}
+async function showHistory(){hideAll();$("history").classList.remove("hidden");if(!$("historyStart").value)$("historyStart").value=currentDate||todayLocal();if(!$("historyEnd").value)$("historyEnd").value=$("historyStart").value;updateHistoryDateControls();await loadHistory()}
+function renderHistory(){
+ if($("history").classList.contains("hidden"))return;
+ $("historyDataStatus").textContent=historyCloudReady?"البيانات محدثة من السحابة والجهاز.":"تعذر الاتصال بالسحابة؛ المعروض حالياً بيانات هذا الجهاز فقط. أعد التحديث قبل تغيير اسم مروج أو حذفه.";
+ $("historyDataStatus").style.color=historyCloudReady?"#65788a":"#b54708";
+ const [start,end]=historyBounds(),inRange=historyVisits.filter(v=>v.date>=start&&v.date<=end).sort((a,b)=>String(a.rep).localeCompare(String(b.rep),"ar")||String(a.date).localeCompare(String(b.date))||String(a.time).localeCompare(String(b.time)));
+ const reps=[...new Set(historyVisits.map(v=>v.rep))].sort((a,b)=>String(a).localeCompare(String(b),"ar"));
+ $("historySummary").innerHTML=reps.length?reps.map(rep=>`<div class="history-rep"><b>${esc(rep)}</b><span>${inRange.filter(v=>v.rep===rep).length} زيارة ضمن الفترة</span><div class="actions no-print"><button class="secondary" data-action="rename-rep" data-rep="${esc(rep)}">✏️ تعديل الاسم</button><button class="red" data-action="delete-rep" data-rep="${esc(rep)}">🗑️ حذف المروج</button></div></div>`).join(""):"<p class='muted'>لا توجد أسماء مروجين محفوظة.</p>";
+ $("historyList").innerHTML=inRange.length?inRange.map(v=>`<div class="visit"><div class="top"><b>${esc(v.store||"زيارة بدون اسم محل")}</b><span class="badge blue">${esc(v.rep)} · ${esc(v.date)} · ${esc(v.time||"")}</span></div><div class="muted">${(v.items||[]).length} مادة مسجلة ${v.synced?'<span class="cloud-tag">☁ مُزامَنة</span>':'<span class="cloud-tag" style="color:#c07800">⏳ بانتظار المزامنة</span>'}</div><div class="actions no-print"><button class="secondary" data-action="edit-visit" data-rep="${esc(v.rep)}" data-date="${esc(v.date)}" data-id="${esc(v.id)}">✏️ تعديل الزيارة / التاريخ</button><button class="red" data-action="delete-visit" data-rep="${esc(v.rep)}" data-date="${esc(v.date)}" data-id="${esc(v.id)}">🗑️ حذف</button></div></div>`).join(""):"<p class='muted'>لا توجد زيارات ضمن الفترة المحددة.</p>";
+}
+async function renamePromoter(oldName){
+ if(!historyCloudReady){alert("تعذر تحميل كل السجلات من السحابة. اتصل بالإنترنت وحدّث البيانات قبل تغيير اسم المروج.");return}
+ const newName=(prompt("اكتب الاسم الجديد للمروج «"+oldName+"»: ",oldName)||"").trim();
+ if(!newName||newName===oldName)return;
+ if(historyVisits.some(v=>v.rep===newName)){alert("يوجد مروج بهذا الاسم بالفعل؛ اختر اسماً آخر.");return}
+ const visits=historyVisits.filter(v=>v.rep===oldName);
+ if(!visits.length){alert("لا توجد زيارات لهذا المروج.");return}
+ if(!confirm("سيتم تغيير اسم «"+oldName+"» في جميع زياراته المحفوظة. متابعة؟"))return;
+ const grouped={};
+ visits.forEach(v=>{
+  const oldKey=keyForVisit(oldName,v.date),newKey=keyForVisit(newName,v.date);
+  const local=readKey(oldKey);writeLocalVisits(oldName,v.date,local.filter(x=>x.id!==v.id));addPendingDelete(oldKey,v.id);
+  const target=grouped[v.date]||(grouped[v.date]=readKey(newKey));
+  target.push({...v,id:uid(),rep:newName,date:v.date,updated:Date.now(),synced:false});
+ });
+ Object.keys(grouped).forEach(date=>writeLocalVisits(newName,date,grouped[date]));
+ if(currentRep===oldName){currentRep=newName;localStorage.setItem("lastRep",newName);$("repName").textContent=newName}
+ scheduleSync();toast("تم تغيير اسم المروج وحفظ زياراته للتزامن");await loadHistory();
+}
+async function deletePromoter(rep){
+ if(!historyCloudReady){alert("تعذر تحميل كل السجلات من السحابة. اتصل بالإنترنت وحدّث البيانات قبل حذف المروج.");return}
+ const visits=historyVisits.filter(v=>v.rep===rep);
+ if(!visits.length){alert("لا توجد زيارات لهذا المروج.");return}
+ if(!confirm("سيتم حذف المروج «"+rep+"» وجميع زياراته السابقة وعددها "+visits.length+" نهائياً. هل تريد المتابعة؟"))return;
+ const grouped={};
+ visits.forEach(v=>{const key=keyForVisit(rep,v.date);const ids=grouped[v.date]||(grouped[v.date]=new Set());ids.add(v.id);addPendingDelete(key,v.id)});
+ Object.keys(grouped).forEach(date=>{const removed=grouped[date];writeLocalVisits(rep,date,readKey(keyForVisit(rep,date)).filter(v=>!removed.has(v.id)))});
+ historyVisits=historyVisits.filter(v=>v.rep!==rep);
+ if(currentRep===rep){currentRep="";localStorage.removeItem("lastRep")}
+ scheduleSync();toast("تم حذف المروج وزياراته وحفظ الحذف للتزامن");renderHistory();
+}
+$("historyList").addEventListener("click",e=>{const b=e.target.closest("button[data-action]");if(!b)return;if(b.dataset.action==="edit-visit")editAnyVisit(b.dataset.rep,b.dataset.date,b.dataset.id);if(b.dataset.action==="delete-visit")deleteAnyVisit(b.dataset.rep,b.dataset.date,b.dataset.id)});
+$("historySummary").addEventListener("click",e=>{const b=e.target.closest("button[data-action]");if(!b)return;if(b.dataset.action==="rename-rep")renamePromoter(b.dataset.rep);if(b.dataset.action==="delete-rep")deletePromoter(b.dataset.rep)});
+function flatten(){
+ const out=[["التاريخ","المروج","المحل/الزبون","وقت الزيارة","القسم","المنتج","المخزن","المعروض","ملاحظات المنتج","ملاحظات عامة"]];
+ allVisits().forEach(v=>{
+  (v.items||[]).forEach(i=>out.push([v.date,v.rep,v.store,v.time,i.section,i.product,i.stock,i.show,i.note||"",v.notes||""]));
+  if(!(v.items||[]).length)out.push([v.date,v.rep,v.store,v.time,"","","","","",v.notes||""]);
+ });
+ return out;
+}
+async function printReport(isPdf){
+ const w=window.open("","_blank");
+ if(!w){alert("اسمح بفتح نافذة الطباعة ثم حاول مجدداً.");return}
+ try{reportData=await fetchAllCloud()}catch(e){reportData=[];localKeys().forEach(k=>{const p=splitKey(k);readKey(k).forEach(v=>reportData.push({...v,rep:v.rep||p.rep,date:v.date||p.date}))})}
+ const v=reportData.filter(x=>x.rep===currentRep&&x.date===currentDate);
+ if(!v.length){w.close();alert("لا توجد زيارات لهذا اليوم");return}
+ w.document.write(reportDoc(v,{rep:currentRep,date:currentDate}));
+ w.document.close();w.focus();
+ setTimeout(()=>w.print(),500);
+ if(isPdf)toast("اختر Save as PDF من نافذة الطباعة لحفظه PDF");
+}
+function logout(){
+ currentRep="";editingId=null;adminEditing=false;editingSource=null;draft={};
+ localStorage.removeItem("lastRep");
+ hideAll();$("login").classList.remove("hidden");
+}
+function toast(t){
+ $("toast").textContent=t;$("toast").style.display="block";
+ clearTimeout(toastTimer);
+ toastTimer=setTimeout(()=>$("toast").style.display="none",1800);
+}
+/* تهيئة: دخول تلقائي ثم مزامنة فورية (زيارات + المواد + الإشعارات) */
+autoLogin();
+syncNow(true);
+syncProducts();
+let lastTick=Date.now(),lastProd=Date.now();
+window.addEventListener("online",()=>{lastTick=Date.now();syncNow(true);syncProducts()});
+/* مزامنة تلقائية خفيفة: كل 5 دقائق والتطبيق ظاهر، وعند العودة إليه — طلب واحد فقط إن لم يتغير شيء */
+setInterval(()=>{if(document.hidden)return;if(Date.now()-lastTick<4*60*1000)return;lastTick=Date.now();syncNow(true)},5*60*1000);
+document.addEventListener("visibilitychange",()=>{
+ if(document.hidden)return;
+ if(Date.now()-lastTick>2*60*1000){lastTick=Date.now();syncNow(true)}
+ if(Date.now()-lastProd>10*60*1000){lastProd=Date.now();syncProducts()}
+});
+</script>
+</body></html>
