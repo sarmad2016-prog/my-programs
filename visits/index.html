@@ -112,7 +112,7 @@ body.dark .settings-backdrop{background:#000a}
   <div id="reportCapture">
    <h2 class="report-title">تقرير الزيارة الميدانية</h2>
    <div class="report-meta"><span>اسم مروج: <b id="reportName">—</b></span><span>التاريخ: <b id="reportDate">—</b></span></div>
-   <div class="table-wrap"><table><thead><tr><th style="width:55px">ت</th><th>اسم المحل</th><th>رقم الزبون</th><th>ملاحظات</th><th>تاريخ الزيارة</th><th class="no-print">إجراءات</th></tr></thead><tbody id="visitRows"><tr><td colspan="6" class="empty">لا توجد زيارات مسجلة لحد الآن</td></tr></tbody></table></div>
+   <div class="table-wrap"><table><thead><tr><th style="width:55px">ت</th><th>اسم المحل</th><th>رقم الزبون</th><th>ملاحظات</th><th>تاريخ الزيارة</th><th class="no-print">إجراءات</th></tr></thead><tbody id="visitRows"><tr><td colspan="6" class="empty">لا توجد زيارات بهذا التاريخ</td></tr></tbody></table></div>
    <div class="report-footer">حقوق النشر والتعديل © sarmad</div>
   </div>
  </section>
@@ -180,7 +180,7 @@ function header(){const h=64;rowBox(h,"#eaf4ed");cols.forEach(c=>cellText(c,[c.t
 function newPage(first){cv=document.createElement("canvas");cv.width=W;cv.height=H;ctx=cv.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,W,H);ctx.direction="rtl";ctx.textBaseline="alphabetic";pages.push(cv);y=M;
 if(first){ctx.fillStyle="#174b32";ctx.font=F(900,46);ctx.textAlign="center";ctx.fillText("تقرير الزيارة الميدانية",W/2,y+44);y+=76;
 ctx.fillStyle="#f0f6f1";ctx.strokeStyle="#dce8de";ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(M,y,TW,70,14);ctx.fill();ctx.stroke();
-ctx.fillStyle="#203b2e";ctx.font=F(800,28);ctx.textAlign="right";ctx.fillText("اسم مروج: "+(p.name||"—"),M+TW-24,y+45);ctx.textAlign="left";ctx.fillText("التاريخ: "+fmtDate(p.date||today()),M+24,y+45);y+=100}
+ctx.fillStyle="#203b2e";ctx.font=F(800,28);ctx.textAlign="right";ctx.fillText("اسم مروج: "+(p.name||"—"),M+TW-24,y+45);ctx.textAlign="left";ctx.fillText("التاريخ: "+fmtDate($("reportFilterDate").value||today()),M+24,y+45);y+=100}
 header()}
 newPage(true);
 getReportVisits().forEach((v,i)=>{const vals=[String(i+1),v.shop,v.customer||"—",v.notes||"—",fmtDate(v.date)];ctx.font=F(400,26);
