@@ -6,6 +6,7 @@
 <title>برنامج الزيارات</title>
 <link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="./icon.svg">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 :root{color-scheme:light;--forest:#17623f;--deep:#103c2b;--green:#27865f;--gold:#c99a37;--ink:#203b2e;--muted:#65766c;--line:#d9e6dd;--bg:#f2f7f3;--shadow:0 12px 34px #174c3212}
 *{box-sizing:border-box}html{min-height:100%;-webkit-text-size-adjust:100%}
@@ -21,7 +22,7 @@ main{display:grid;gap:15px}.panel{background:#ffffffed;border:1px solid #dce9df;
 .field{display:flex;flex-direction:column;gap:7px;min-width:0}.field label{font-size:14px;font-weight:800;color:#405c4b}
 input,textarea{width:100%;min-width:0;border:1px solid #d1e0d6;background:#fbfdfb;border-radius:11px;padding:12px;color:var(--ink);outline:none;font-size:16px;min-height:46px}
 input:focus,textarea:focus{border-color:#5da77c;box-shadow:0 0 0 3px #5da77c20;background:#fff}textarea{resize:vertical;min-height:48px}
-.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.profile-note{font-size:13px;color:var(--muted);margin:10px 0 0}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.report-range{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin:0 0 16px}.report-range .btn{white-space:nowrap}.profile-note{font-size:13px;color:var(--muted);margin:10px 0 0}
 .form-grid{display:grid;grid-template-columns:1.15fr .8fr 1.35fr .9fr;gap:11px;align-items:end}.form-actions{display:flex;gap:8px;grid-column:1/-1}
 .stats{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:14px}.stats strong{color:var(--forest);font-size:19px}
 .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:13px;background:#fff;-webkit-overflow-scrolling:touch}
@@ -97,7 +98,7 @@ body.dark .settings-backdrop{background:#000a}
 <main class="wrap">
  <nav class="tabs" aria-label="أقسام البرنامج"><button class="tab-btn active" id="entryTab" type="button" aria-selected="true">إضافة زيارة</button><button class="tab-btn" id="historyTab" type="button" aria-selected="false">سجل الزيارات</button></nav>
  <section class="panel entry-panel tab-panel" id="entryPanel">
-  <div class="panel-head"><h2 id="formTitle">إضافة زيارة جديدة</h2><span class="stats">تسجيل سريع ومنظم</span></div>
+  <div class="panel-head"><h2 id="formTitle">إضافة زيارة جديدة</h2></div>
   <form id="visitForm" class="form-grid">
    <div class="field"><label for="shopName">اسم المحل</label><input id="shopName" required placeholder="اسم المحل"></div>
    <div class="field"><label for="customerNo">رقم الزبون</label><input id="customerNo" inputmode="numeric" placeholder="رقم الزبون"></div>
@@ -109,6 +110,7 @@ body.dark .settings-backdrop{background:#000a}
  <section class="panel tab-panel" id="reportPanel" hidden>
   <div class="panel-head"><h2>سجل الزيارات</h2><div class="toolbar"><button class="btn btn-gold" id="whatsappBtn" type="button">☏ إرسال واتساب</button><button class="btn btn-primary" id="pdfBtn" type="button">⇩ تصدير PDF</button></div></div>
   <div class="field report-date-filter" style="margin:0 0 14px;max-width:320px"><label for="reportFilterDate">عرض زيارات تاريخ</label><input id="reportFilterDate" type="date"></div>
+  <div class="report-range"><div class="field"><label for="reportFromDate">من تاريخ</label><input id="reportFromDate" type="date"></div><div class="field"><label for="reportToDate">إلى تاريخ</label><input id="reportToDate" type="date"></div><button class="btn btn-primary" id="excelBtn" type="button">⇩ تصدير Excel</button></div>
   <div id="reportCapture">
    <h2 class="report-title">تقرير الزيارة الميدانية</h2>
    <div class="report-meta"><span>اسم مروج: <b id="reportName">—</b></span><span>التاريخ: <b id="reportDate">—</b></span></div>
@@ -164,7 +166,9 @@ $("settingsLogout").addEventListener("click",()=>{closeSettings();leaveApp();toa
 $("switchUser").addEventListener("click",()=>{if(!confirm("تبديل المستخدم؟ سيتم طلب تسجيل اسم جديد، مع الاحتفاظ بسجل الزيارات."))return;localStorage.removeItem(PROFILE);sessionStorage.removeItem(SESSION);closeSettings();showAuth()});
 function switchTab(tab){const history=tab==="history";$("entryPanel").hidden=history;$("reportPanel").hidden=!history;$("entryTab").classList.toggle("active",!history);$("historyTab").classList.toggle("active",history);$("entryTab").setAttribute("aria-selected",String(!history));$("historyTab").setAttribute("aria-selected",String(history));if(history)render()}
 $("entryTab").addEventListener("click",()=>switchTab("entry"));$("historyTab").addEventListener("click",()=>switchTab("history"));
-$("reportFilterDate").value=today();$("reportFilterDate").addEventListener("change",render);
+$("reportFilterDate").value=today();$("reportFilterDate").addEventListener("change",render);$("reportFromDate").value=today();$("reportToDate").value=today();
+function exportVisitsExcel(){const from=$("reportFromDate").value,to=$("reportToDate").value;if(!from||!to){toast("حدد تاريخ البداية والنهاية");return}if(from>to){toast("تاريخ البداية يجب أن يكون قبل تاريخ النهاية");return}const rows=visits.filter(v=>v.date&&v.date>=from&&v.date<=to).sort((a,b)=>(a.date||"").localeCompare(b.date||""));if(!rows.length){toast("ماكو زيارات ضمن الفترة المحددة");return}if(!window.XLSX){toast("تعذر تحميل أداة Excel، تحقق من الاتصال");return}const profile=getProfile()||{};const data=[["تقرير الزيارات الميدانية"],["اسم المروج",profile.name||"—"],["الفترة من",from,"إلى",to],[],["ت","اسم المحل","رقم الزبون","ملاحظات","تاريخ الزيارة"],...rows.map((v,i)=>[i+1,v.shop,v.customer||"",v.notes||"",v.date])];const ws=XLSX.utils.aoa_to_sheet(data);ws["!cols"]=[{wch:7},{wch:30},{wch:20},{wch:42},{wch:18}];ws["!merges"]=[{s:{r:0,c:0},e:{r:0,c:4}}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"الزيارات");const safe=(profile.name||"المروج").replace(/[\\/:*?"<>|]/g,"-").replace(/\s+/g,"-");XLSX.writeFile(wb,safe+"-زيارات-"+from+"-الى-"+to+".xlsx");toast("تم تصدير ملف Excel")}
+$("excelBtn").addEventListener("click",exportVisitsExcel);
 function wrapText(ctx,text,maxW){const out=[];String(text).split("\n").forEach(par=>{let line="";par.split(/\s+/).filter(Boolean).forEach(w=>{let t=line?line+" "+w:w;if(ctx.measureText(t).width<=maxW){line=t;return}if(line){out.push(line);line=""}while(ctx.measureText(w).width>maxW&&w.length>1){let k=w.length;while(k>1&&ctx.measureText(w.slice(0,k)).width>maxW)k--;out.push(w.slice(0,k));w=w.slice(k)}line=w});out.push(line)});return out.length?out:[""]}
 async function renderReportPages(){
 const p=getProfile()||{},W=1240,H=1754,M=60,TW=W-2*M,LH=40,PAD=16,GRID="#8fae9b";
