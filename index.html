@@ -181,6 +181,91 @@ h1{background:none!important;color:#17623f!important;-webkit-text-fill-color:#17
 .app-card:hover{filter:brightness(.94)!important}
 .app-card:focus-visible{outline-color:#c99a37!important}
 
+
+/* Unified responsive cards: equal dimensions + visible shine on touch screens */
+.grid{
+ display:grid!important;
+ grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))!important;
+ align-items:stretch!important;
+ gap:16px!important;
+}
+.app-card{
+ width:100%!important;
+ min-width:0!important;
+ max-width:none!important;
+ min-height:116px!important;
+ height:116px!important;
+ flex:none!important;
+ display:flex!important;
+ align-items:center!important;
+ justify-content:flex-start!important;
+ padding:18px 20px!important;
+ border-radius:22px!important;
+ color:#fffaf0!important;
+ background:
+  radial-gradient(ellipse at 12% 0%,#3b9363 0%,#3b936300 48%),
+  radial-gradient(ellipse at 100% 100%,#d9a94d42 0%,#d9a94d00 55%),
+  linear-gradient(125deg,#24764d 0%,#17583a 48%,#103c2b 100%)!important;
+ border:1px solid #c9a75e!important;
+ box-shadow:0 12px 26px #123f2d35,inset 0 1px 0 #ffffff40!important;
+ overflow:hidden!important;
+ isolation:isolate!important;
+}
+.app-card:before{
+ display:block!important;
+ content:""!important;
+ position:absolute!important;
+ z-index:0!important;
+ width:190%!important;
+ height:240%!important;
+ top:-70%!important;
+ left:-150%!important;
+ transform:rotate(24deg)!important;
+ background:linear-gradient(105deg,transparent 34%,#ffe9ad10 43%,#ffe9ad88 50%,#ffffff12 57%,transparent 66%)!important;
+ animation:cardShine 4.2s ease-in-out infinite!important;
+ pointer-events:none!important;
+}
+.app-card:after{
+ z-index:0!important;
+ width:180px!important;
+ height:180px!important;
+ border-color:#f5d88b50!important;
+ box-shadow:0 0 0 18px #d9a94d18,0 0 0 36px #ffffff08!important;
+ pointer-events:none!important;
+}
+.app-info{position:relative!important;z-index:1!important;width:auto!important;max-width:100%!important}
+.app-card h3{
+ color:#fffaf0!important;
+ font-size:19px!important;
+ line-height:1.5!important;
+ white-space:normal!important;
+}
+.app-card .open-label{display:inline-flex!important;color:#f8e8bd!important}
+.app-card .open-label .arrow{
+ color:#174b32!important;
+ background:#fff4d5!important;
+ border:1px solid #f0d99e!important;
+ box-shadow:0 3px 10px #071f1530!important;
+}
+.app-card:hover{
+ transform:translateY(-4px)!important;
+ filter:brightness(1.06)!important;
+ box-shadow:0 18px 34px #123f2d48,inset 0 1px 0 #ffffff55!important;
+}
+@keyframes cardShine{
+ 0%,35%{left:-155%}
+ 75%,100%{left:155%}
+}
+@media(max-width:520px){
+ .grid{grid-template-columns:1fr!important;gap:13px!important}
+ .app-card{height:100px!important;min-height:100px!important;padding:14px 17px!important;border-radius:19px!important}
+ .app-card h3{font-size:18px!important}
+ .app-card:before{animation-duration:3.8s!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .app-card:before{animation:none!important}
+}
+
 </style>
 </head>
 <body>
@@ -202,9 +287,6 @@ h1{background:none!important;color:#17623f!important;-webkit-text-fill-color:#17
    </a>
   <a class="app-card" href="./visits/" aria-label="فتح برنامج الزيارات">
    <div class="app-info"><h3>برنامج الزيارات</h3><span class="open-label">دخول البرنامج <span class="arrow">←</span></span></div>
-  </a>
-  <a class="app-card" href="./%D8%A7%D9%84%D8%B9%D9%82%D9%88%D8%A8%D8%A7%D8%AA/" aria-label="فتح برنامج العقوبات">
-   <div class="app-info"><h3>برنامج العقوبات</h3><span class="open-label">دخول البرنامج <span class="arrow">←</span></span></div>
   </a>
   <a class="app-card" href="./%D8%A7%D9%84%D8%B9%D9%82%D9%88%D8%A8%D8%A7%D8%AA/" aria-label="فتح برنامج العقوبات">
    <div class="app-info"><h3>برنامج العقوبات</h3><span class="open-label">دخول البرنامج <span class="arrow">←</span></span></div>
