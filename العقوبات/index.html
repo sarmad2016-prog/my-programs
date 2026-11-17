@@ -100,6 +100,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}input[type=num
 <label class="rd"><input type="radio" name="ty" value="sum" checked>تجميعي</label>
 <label class="rd"><input type="radio" name="ty" value="det">تفصيلي</label></div>
 <div class="rw"><b>خيارات:</b><label class="rd"><input type="checkbox" id="ot" checked>إظهار إجمالي التقرير</label><label class="rd"><input type="checkbox" id="os" disabled>إظهار إجمالي كل موظف (تفصيلي)</label></div>
+<div class="rw report-font-controls"><b>حجم خط التقرير:</b><button type="button" id="fontDown" aria-label="تصغير الخط">−</button><output id="reportFontSize" aria-live="polite">18</output><button type="button" id="fontUp" aria-label="تكبير الخط">+</button></div>
 <div class="rw"><button class="pri" id="pr">🖨 طباعة</button><button id="pdf">تصدير PDF</button><button id="xl">تصدير Excel</button></div>
 </section>
 <div id="pv"></div>
@@ -127,7 +128,7 @@ const cl=s=>String(s||'').replace(/\u0640/g,'').replace(/\s+/g,' ').trim();
 const nm=s=>cl(s).replace(/[إأآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').toLowerCase();
 const ltr=t=>'\u2066'+t+'\u2069';
 const srt=(a,b)=>a.localeCompare(b,'ar');
-let P=[],cur=null,curCv=[],tk=0,tm2,editing=null,syncing=false,syncAgain=false,syncTimer=null;
+let P=[],cur=null,curCv=[],tk=0,tm2,editing=null,syncing=false,syncAgain=false,syncTimer=null,reportFontSize=18;
 function toast(t){const e=$('#tt');e.textContent=t;e.hidden=false;clearTimeout(tm2);tm2=setTimeout(()=>e.hidden=true,2500)}
 function uniq(a){const m=new Map();a.forEach(x=>{const k=nm(x);if(k&&!m.has(k))m.set(k,x)});return[...m.values()].sort(srt)}
 function opts(id,a){$(id).innerHTML=a.map(x=>`<option value="${esc(x)}">`).join('')}
@@ -349,7 +350,7 @@ function spec(){
 
 async function pages(sp){
   await Promise.all([document.fonts.load('400 14px Cairo','عربي 123'),document.fonts.load('700 14px Cairo','عربي 123')]).catch(()=>{});
-  const W=794,H=1123,S=2,M=40,RH=30,F='Cairo,"Segoe UI",Tahoma,sans-serif';
+  const W=794,H=1123,S=2,M=40,RH=Math.max(34,Math.ceil(reportFontSize*1.8)),F='Cairo,"Segoe UI",Tahoma,sans-serif';
   const all=sp.rows;
   const c1=Math.floor((H-60-150-RH)/RH),cN=Math.floor((H-60-60-RH)/RH),ch=[];
   for(let k=0;k<all.length||!ch.length;){const c=ch.length?cN:c1;ch.push(all.slice(k,k+c));k+=c}
@@ -362,15 +363,15 @@ async function pages(sp){
     let y=60;
     if(p==0){
       txt(sp.title,W-M,58,'right',`700 22px ${F}`,'#111');
-      sp.sub.forEach((s,i)=>txt(s,W-M,88+i*22,'right',`400 13px ${F}`,'#555'));
-      if(sp.totLine)txt(sp.totLine,W-M,88+sp.sub.length*22,'right',`700 14px ${F}`,'#111');
+      sp.sub.forEach((s,i)=>txt(s,W-M,88+i*22,'right',`400 16px ${F}`,'#555'));
+      if(sp.totLine)txt(sp.totLine,W-M,88+sp.sub.length*22,'right',`700 ${reportFontSize}px ${F}`,'#111');
       txt('تاريخ الطباعة: '+ltr(today()),M,58,'left',`400 12px ${F}`,'#555');y=150;
     }
     const row=(vals,yy,bold,fill)=>{
       if(fill){x.fillStyle=fill;x.fillRect(M,yy,W-2*M,RH)}
       let xr=W-M;
       sp.cols.forEach((c,i)=>{
-        const v=vals[i],t=c.n&&typeof v=='number'?fmt(v):String(v==null?'':v),f=`${bold?700:400} 13px ${F}`;x.font=f;
+        const v=vals[i],t=c.n&&typeof v=='number'?fmt(v):String(v==null?'':v),f=`${bold?700:400} ${reportFontSize}px ${F}`;x.font=f;
         const s=fit(t,c.w-14);
         c.c?txt(s,xr-c.w/2,yy+RH/2,'center',f,'#111'):txt(s,xr-8,yy+RH/2,'right',f,'#111');xr-=c.w;
       });
@@ -387,6 +388,13 @@ async function pages(sp){
   });
 }
 
+function setReportFontSize(next){
+  reportFontSize=Math.max(12,Math.min(28,next));
+  const out=$('#reportFontSize');
+  if(out)out.textContent=String(reportFontSize);
+  if(!$('#v2').hidden)prev();
+}
+
 async function prev(){const t=++tk,sp=spec(),cv=await pages(sp);if(t!=tk)return;cur=sp;curCv=cv;const pv=$('#pv');pv.innerHTML='';cv.forEach(c=>pv.appendChild(c))}
 async function save(name,data){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data]));a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);return true}
 const rname=()=>'تقرير-العقوبات-'+today();
@@ -397,8 +405,21 @@ function xlsx(sheets,name){
   return save(name+'.xlsx',XLSX.write(wb,{bookType:'xlsx',type:'array'}));
 }
 
+/* منع المتصفح من اقتراح المدخلات السابقة أو حفظها كإكمال تلقائي */
+function disableBrowserAutocomplete(){
+ document.querySelectorAll('input').forEach(el=>{
+  el.setAttribute('autocomplete','off');
+  el.setAttribute('autocorrect','off');
+  el.setAttribute('spellcheck','false');
+ });
+}
+disableBrowserAutocomplete();
+
 /* ---------- الأحداث ---------- */
 $('#sv').onclick=submit;$('#cn').onclick=resetForm;
+$('#fontDown').onclick=()=>setReportFontSize(reportFontSize-1);
+$('#fontUp').onclick=()=>setReportFontSize(reportFontSize+1);
+
 ['emp','sup','amt','rsn','dt'].forEach(i=>$('#'+i).addEventListener('keydown',e=>{if(e.key=='Enter')submit()}));
 $('#q').oninput=renderAll;
 function rowAct(e){
