@@ -70,11 +70,11 @@ function makeToken(type,color){
 }
 function initTokenScene(){
  const canvas=$('tokenLayer');tokenRenderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});tokenRenderer.setPixelRatio(Math.min(devicePixelRatio,2));tokenRenderer.outputColorSpace=THREE.SRGBColorSpace;
- tokenScene=new THREE.Scene();tokenCamera=new THREE.OrthographicCamera(-4.15,4.15,4.15,-4.15,.1,50);tokenCamera.position.set(0,13,.001);tokenCamera.lookAt(0,0,0);
+ tokenScene=new THREE.Scene();tokenCamera=new THREE.OrthographicCamera(-3.5,3.5,3.5,-3.5,.1,50);tokenCamera.position.set(0,13,.001);tokenCamera.up.set(0,0,-1);tokenCamera.lookAt(0,0,0);
  tokenScene.add(new THREE.HemisphereLight(0xffffff,0x67533a,2.2));let light=new THREE.DirectionalLight(0xffffff,2.3);light.position.set(-4,9,5);tokenScene.add(light);
  resizeToken();window.addEventListener('resize',resizeToken);animateTokens();
 }
-function resizeToken(){if(!tokenRenderer)return;const b=$('board'),w=b.clientWidth,h=b.clientHeight;tokenRenderer.setSize(w,h,false);tokenCamera.left=-4.15;tokenCamera.right=4.15;tokenCamera.top=4.15*h/w;tokenCamera.bottom=-4.15*h/w;tokenCamera.updateProjectionMatrix()}
+function resizeToken(){if(!tokenRenderer)return;const b=$('board'),w=b.clientWidth,h=b.clientHeight;tokenRenderer.setSize(w,h,false);tokenCamera.left=-3.5;tokenCamera.right=3.5;tokenCamera.top=3.5*h/w;tokenCamera.bottom=-3.5*h/w;tokenCamera.updateProjectionMatrix()}
 function animateTokens(){requestAnimationFrame(animateTokens);if(tokenRenderer)tokenRenderer.render(tokenScene,tokenCamera)}
 function createTokens(){tokenObjects.forEach(o=>tokenScene.remove(o));tokenObjects=[];players.forEach((p,i)=>{const o=makeToken(i,playerColors[i]);tokenScene.add(o);tokenObjects.push(o);const q=tileAt(p.pos);o.position.set(q.x,.02,q.z)})}
 function syncTokens(){players.forEach((p,i)=>{const o=tokenObjects[i];if(o&&!o.userData.moving){const q=tileAt(p.pos);o.position.set(q.x,.02,q.z)}})}
