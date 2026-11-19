@@ -2,39 +2,31 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#123f32"><title>مونوبولي العربية - نسخة اختبار</title>
+<meta name="theme-color" content="#123f32"><title>مونوبولي العربية - اختبار ثلاثي الأبعاد</title>
 <style>
-:root{--green:#174c3b;--green2:#23664d;--gold:#d6ad55;--cream:#f4edda;--ink:#18352b}
+:root{--green:#174c3b;--gold:#d6ad55;--ink:#18352b}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 0,#326b54,#102e27 75%);color:#fff;font-family:Tahoma,Arial,sans-serif;min-height:100vh}
 header{padding:15px;text-align:center}h1{margin:0;color:#f2d48a;font-size:clamp(22px,5vw,34px)}header p{margin:6px 0;color:#d8e8dd;font-size:13px}
-main{max-width:1050px;margin:auto;padding:10px;display:grid;gap:14px}
-.panel{background:#f7f0df;color:var(--ink);border:2px solid var(--gold);border-radius:18px;padding:14px;box-shadow:0 12px 30px #071b1680}
-.controls{display:flex;flex-wrap:wrap;gap:9px;align-items:center;justify-content:center}
-button,select,input{font:inherit;border-radius:11px;border:1px solid #c5b27d;padding:10px 13px}
-button{background:linear-gradient(#277452,#174b39);color:white;font-weight:bold;cursor:pointer;box-shadow:0 4px 0 #0d3327}
-button:disabled{opacity:.45;cursor:not-allowed}select,input{background:white;color:#173c30}
-.hidden{display:none!important}
-.status{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:12px 0;font-weight:bold}
-.players{display:flex;gap:8px;flex-wrap:wrap}.player{background:#fff;border:2px solid #d7c99e;border-radius:12px;padding:8px 11px;min-width:115px;font-size:13px}.player.active{border-color:#218354;box-shadow:0 0 0 2px #21835444}.player b{display:block;margin-bottom:4px}
-.game-area{perspective:1100px;padding:10px 2px 24px;overflow:hidden}
-.board{width:min(94vw,700px);aspect-ratio:1;margin:auto;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(7,1fr);gap:3px;padding:7px;border-radius:18px;background:linear-gradient(145deg,#d6b96e,#80602d);box-shadow:0 22px 35px #061b15aa;transform:rotateX(12deg) rotateZ(0deg);transform-style:preserve-3d}
+main{max-width:1050px;margin:auto;padding:10px;display:grid;gap:14px}.panel{background:#f7f0df;color:var(--ink);border:2px solid var(--gold);border-radius:18px;padding:14px;box-shadow:0 12px 30px #071b1680}
+.controls{display:flex;flex-wrap:wrap;gap:9px;align-items:center;justify-content:center}button,select,input{font:inherit;border-radius:11px;border:1px solid #c5b27d;padding:10px 13px}
+button{background:linear-gradient(#277452,#174b39);color:white;font-weight:bold;cursor:pointer;box-shadow:0 4px 0 #0d3327}button:disabled{opacity:.45;cursor:not-allowed}select,input{background:white;color:#173c30}.hidden{display:none!important}
+.status{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:12px 0;font-weight:bold}.players{display:flex;gap:8px;flex-wrap:wrap}
+.player{background:#fff;border:2px solid #d7c99e;border-radius:12px;padding:8px 11px;min-width:115px;font-size:13px}.player.active{border-color:#218354;box-shadow:0 0 0 2px #21835444}.player b{display:block;margin-bottom:4px}
+.game-area{perspective:1100px;padding:10px 2px 24px;overflow:hidden}.board{position:relative;width:min(94vw,700px);aspect-ratio:1;margin:auto;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(7,1fr);gap:3px;padding:7px;border-radius:18px;background:linear-gradient(145deg,#d6b96e,#80602d);box-shadow:0 22px 35px #061b15aa;transform:rotateX(12deg);transform-style:preserve-3d}
 .tile{position:relative;background:linear-gradient(145deg,#fff9e9,#dfd4b9);color:#244337;border-radius:5px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;text-align:center;padding:3px 1px;font-size:clamp(7px,1.7vw,11px);min-width:0;box-shadow:inset 0 0 0 1px #bba979;overflow:visible}
 .tile .band{height:7px;width:100%;border-radius:3px 3px 0 0;margin-bottom:2px}.tile .name{font-weight:bold;line-height:1.15}.tile .price{font-size:.9em;color:#80652e}
-.tile .tokens{display:flex;gap:1px;flex-wrap:wrap;justify-content:center;position:absolute;bottom:2px;left:1px;right:1px}
-.token{font-size:clamp(13px,3vw,22px);filter:drop-shadow(0 3px 2px #0008);transform:translateZ(12px);animation:pop .25s ease-out}
-@keyframes pop{from{transform:translateY(-10px) scale(.5)}to{transform:translateY(0) scale(1)}}
+.token-layer{position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none}
 .center{grid-column:2/7;grid-row:2/7;background:radial-gradient(circle,#fff7e4,#e2d2a6);border-radius:12px;color:#234638;display:flex;align-items:center;justify-content:center;text-align:center;padding:12px;box-shadow:inset 0 0 18px #96783c55}
 .center h2{color:#a37a27;margin:0 0 5px;font-size:clamp(17px,4vw,27px)}.center p{margin:0;font-size:12px}
-.dice-wrap{display:flex;gap:18px;align-items:center;justify-content:center;flex-wrap:wrap;margin:12px}
-.die{width:58px;height:58px;position:relative;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.2,.8,.2,1);font-size:38px;line-height:58px;text-align:center;background:#fff;color:#173c30;border-radius:12px;box-shadow:inset 0 -5px 0 #d3d0c7,0 7px 12px #0004}
-.die.rolling{animation:roll .8s ease-in-out}@keyframes roll{0%{transform:rotateX(0) rotateY(0)}35%{transform:rotateX(260deg) rotateY(180deg) translateY(-15px)}70%{transform:rotateX(520deg) rotateY(400deg) translateY(-5px)}100%{transform:rotateX(720deg) rotateY(720deg)}}
+.dice-stage{width:100%;height:128px;max-width:310px;margin:8px auto 2px;position:relative;direction:ltr}.dice-stage canvas{display:block;width:100%;height:100%}
 .log{background:#173d31;color:#eaf2e9;border-radius:12px;padding:10px;max-height:130px;overflow:auto;font-size:13px;line-height:1.7}.log div{border-bottom:1px solid #ffffff20;padding:3px}
-footer{text-align:center;color:#d4e2d9;font-size:11px;padding:12px}
-.modal{position:fixed;inset:0;background:#061b16c9;display:grid;place-items:center;padding:18px;z-index:5}.modal-card{width:min(440px,100%);background:#f7f0df;color:#18352b;padding:20px;border-radius:18px;border:2px solid var(--gold);text-align:center}.modal-card h3{margin-top:0}
-@media(max-width:520px){main{padding:7px}.panel{padding:10px}.board{width:96vw;gap:2px;padding:4px}.tile .band{height:5px}.player{min-width:calc(50% - 5px);flex:1}.game-area{padding:3px 0 15px}}
-</style></head>
+footer{text-align:center;color:#d4e2d9;font-size:11px;padding:12px}.modal{position:fixed;inset:0;background:#061b16c9;display:grid;place-items:center;padding:18px;z-index:5}.modal-card{width:min(440px,100%);background:#f7f0df;color:#18352b;padding:20px;border-radius:18px;border:2px solid var(--gold);text-align:center}.modal-card h3{margin-top:0}
+@media(max-width:520px){main{padding:7px}.panel{padding:10px}.board{width:96vw;gap:2px;padding:4px}.tile .band{height:5px}.player{min-width:calc(50% - 5px);flex:1}.game-area{padding:3px 0 15px}.dice-stage{height:112px}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+</head>
 <body>
-<header><h1>مونوبولي العربية</h1><p>نسخة اختبار أولية • لوحة بمنظور ثلاثي الأبعاد وحركة القطع والنرد</p></header>
+<header><h1>مونوبولي العربية</h1><p>قطع لعب مجسّمة ونرد ثلاثي الأبعاد بحركة متحركة</p></header>
 <main>
 <section class="panel" id="setup">
 <h3 style="text-align:center;margin:0 0 12px">إعداد اللعبة</h3>
@@ -43,44 +35,84 @@ footer{text-align:center;color:#d4e2d9;font-size:11px;padding:12px}
 <label id="difficultyLabel">صعوبة الكمبيوتر <select id="difficulty"><option value="easy">سهل</option><option value="normal" selected>متوسط</option><option value="hard">صعب</option></select></label></div>
 <div id="onlineBox" class="hidden" style="text-align:center;margin-top:12px"><button id="createRoom">إنشاء غرفة ورمز دعوة</button> <input id="roomCode" inputmode="numeric" maxlength="4" placeholder="رمز من 4 أرقام" style="width:130px;text-align:center"><button id="joinRoom">انضمام</button><p id="roomMessage" style="font-size:12px"></p></div>
 <div class="controls" style="margin-top:14px"><button id="start">ابدأ اللعب</button></div>
-<p style="text-align:center;font-size:12px;color:#66796d;margin-bottom:0">اللعب الأونلاين ظاهر كتجهيز واجهة فقط، ويحتاج ربط خادم قبل تفعيل الاتصال الحقيقي.</p>
+<p style="text-align:center;font-size:12px;color:#66796d;margin-bottom:0">اللعب الأونلاين غير مفعّل بعد؛ هذه نسخة اختبار للعب ضد الكمبيوتر.</p>
 </section>
 <section class="panel hidden" id="game">
-<div class="status"><span id="turnText">الدور: اللاعب الأول</span><span id="roundText">الجولة 1</span></div>
-<div class="players" id="players"></div>
-<div class="game-area"><div class="board" id="board"><div class="center"><div><h2>مونوبولي</h2><p>اشترِ العقارات، اجمع الإيجارات، وكن أغنى لاعب</p><div class="dice-wrap"><div class="die" id="die1">⚀</div><div class="die" id="die2">⚁</div></div><p id="diceText">ارمِ النرد لبدء دورك</p></div></div></div></div>
-<div class="controls"><button id="roll">🎲 ارْمِ النرد</button><button id="buy" disabled>شراء العقار</button><button id="end" disabled>إنهاء الدور</button><button id="new">لعبة جديدة</button></div>
-<div class="log" id="log" aria-live="polite"></div>
-</section>
+<div class="status"><span id="turnText">الدور: اللاعب الأول</span><span id="roundText">الجولة 1</span></div><div class="players" id="players"></div>
+<div class="game-area"><div class="board" id="board"><div class="center"><div><h2>مونوبولي</h2><p>اشترِ العقارات، اجمع الإيجارات، وكن أغنى لاعب</p><div class="dice-stage" id="diceStage"></div><p id="diceText">ارمِ النرد لبدء دورك</p></div></div><canvas class="token-layer" id="tokenLayer"></canvas></div></div>
+<div class="controls"><button id="roll">ارمِ النرد</button><button id="buy" disabled>شراء العقار</button><button id="end" disabled>إنهاء الدور</button><button id="new">لعبة جديدة</button></div>
+<div class="log" id="log" aria-live="polite"></div></section>
 </main><footer>نسخة اختبار خاصة • sarmad</footer>
 <div class="modal hidden" id="modal"><div class="modal-card"><h3 id="modalTitle"></h3><p id="modalText"></p><button id="modalOk">حسناً</button></div></div>
-<script>
+<script type="module">
+import * as THREE from 'three';
 const $=id=>document.getElementById(id);
 const names=['البداية','شارع الرشيد','صندوق الحظ','شارع السعدون','ضريبة','محطة بغداد','شارع الكرادة','فرصة','شارع المنصور','استراحة','السجن','شارع فلسطين','شركة الكهرباء','شارع الجامعة','شارع المتنبي','محطة البصرة','شارع أبو نؤاس','صندوق الحظ','شارع اليرموك','ضريبة','محطة الموصل','شارع النهر','فرصة','شارع الكفاح'];
 const prices=[0,80,0,100,100,160,120,0,140,0,0,160,150,180,200,160,220,0,240,120,160,260,0,280];
 const colors=['#d9b85f','#9a6740','#d9b85f','#9a6740','#777','#477eaa','#d77b36','#777','#d77b36','#777','#777','#d84c42','#777','#d84c42','#d84c42','#477eaa','#39a0a0','#777','#39a0a0','#777','#477eaa','#7154a2','#777','#7154a2'];
-const icons=['🚩','🚗','🎁','🚢','💰','🚉','🎩','🎲','🐕','🌴','🔒','👟','💡','🚕','🏛️','🚉','⛵','🎁','🏠','💰','🚉','🏰','🎲','🚙'];
-const playersEmoji=['🚗','🚢','🎩','🐕','👟','🚀'];
-let players=[],owner=Array(24).fill(-1),turn=0,rolled=false,round=1,pending=-1,gameMode='ai',busy=false;
+const playerColors=[0xe64b3c,0x2878d0,0xd6a52f,0x35a66a,0x9a58bd,0xe87927];
+let players=[],owner=Array(24).fill(-1),turn=0,rolled=false,round=1,pending=-1,busy=false;
 const positions=[[7,7],[6,7],[5,7],[4,7],[3,7],[2,7],[1,7],[1,6],[1,5],[1,4],[1,3],[1,2],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6]];
-function buildBoard(){const b=$('board');b.querySelectorAll('.tile').forEach(x=>x.remove());names.forEach((n,i)=>{let d=document.createElement('div');d.className='tile';d.style.gridColumn=positions[i][0];d.style.gridRow=positions[i][1];d.dataset.index=i;d.innerHTML='<div class="band" style="background:'+colors[i]+'"></div><div class="name">'+n+'</div><div class="price">'+(prices[i]?'$'+prices[i]:'')+'</div><div class="tokens" id="tokens'+i+'"></div>';b.appendChild(d)})}
+const tileAt=i=>({x:positions[i][0]-4,z:positions[i][1]-4});
+let tokenRenderer,tokenScene,tokenCamera,tokenObjects=[],diceRenderer,diceScene,diceCamera,diceObjects=[],diceBusy=false;
+function mat(color,metalness=.12,roughness=.38){return new THREE.MeshStandardMaterial({color,metalness,roughness})}
+function addMesh(parent,geo,material,x,y,z,rx=0,ry=0,rz=0){const m=new THREE.Mesh(geo,material);m.position.set(x,y,z);m.rotation.set(rx,ry,rz);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m}
+function makeToken(type,color){
+ const g=new THREE.Group(),m=mat(color,.55,.28),dark=mat(0x252a2a,.35,.5),silver=mat(0xd9e0df,.7,.22);
+ if(type===0){addMesh(g,new THREE.BoxGeometry(.72,.18,.38),m,0,.2,0);addMesh(g,new THREE.BoxGeometry(.34,.25,.32),mat(color),-.05,.39,0);for(const x of [-.24,.24])for(const z of [-.23,.23])addMesh(g,new THREE.CylinderGeometry(.095,.095,.07,16),dark,x,.1,z,Math.PI/2,0,0);addMesh(g,new THREE.BoxGeometry(.15,.06,.3),silver,.31,.23,0)}
+ else if(type===1){addMesh(g,new THREE.CylinderGeometry(.05,.38,.42,7),m,0,.25,0,Math.PI/2,0,0);addMesh(g,new THREE.BoxGeometry(.65,.1,.18),mat(color),0,.08,0);addMesh(g,new THREE.ConeGeometry(.2,.35,7),silver,0,.62,0)}
+ else if(type===2){addMesh(g,new THREE.CylinderGeometry(.38,.38,.1,32),m,0,.12,0);addMesh(g,new THREE.CylinderGeometry(.2,.24,.35,24),m,0,.34,0);addMesh(g,new THREE.ConeGeometry(.22,.36,24),m,0,.69,0)}
+ else if(type===3){addMesh(g,new THREE.SphereGeometry(.25,20,16),m,0,.32,0);addMesh(g,new THREE.SphereGeometry(.18,18,14),m,-.03,.57,-.16);addMesh(g,new THREE.SphereGeometry(.07,12,10),dark,-.17,.72,-.19);addMesh(g,new THREE.SphereGeometry(.07,12,10),dark,.1,.72,-.19);addMesh(g,new THREE.CylinderGeometry(.035,.035,.22,10),m,-.15,.12,.12);addMesh(g,new THREE.CylinderGeometry(.035,.035,.22,10),m,.15,.12,.12)}
+ else if(type===4){addMesh(g,new THREE.BoxGeometry(.3,.18,.62),m,0,.18,-.04);addMesh(g,new THREE.SphereGeometry(.2,18,14),m,0,.31,-.23);addMesh(g,new THREE.BoxGeometry(.31,.1,.3),dark,0,.11,.19);addMesh(g,new THREE.ConeGeometry(.15,.27,16),silver,.02,.35,.23,0,0,Math.PI/2)}
+ else {addMesh(g,new THREE.CylinderGeometry(.05,.22,.68,16),m,0,.42,0);addMesh(g,new THREE.ConeGeometry(.22,.3,16),silver,0,.91,0);for(const z of [-.15,.15])addMesh(g,new THREE.BoxGeometry(.48,.06,.17),m,0,.24,z,0,0,z?-.2:.2);addMesh(g,new THREE.SphereGeometry(.1,14,12),mat(0xffd36b),0,.78,0)}
+ const base=addMesh(g,new THREE.CylinderGeometry(.39,.43,.09,32),mat(0xd8b86a,.75,.24),0,.04,0);base.position.y=.04;
+ return g;
+}
+function initTokenScene(){
+ const canvas=$('tokenLayer');tokenRenderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});tokenRenderer.setPixelRatio(Math.min(devicePixelRatio,2));tokenRenderer.outputColorSpace=THREE.SRGBColorSpace;
+ tokenScene=new THREE.Scene();tokenCamera=new THREE.OrthographicCamera(-4.15,4.15,4.15,-4.15,.1,50);tokenCamera.position.set(0,13,.001);tokenCamera.lookAt(0,0,0);
+ tokenScene.add(new THREE.HemisphereLight(0xffffff,0x67533a,2.2));let light=new THREE.DirectionalLight(0xffffff,2.3);light.position.set(-4,9,5);tokenScene.add(light);
+ resizeToken();window.addEventListener('resize',resizeToken);animateTokens();
+}
+function resizeToken(){if(!tokenRenderer)return;const b=$('board'),w=b.clientWidth,h=b.clientHeight;tokenRenderer.setSize(w,h,false);tokenCamera.left=-4.15;tokenCamera.right=4.15;tokenCamera.top=4.15*h/w;tokenCamera.bottom=-4.15*h/w;tokenCamera.updateProjectionMatrix()}
+function animateTokens(){requestAnimationFrame(animateTokens);if(tokenRenderer)tokenRenderer.render(tokenScene,tokenCamera)}
+function createTokens(){tokenObjects.forEach(o=>tokenScene.remove(o));tokenObjects=[];players.forEach((p,i)=>{const o=makeToken(i,playerColors[i]);tokenScene.add(o);tokenObjects.push(o);const q=tileAt(p.pos);o.position.set(q.x,.02,q.z)})}
+function syncTokens(){players.forEach((p,i)=>{const o=tokenObjects[i];if(o&&!o.userData.moving){const q=tileAt(p.pos);o.position.set(q.x,.02,q.z)}})}
+function makeDie(value){
+ const group=new THREE.Group(),white=mat(0xfafafa,.12,.24),red=mat(0xb5232d,.08,.3);
+ addMesh(group,new THREE.BoxGeometry(.78,.78,.78),white,0,0,0);
+ const layouts={1:[[0,0]],2:[[-.19,.19],[.19,-.19]],3:[[-.2,.2],[0,0],[.2,-.2]],4:[[-.2,.2],[.2,.2],[-.2,-.2],[.2,-.2]],5:[[-.2,.2],[.2,.2],[0,0],[-.2,-.2],[.2,-.2]],6:[[-.2,.23],[.2,.23],[-.2,0],[.2,0],[-.2,-.23],[.2,-.23]]};
+ const faces=[{v:1,n:[0,0,1],u:[1,0,0],w:[0,1,0]},{v:6,n:[0,0,-1],u:[-1,0,0],w:[0,1,0]},{v:2,n:[1,0,0],u:[0,0,-1],w:[0,1,0]},{v:5,n:[-1,0,0],u:[0,0,1],w:[0,1,0]},{v:3,n:[0,1,0],u:[1,0,0],w:[0,0,-1]},{v:4,n:[0,-1,0],u:[1,0,0],w:[0,0,1]}];
+ for(const f of faces)for(const [a,b] of layouts[f.v]){const pos=new THREE.Vector3(...f.n).multiplyScalar(.397).add(new THREE.Vector3(...f.u).multiplyScalar(a)).add(new THREE.Vector3(...f.w).multiplyScalar(b));const pip=addMesh(group,new THREE.SphereGeometry(.064,16,12),red,pos.x,pos.y,pos.z);pip.scale.set(1,1,.42);pip.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),new THREE.Vector3(...f.n))}
+ return group;
+}
+function initDice(){
+ const stage=$('diceStage');diceRenderer=new THREE.WebGLRenderer({alpha:true,antialias:true});diceRenderer.setPixelRatio(Math.min(devicePixelRatio,2));diceRenderer.outputColorSpace=THREE.SRGBColorSpace;stage.appendChild(diceRenderer.domElement);
+ diceScene=new THREE.Scene();diceCamera=new THREE.PerspectiveCamera(34,2,.1,100);diceCamera.position.set(0,2.2,7.8);diceCamera.lookAt(0,.2,0);diceScene.add(new THREE.HemisphereLight(0xffffff,0x88734e,2.2));let key=new THREE.DirectionalLight(0xffffff,3);key.position.set(-3,6,5);diceScene.add(key);
+ for(let i=0;i<2;i++){let d=makeDie(i+1);d.position.set(i===0?-.82:.82,.1,0);diceScene.add(d);diceObjects.push(d)}
+ resizeDice();window.addEventListener('resize',resizeDice);animateDice();
+}
+function resizeDice(){if(!diceRenderer)return;const r=$('diceStage').getBoundingClientRect();diceRenderer.setSize(r.width,r.height,false);diceCamera.aspect=r.width/r.height;diceCamera.updateProjectionMatrix()}
+function animateDice(){requestAnimationFrame(animateDice);if(diceRenderer)diceRenderer.render(diceScene,diceCamera)}
+function orientationForFace(v){const normal={1:new THREE.Vector3(0,0,1),6:new THREE.Vector3(0,0,-1),2:new THREE.Vector3(1,0,0),5:new THREE.Vector3(-1,0,0),3:new THREE.Vector3(0,1,0),4:new THREE.Vector3(0,-1,0)}[v];const q=new THREE.Quaternion().setFromUnitVectors(normal,new THREE.Vector3(0,0,1));const twist=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),Math.random()*Math.PI*2);return q.multiply(twist)}
+function rollVisual(values){return new Promise(resolve=>{if(diceBusy){resolve();return}diceBusy=true;const starts=diceObjects.map(d=>d.quaternion.clone()),targets=values.map(orientationForFace),dur=1750,start=performance.now();diceObjects.forEach((d,i)=>{d.userData.spin=new THREE.Vector3(9+Math.random()*5,11+Math.random()*6,7+Math.random()*5);d.userData.target=targets[i]});function frame(now){let t=Math.min(1,(now-start)/dur),ease=t<.72?t/.72:1-Math.pow(1-(t-.72)/.28,3);diceObjects.forEach((d,i)=>{if(t<.72){const s=d.userData.spin;d.rotation.set(s.x*ease*2.2,s.y*ease*2.1,s.z*ease*1.9)}else{const k=(t-.72)/.28;d.quaternion.copy(starts[i]).slerp(targets[i],k)}});if(t<1)requestAnimationFrame(frame);else{diceObjects.forEach((d,i)=>d.quaternion.copy(targets[i]));diceBusy=false;resolve()}}requestAnimationFrame(frame)})}
+function buildBoard(){const b=$('board');b.querySelectorAll('.tile').forEach(x=>x.remove());names.forEach((n,i)=>{let d=document.createElement('div');d.className='tile';d.style.gridColumn=positions[i][0];d.style.gridRow=positions[i][1];d.innerHTML='<div class="band" style="background:'+colors[i]+'"></div><div class="name">'+n+'</div><div class="price">'+(prices[i]?'$'+prices[i]:'')+'</div>';b.insertBefore(d,$('tokenLayer'))})}
 function log(t){let d=document.createElement('div');d.textContent=t;$('log').prepend(d)}
-function render(){ $('players').innerHTML=players.map((p,i)=>'<div class="player '+(i===turn?'active':'')+'"><b>'+p.icon+' '+p.name+(p.ai?' • كمبيوتر':'')+'</b>الرصيد: $'+p.cash+'<br>الموقع: '+names[p.pos]+'</div>').join('');$('turnText').textContent='الدور: '+players[turn].name;$('roundText').textContent='الجولة '+round;for(let i=0;i<24;i++)$('tokens'+i).innerHTML='';players.forEach(p=>{if(!p.bankrupt){let t=document.createElement('span');t.className='token';t.textContent=p.icon;$('tokens'+p.pos).appendChild(t)}});$('roll').disabled=rolled||busy||players[turn].ai;$('buy').disabled=pending<0||players[turn].ai;$('end').disabled=!rolled||busy||players[turn].ai}
-function startGame(){gameMode=$('mode').value;if(gameMode==='online'){showModal('اللعب الأونلاين','واجهة الغرف جاهزة للتصميم، لكن الاتصال الحقيقي يحتاج إعداد خادم مزامنة. لم يتم إنشاء غرفة فعلية بعد.');return}let n=+$('count').value;players=Array.from({length:n},(_,i)=>({name:i?'الكمبيوتر '+i:'أنت',icon:playersEmoji[i],cash:1500,pos:0,ai:i>0,bankrupt:false}));owner=Array(24).fill(-1);turn=0;round=1;rolled=false;pending=-1;busy=false;$('setup').classList.add('hidden');$('game').classList.remove('hidden');$('log').innerHTML='';log('بدأت اللعبة. حظاً موفقاً!');render()}
+function render(){ $('players').innerHTML=players.map((p,i)=>'<div class="player '+(i===turn?'active':'')+'"><b>اللاعب '+(i+1)+(p.ai?' • كمبيوتر':'')+'</b>الرصيد: $'+p.cash+'<br>الموقع: '+names[p.pos]+'</div>').join('');$('turnText').textContent='الدور: '+players[turn].name;$('roundText').textContent='الجولة '+round;$('roll').disabled=rolled||busy||players[turn].ai;$('buy').disabled=pending<0||players[turn].ai;$('end').disabled=!rolled||busy||players[turn].ai;syncTokens()}
+function startGame(){if($('mode').value==='online'){showModal('اللعب الأونلاين','الاتصال الحقيقي غير مفعّل في نسخة الاختبار الحالية.');return}let n=+$('count').value;players=Array.from({length:n},(_,i)=>({name:i?'الكمبيوتر '+i:'أنت',cash:1500,pos:0,ai:i>0,bankrupt:false}));owner=Array(24).fill(-1);turn=0;round=1;rolled=false;pending=-1;busy=false;$('setup').classList.add('hidden');$('game').classList.remove('hidden');$('log').innerHTML='';log('بدأت اللعبة. القطع والنرد يعملان بمجسمات ثلاثية الأبعاد.');createTokens();resizeToken();resizeDice();render()}
 function showModal(t,m){$('modalTitle').textContent=t;$('modalText').textContent=m;$('modal').classList.remove('hidden')}
 $('modalOk').onclick=()=>$('modal').classList.add('hidden');
-$('mode').onchange=()=>{let on=$('mode').value==='online';$('difficultyLabel').classList.toggle('hidden',on);$('countLabel').classList.toggle('hidden',on);$('onlineBox').classList.toggle('hidden',!on);$('start').textContent=on?'متابعة إعداد الأونلاين':'ابدأ اللعب'};
-$('createRoom').onclick=()=>{let code=String(Math.floor(1000+Math.random()*9000));$('roomCode').value=code;$('roomMessage').textContent='هذا رمز تجريبي للعرض فقط؛ لم يتم إنشاء غرفة متصلة.'};
-$('joinRoom').onclick=()=>{let c=$('roomCode').value.trim();$('roomMessage').textContent=/^\d{4}$/.test(c)?'الرمز مقبول شكلياً. الاتصال غير مفعّل في هذه النسخة.':'أدخل رمزاً من 4 أرقام.'};
+$('mode').onchange=()=>{let on=$('mode').value==='online';$('difficultyLabel').classList.toggle('hidden',on);$('countLabel').classList.toggle('hidden',on);$('onlineBox').classList.toggle('hidden',!on)};
+$('createRoom').onclick=()=>{$('roomCode').value=String(Math.floor(1000+Math.random()*9000));$('roomMessage').textContent='رمز تجريبي فقط؛ الاتصال غير مفعّل.'};
+$('joinRoom').onclick=()=>{$('roomMessage').textContent=/^\d{4}$/.test($('roomCode').value.trim())?'الرمز صحيح شكلياً، لكن الاتصال غير مفعّل.':'أدخل رمزاً من 4 أرقام.'};
 $('start').onclick=startGame;$('new').onclick=()=>{$('game').classList.add('hidden');$('setup').classList.remove('hidden')};
-function rollDice(){if(rolled||busy)return;busy=true;render();let a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6);$('die1').classList.remove('rolling');$('die2').classList.remove('rolling');void $('die1').offsetWidth;$('die1').classList.add('rolling');$('die2').classList.add('rolling');setTimeout(()=>{const faces=['⚀','⚁','⚂','⚃','⚄','⚅'];$('die1').textContent=faces[a-1];$('die2').textContent=faces[b-1];$('diceText').textContent='النتيجة: '+a+' + '+b+' = '+(a+b);movePlayer(turn,a+b,()=>{rolled=true;busy=false;resolveTile(turn);render();if(players[turn].ai)setTimeout(aiAction,700)})},820)}
-function movePlayer(pi,steps,done){let p=players[pi],count=0;function step(){if(count>=steps){done();return}p.pos=(p.pos+1)%24;if(p.pos===0){p.cash+=200;log(p.name+' مرّ بنقطة البداية وحصل على $200')}count++;render();setTimeout(step,210)}step()}
-function resolveTile(pi){let p=players[pi],i=p.pos;if(prices[i]>0){if(owner[i]===-1){pending=i;log(p.name+' وصل إلى '+names[i]+'. سعر الشراء $'+prices[i])}else if(owner[i]!==pi){let rent=Math.round(prices[i]*.18);p.cash-=rent;players[owner[i]].cash+=rent;log(p.name+' دفع إيجار $'+rent+' إلى '+players[owner[i]].name);if(p.cash<0)bankrupt(pi)}}else if(i===4||i===19){p.cash-=100;log(p.name+' دفع ضريبة $100');if(p.cash<0)bankrupt(pi)}else if(i===2||i===7||i===17||i===22){let cards=[['ربحت جائزة نقدية','$150',150],['دفعت غرامة','$80',-80],['مكافأة من البنك','$100',100],['رسوم صيانة','$60',-60]];let c=cards[Math.floor(Math.random()*cards.length)];p.cash+=c[2];log(p.name+': '+c[0]+' ('+c[1]+')');if(p.cash<0)bankrupt(pi)}else if(i===10){log(p.name+' في زيارة للسجن')}else log(p.name+' في '+names[i])}
+async function movePlayer(pi,steps,done){let p=players[pi],obj=tokenObjects[pi];for(let s=0;s<steps;s++){const next=(p.pos+1)%24;if(next===0){p.cash+=200;log(p.name+' مرّ بالبداية وحصل على $200')}p.pos=next;render();const target=tileAt(p.pos),from=obj.position.clone(),to=new THREE.Vector3(target.x,.02,target.z);obj.userData.moving=true;await new Promise(res=>{let start=performance.now(),duration=390;function tick(now){let t=Math.min(1,(now-start)/duration),e=t*t*(3-2*t);obj.position.lerpVectors(from,to,e);obj.position.y=.02+Math.sin(t*Math.PI)*.22;obj.rotation.y+=.07;if(t<1)requestAnimationFrame(tick);else{obj.position.copy(to);obj.userData.moving=false;res()}}requestAnimationFrame(tick)});}done()}
+function resolveTile(pi){let p=players[pi],i=p.pos;if(prices[i]>0){if(owner[i]===-1){pending=i;log(p.name+' وصل إلى '+names[i]+'. سعر الشراء $'+prices[i])}else if(owner[i]!==pi){let rent=Math.round(prices[i]*.18);p.cash-=rent;players[owner[i]].cash+=rent;log(p.name+' دفع إيجار $'+rent+' إلى '+players[owner[i]].name);if(p.cash<0)bankrupt(pi)}}else if(i===4||i===19){p.cash-=100;log(p.name+' دفع ضريبة $100');if(p.cash<0)bankrupt(pi)}else if(i===2||i===7||i===17||i===22){let cards=[['ربحت جائزة نقدية',150],['دفعت غرامة',-80],['مكافأة من البنك',100],['رسوم صيانة',-60]],c=cards[Math.floor(Math.random()*cards.length)];p.cash+=c[1];log(p.name+': '+c[0]+' ($'+Math.abs(c[1])+')');if(p.cash<0)bankrupt(pi)}else if(i===10)log(p.name+' في زيارة للسجن');else log(p.name+' في '+names[i])}
 function buyProperty(pi){let i=pending,p=players[pi];if(i<0||p.cash<prices[i])return;p.cash-=prices[i];owner[i]=pi;log(p.name+' اشترى '+names[i]+' مقابل $'+prices[i]);pending=-1;render()}
 function bankrupt(i){players[i].bankrupt=true;log(players[i].name+' أعلن الإفلاس وخرج من اللعبة');if(players.filter(p=>!p.bankrupt).length===1){showModal('انتهت اللعبة','الفائز هو '+players.find(p=>!p.bankrupt).name);busy=true}}
 function nextTurn(){pending=-1;rolled=false;turn=(turn+1)%players.length;if(turn===0)round++;render();if(players[turn].ai)setTimeout(aiAction,650)}
-function aiAction(){if(busy||!players[turn]?.ai)return;busy=true;render();let a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6);$('die1').textContent=['⚀','⚁','⚂','⚃','⚄','⚅'][a-1];$('die2').textContent=['⚀','⚁','⚂','⚃','⚄','⚅'][b-1];$('die1').classList.add('rolling');$('die2').classList.add('rolling');setTimeout(()=>{movePlayer(turn,a+b,()=>{rolled=true;busy=false;resolveTile(turn);let i=pending,p=players[turn],diff=$('difficulty').value;let willing=diff==='easy'?.35:diff==='hard'?.9:.65;if(i>=0&&p.cash>=prices[i]&&Math.random()<willing)buyProperty(turn);else if(i>=0)pending=-1;render();setTimeout(nextTurn,700)})},800)}
-function aiActionSafe(){if(players[turn].ai)aiAction()}
+async function aiAction(){if(busy||!players[turn]?.ai)return;busy=true;render();let a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6);await rollVisual([a,b]);$('diceText').textContent='نتيجة الكمبيوتر: '+a+' + '+b+' = '+(a+b);await movePlayer(turn,a+b,()=>{rolled=true;busy=false;resolveTile(turn);let i=pending,p=players[turn],diff=$('difficulty').value,willing=diff==='easy'?.35:diff==='hard'?.9:.65;if(i>=0&&p.cash>=prices[i]&&Math.random()<willing)buyProperty(turn);else if(i>=0)pending=-1;render();setTimeout(nextTurn,700)})}
+async function rollDice(){if(rolled||busy)return;busy=true;render();let a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6);await rollVisual([a,b]);$('diceText').textContent='النتيجة: '+a+' + '+b+' = '+(a+b);await movePlayer(turn,a+b,()=>{rolled=true;busy=false;resolveTile(turn);render()})}
 $('roll').onclick=rollDice;$('buy').onclick=()=>buyProperty(turn);$('end').onclick=nextTurn;
-buildBoard();
+buildBoard();initTokenScene();initDice();
 </script></body></html>
