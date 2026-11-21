@@ -24,6 +24,14 @@ button{background:linear-gradient(#277452,#174b39);color:white;font-weight:bold;
 .dice-stage{width:100%;height:128px;max-width:310px;margin:8px auto 2px;position:relative;direction:ltr}.dice-stage canvas{display:block;width:100%;height:100%}
 .log{background:#173d31;color:#eaf2e9;border-radius:12px;padding:10px;max-height:130px;overflow:auto;font-size:13px;line-height:1.7}.log div{border-bottom:1px solid #ffffff20;padding:3px}
 footer{text-align:center;color:#d4e2d9;font-size:11px;padding:12px}.modal{position:fixed;inset:0;background:#061b16c9;display:grid;place-items:center;padding:18px;z-index:5}.modal-card{width:min(440px,100%);background:#f7f0df;color:#18352b;padding:20px;border-radius:18px;border:2px solid var(--gold);text-align:center}.modal-card h3{margin-top:0}
+#modalActions{display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
+#modalActions button{min-width:105px}
+.card-face{background:linear-gradient(145deg,#fffdf2,#f2dfb0);border:3px double #b28a35;border-radius:15px;padding:18px 14px;margin:14px 0;box-shadow:inset 0 0 18px #c49b4655,0 8px 22px #0002}
+.card-face .card-symbol{font-size:34px;margin-bottom:8px}
+.card-face p{font-size:17px;font-weight:800;line-height:1.8;margin:4px 0}
+.tile.jail{position:relative;overflow:hidden}
+.tile.jail:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 5px,#333b 5px 7px);border:2px solid #333;pointer-events:none}
+.tile.jail:before{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#333b 0 3px,transparent 3px calc(100% - 3px),#333b calc(100% - 3px));z-index:1;pointer-events:none}
 @media(max-width:520px){main{padding:7px}.panel{padding:10px}.board{width:96vw;gap:2px;padding:4px}.tile .band{height:6px}.tile .name{font-size:clamp(7px,2vw,10px);line-height:1.2}.player{min-width:calc(50% - 5px);flex:1}.game-area{padding:3px 0 15px}.dice-stage{height:112px}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
@@ -41,20 +49,42 @@ footer{text-align:center;color:#d4e2d9;font-size:11px;padding:12px}.modal{positi
 <p style="text-align:center;font-size:12px;color:#66796d;margin-bottom:0">اللعب الأونلاين غير مفعّل بعد؛ هذه نسخة اختبار للعب ضد الكمبيوتر.</p>
 </section>
 <section class="panel hidden" id="game">
-<div class="status"><span id="turnText">الدور: اللاعب الأول</span><span id="roundText">الجولة 1</span></div><div class="players" id="players"></div>
+<div class="status"><span id="turnText">الدور: اللاعب الأول</span></div><div class="players" id="players"></div>
 <div class="game-area"><div class="board" id="board"><div class="center"><div><h2>لعبة بغداد</h2><p>اشترِ العقارات، اجمع الإيجارات، وكن أغنى لاعب</p><div class="dice-stage" id="diceStage"></div><p id="diceText">ارمِ النرد لبدء دورك</p></div></div><canvas class="token-layer" id="tokenLayer"></canvas></div></div>
-<div class="controls"><button id="roll">ارمِ النرد</button><button id="buy" disabled>شراء المنطقة</button><button id="build" disabled>بناء بيت</button><button id="end" disabled>إنهاء الدور</button><button id="new">لعبة جديدة</button></div>
+<div class="controls"><button id="roll">ارمِ النرد</button><button id="buy" disabled>شراء المنطقة</button><button id="build" disabled>بناء بيت</button><button id="end" disabled>إنهاء الدور</button><button id="home">رجوع للشاشة الرئيسية</button></div>
 <div class="log" id="log" aria-live="polite"></div></section>
 </main><footer>نسخة اختبار خاصة • sarmad</footer>
-<div class="modal hidden" id="modal"><div class="modal-card"><h3 id="modalTitle"></h3><p id="modalText"></p><button id="modalOk">حسناً</button></div></div>
+<div class="modal hidden" id="modal"><div class="modal-card"><h3 id="modalTitle"></h3><p id="modalText"></p><div id="modalActions"><button id="modalOk">حسناً</button></div></div></div>
 <script type="module">
 import * as THREE from 'three';
 const $=id=>document.getElementById(id);
-const names=['البداية','شارع الرشيد – بغداد','صندوق الحظ','شارع السعدون – بغداد','ضريبة','منطقة محطة بغداد','الكرادة – بغداد','فرصة','المنصور – بغداد','استراحة','السجن','شارع فلسطين – بغداد','منطقة الكهرباء','شارع الجامعة – بغداد','شارع المتنبي – بغداد','منطقة محطة البصرة','أبو نؤاس – بغداد','صندوق الحظ','اليرموك – بغداد','ضريبة','منطقة محطة الموصل','شارع النهر – بغداد','فرصة','منطقة الكفاح – بغداد'];
-const prices=[0,80,0,100,100,160,120,0,140,0,0,160,150,180,200,160,220,0,240,120,160,260,0,280];
+const names=['البداية','شارع الرشيد – بغداد','صندوق الحظ','شارع السعدون – بغداد','ضريبة الدخل','منطقة محطة بغداد','الكرادة – بغداد','فرصة','المنصور – بغداد','استراحة','السجن','شارع فلسطين – بغداد','منطقة الكهرباء','شارع الجامعة – بغداد','شارع المتنبي – بغداد','منطقة محطة البصرة','أبو نؤاس – بغداد','صندوق الحظ','اليرموك – بغداد','ضريبة العقار','منطقة محطة الموصل','شارع النهر – بغداد','فرصة','منطقة الكفاح – بغداد'];
+const prices=[0,80,0,100,0,160,120,0,140,0,0,160,0,180,200,160,220,0,240,0,160,260,0,280];
 const colors=['#777','#b86b35','#777','#b86b35','#777','#b86b35','#777','#777','#2f8fbd','#777','#777','#2f8fbd','#777','#39a36b','#39a36b','#777','#d34c4c','#777','#d34c4c','#777','#8b62bd','#8b62bd','#777','#8b62bd'];
 const propertyGroups=[[1,3,5],[6,8,11],[12,13,14],[15,16,18],[20,21,23]];
 const houseCost=100;
+const chanceCards=[
+ {title:'هدية من أهل بغداد',text:'استلمت هدية نقدية من أحد الأقارب.',amount:120},
+ {title:'مكافأة عمل إضافي',text:'أنجزت عملاً إضافياً واستلمت مكافأة.',amount:180},
+ {title:'استرجاع تأمين',text:'أعاد البنك إليك مبلغ التأمين.',amount:90},
+ {title:'جائزة مسابقة',text:'فزت بمسابقة محلية.',amount:200},
+ {title:'مساعدة صديق',text:'صديق قديم أرسل لك مساعدة مالية.',amount:75},
+ {title:'مردود استثمار',text:'حصلت على أرباح استثمارك.',amount:150},
+ {title:'تصليح سيارتك',text:'دفعت أجور تصليح السيارة.',amount:-100},
+ {title:'فاتورة خدمات',text:'سددت فاتورة خدمات متراكمة.',amount:-70},
+ {title:'مخالفة مرورية',text:'عليك دفع غرامة مرورية.',amount:-50},
+ {title:'صيانة المنزل',text:'دفعت كلفة صيانة المنزل.',amount:-120},
+ {title:'تبرع خيري',text:'قدمت تبرعاً لمساعدة المحتاجين.',amount:-60},
+ {title:'رسوم مصرفية',text:'استقطع المصرف رسوماً من حسابك.',amount:-40},
+ {title:'يوم حظك',text:'وجدت مبلغاً نقدياً في معاملة قديمة.',amount:110},
+ {title:'هدية العيد',text:'وصلتك عيدية من العائلة.',amount:100},
+ {title:'تعويض تأخير',text:'استلمت تعويضاً عن تأخير خدمة.',amount:130},
+ {title:'شراء مستلزمات',text:'اشتريت مستلزمات ضرورية.',amount:-85},
+ {title:'رسوم بلدية',text:'دفعت رسوماً بلدية.',amount:-65},
+ {title:'مكافأة تفوق',text:'حصلت على مكافأة تقديراً لجهدك.',amount:160},
+ {title:'مساعدة طارئة',text:'ساهمت في مساعدة أحد الجيران.',amount:-90},
+ {title:'ربح مفاجئ',text:'وصلتك حوالة مالية غير متوقعة.',amount:220}
+];
 const playerColors=[0xe64b3c,0x2878d0,0xd6a52f,0x35a66a,0x9a58bd,0xe87927];
 let players=[],owner=Array(24).fill(-1),houses=Array(24).fill(0),turn=0,rolled=false,round=1,pending=-1,busy=false;
 const positions=[[7,7],[6,7],[5,7],[4,7],[3,7],[2,7],[1,7],[1,6],[1,5],[1,4],[1,3],[1,2],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6]];
@@ -124,26 +154,57 @@ function playDiceSound(){
   }
  }catch(e){console.warn('Dice sound unavailable',e)}
 }
-function rollVisual(values){return new Promise(resolve=>{if(diceBusy){resolve();return}diceBusy=true;playDiceSound();const starts=diceObjects.map(d=>d.quaternion.clone()),targets=values.map(orientationForFace),dur=2250,start=performance.now();diceObjects.forEach((d,i)=>{d.userData.spin=new THREE.Vector3(9+Math.random()*5,11+Math.random()*6,7+Math.random()*5);d.userData.target=targets[i]});function frame(now){let t=Math.min(1,(now-start)/dur),ease=t<.72?t/.72:1-Math.pow(1-(t-.72)/.28,3);diceObjects.forEach((d,i)=>{if(t<.72){const s=d.userData.spin;d.rotation.set(s.x*ease*2.2,s.y*ease*2.1,s.z*ease*1.9)}else{const k=(t-.72)/.28;d.quaternion.copy(starts[i]).slerp(targets[i],k)}});if(t<1)requestAnimationFrame(frame);else{diceObjects.forEach((d,i)=>d.quaternion.copy(targets[i]));diceBusy=false;resolve()}}requestAnimationFrame(frame)})}
-function buildBoard(){const b=$('board');b.querySelectorAll('.tile').forEach(x=>x.remove());names.forEach((n,i)=>{let d=document.createElement('div');d.className='tile';d.style.gridColumn=positions[i][0];d.style.gridRow=positions[i][1];d.title=n+(prices[i]?' • السعر $'+prices[i]:'');d.innerHTML='<div class="band" style="background:'+colors[i]+'"></div><div class="name">'+n.replace(' – ','<br>')+'</div><div class="price">'+(prices[i]?'$'+prices[i]:'')+'</div>';if(houses[i])d.classList.add('has-house');b.insertBefore(d,$('tokenLayer'))})}
+function rollVisual(values){return new Promise(resolve=>{if(diceBusy){resolve();return}diceBusy=true;playDiceSound();const starts=diceObjects.map(d=>d.quaternion.clone()),targets=values.map(orientationForFace),dur=1000,start=performance.now();diceObjects.forEach((d,i)=>{d.userData.spin=new THREE.Vector3(9+Math.random()*5,11+Math.random()*6,7+Math.random()*5);d.userData.target=targets[i]});function frame(now){let t=Math.min(1,(now-start)/dur),ease=t<.72?t/.72:1-Math.pow(1-(t-.72)/.28,3);diceObjects.forEach((d,i)=>{if(t<.72){const s=d.userData.spin;d.rotation.set(s.x*ease*2.2,s.y*ease*2.1,s.z*ease*1.9)}else{const k=(t-.72)/.28;d.quaternion.copy(starts[i]).slerp(targets[i],k)}});if(t<1)requestAnimationFrame(frame);else{diceObjects.forEach((d,i)=>d.quaternion.copy(targets[i]));diceBusy=false;resolve()}}requestAnimationFrame(frame)})}
+function buildBoard(){const b=$('board');b.querySelectorAll('.tile').forEach(x=>x.remove());names.forEach((n,i)=>{let d=document.createElement('div');d.className='tile'+(i===10?' jail':'');d.style.gridColumn=positions[i][0];d.style.gridRow=positions[i][1];d.title=n+(prices[i]?' • السعر $'+prices[i]:'');d.innerHTML='<div class="band" style="background:'+colors[i]+'"></div><div class="name">'+n.replace(' – ','<br>')+'</div><div class="price">'+(prices[i]?'$'+prices[i]:'')+'</div>';if(houses[i])d.classList.add('has-house');b.insertBefore(d,$('tokenLayer'))})}
 function log(t){let d=document.createElement('div');d.textContent=t;$('log').prepend(d)}
 function buildTarget(pi){if(players[pi].cash<houseCost)return -1;for(const group of propertyGroups){if(!group.every(t=>owner[t]===pi))continue;const min=Math.min(...group.map(t=>houses[t]));const target=group.find(t=>houses[t]===min&&houses[t]<4);if(target!==undefined)return target}return -1}
 function buildHouse(pi){const i=buildTarget(pi);if(i<0)return;houses[i]++;players[pi].cash-=houseCost;log(players[pi].name+' بنى بيتاً في '+names[i]+' مقابل $'+houseCost);updateHouseModels();render()}
-function render(){ $('players').innerHTML=players.map((p,i)=>'<div class="player '+(i===turn?'active':'')+'"><b>اللاعب '+(i+1)+(p.ai?' • كمبيوتر':'')+'</b>الرصيد: $'+p.cash+'<br>الموقع: '+names[p.pos]+'</div>').join('');$('roll').disabled=rolled||busy||players[turn].ai;$('buy').disabled=pending<0||players[turn].ai;$('build').disabled=!rolled||busy||players[turn].ai||buildTarget(turn)<0;$('end').disabled=!rolled||busy||players[turn].ai;syncTokens()}
-function startGame(){if($('mode').value==='online'){showModal('اللعب الأونلاين','الاتصال الحقيقي غير مفعّل في نسخة الاختبار الحالية.');return}let n=+$('count').value;players=Array.from({length:n},(_,i)=>({name:i?'الكمبيوتر '+i:'أنت',cash:1500,pos:0,ai:i>0,bankrupt:false}));owner=Array(24).fill(-1);houses=Array(24).fill(0);turn=0;round=1;updateHouseModels();rolled=false;pending=-1;busy=false;$('setup').classList.add('hidden');$('game').classList.remove('hidden');$('log').innerHTML='';log('بدأت اللعبة. القطع والنرد يعملان بمجسمات ثلاثية الأبعاد.');createTokens();resizeToken();resizeDice();render()}
-function showModal(t,m){$('modalTitle').textContent=t;$('modalText').textContent=m;$('modal').classList.remove('hidden')}
-$('modalOk').onclick=()=>$('modal').classList.add('hidden');
+function render(){ $('players').innerHTML=players.map((p,i)=>'<div class="player '+(i===turn?'active':'')+'"><b>اللاعب '+(i+1)+(p.ai?' • كمبيوتر':'')+(p.jailed?' • في السجن':'')+'</b>الرصيد: '+p.cash+' دينار<br>الموقع: '+names[p.pos]+'</div>').join('');$('roll').disabled=rolled||busy||players[turn].ai;$('buy').disabled=pending<0||players[turn].ai;$('build').disabled=!rolled||busy||players[turn].ai||buildTarget(turn)<0;$('end').disabled=!rolled||busy||players[turn].ai;syncTokens()}
+function startGame(){if($('mode').value==='online'){showModal('اللعب الأونلاين','الاتصال الحقيقي غير مفعّل في نسخة الاختبار الحالية.');return}let n=+$('count').value;players=Array.from({length:n},(_,i)=>({name:i?'الكمبيوتر '+i:'أنت',cash:1500,pos:0,ai:i>0,bankrupt:false,jailed:false,jailWait:0}));owner=Array(24).fill(-1);houses=Array(24).fill(0);turn=0;round=1;updateHouseModels();rolled=false;pending=-1;busy=false;$('setup').classList.add('hidden');$('game').classList.remove('hidden');$('log').innerHTML='';log('بدأت اللعبة. القطع والنرد يعملان بمجسمات ثلاثية الأبعاد.');createTokens();resizeToken();resizeDice();render()}
+function showModal(t,m){$('modalTitle').textContent=t;$('modalText').textContent=m;$('modalActions').innerHTML='<button id="modalOk">حسناً</button>';$('modal').classList.remove('hidden');$('modalOk').onclick=()=>$('modal').classList.add('hidden')}
+function showDecisionModal(t,m,choices){return new Promise(resolve=>{$('modalTitle').textContent=t;$('modalText').innerHTML=m;$('modalActions').innerHTML='';$('modal').classList.remove('hidden');choices.forEach(ch=>{const b=document.createElement('button');b.textContent=ch.label;b.onclick=()=>{$('modal').classList.add('hidden');resolve(ch.value)};$('modalActions').appendChild(b)})})}
+function showCardModal(t,m){return showDecisionModal(t,m,[{label:'متابعة اللعب',value:'ok'}])}
 $('mode').onchange=()=>{let on=$('mode').value==='online';$('difficultyLabel').classList.toggle('hidden',on);$('countLabel').classList.toggle('hidden',on);$('onlineBox').classList.toggle('hidden',!on)};
 $('createRoom').onclick=()=>{$('roomCode').value=String(Math.floor(1000+Math.random()*9000));$('roomMessage').textContent='رمز تجريبي فقط؛ الاتصال غير مفعّل.'};
 $('joinRoom').onclick=()=>{$('roomMessage').textContent=/^\d{4}$/.test($('roomCode').value.trim())?'الرمز صحيح شكلياً، لكن الاتصال غير مفعّل.':'أدخل رمزاً من 4 أرقام.'};
-$('start').onclick=startGame;$('new').onclick=()=>{$('game').classList.add('hidden');$('setup').classList.remove('hidden')};
-async function movePlayer(pi,steps,done){let p=players[pi],obj=tokenObjects[pi];for(let s=0;s<steps;s++){const next=(p.pos+1)%24;if(next===0){p.cash+=200;log(p.name+' مرّ بالبداية وحصل على $200')}p.pos=next;render();const target=tileAt(p.pos),from=obj.position.clone(),to=new THREE.Vector3(target.x,.02,target.z);obj.userData.moving=true;await new Promise(res=>{let start=performance.now(),duration=390;function tick(now){let t=Math.min(1,(now-start)/duration),e=t*t*(3-2*t);obj.position.lerpVectors(from,to,e);obj.position.y=.02+Math.sin(t*Math.PI)*.22;obj.rotation.y+=.07;if(t<1)requestAnimationFrame(tick);else{obj.position.copy(to);obj.userData.moving=false;res()}}requestAnimationFrame(tick)});}done()}
-function resolveTile(pi){let p=players[pi],i=p.pos;if(prices[i]>0){if(owner[i]===-1){pending=i;log(p.name+' وصل إلى '+names[i]+'. سعر الشراء $'+prices[i])}else if(owner[i]!==pi){const multipliers=[1,1.8,2.8,4,5.5];let rent=Math.round(prices[i]*.18*multipliers[houses[i]]);p.cash-=rent;players[owner[i]].cash+=rent;log(p.name+' دفع إيجار $'+rent+' إلى '+players[owner[i]].name+(houses[i]?' (مع '+houses[i]+' بيت)':''));if(p.cash<0)bankrupt(pi)}}else if(i===4||i===19){p.cash-=100;log(p.name+' دفع ضريبة $100');if(p.cash<0)bankrupt(pi)}else if(i===2||i===7||i===17||i===22){let cards=[['ربحت جائزة نقدية',150],['دفعت غرامة',-80],['مكافأة من البنك',100],['رسوم صيانة',-60]],c=cards[Math.floor(Math.random()*cards.length)];p.cash+=c[1];log(p.name+': '+c[0]+' ($'+Math.abs(c[1])+')');if(p.cash<0)bankrupt(pi)}else if(i===10)log(p.name+' في زيارة للسجن');else log(p.name+' في '+names[i])}
+$('start').onclick=startGame;$('home').onclick=async()=>{const v=await showDecisionModal('الرجوع للشاشة الرئيسية','هل تريد الخروج من اللعبة والرجوع إلى الشاشة الرئيسية؟',[{label:'نعم، خروج',value:'yes'},{label:'إلغاء',value:'no'}]);if(v==='yes'){$('game').classList.add('hidden');$('setup').classList.remove('hidden')}};
+async function movePlayer(pi,steps,done){let p=players[pi],obj=tokenObjects[pi];for(let s=0;s<steps;s++){const next=(p.pos+1)%24;if(next===0){p.cash+=200;log(p.name+' مرّ بالبداية وحصل على 200 دينار هدية')}p.pos=next;render();const target=tileAt(p.pos),from=obj.position.clone(),to=new THREE.Vector3(target.x,.02,target.z);obj.userData.moving=true;await new Promise(res=>{let start=performance.now(),duration=390;function tick(now){let t=Math.min(1,(now-start)/duration),e=t*t*(3-2*t);obj.position.lerpVectors(from,to,e);obj.position.y=.02+Math.sin(t*Math.PI)*.22;obj.rotation.y+=.07;if(t<1)requestAnimationFrame(tick);else{obj.position.copy(to);obj.userData.moving=false;res()}}requestAnimationFrame(tick)});}await done()}
+async function resolveTile(pi){
+ const p=players[pi],i=p.pos;
+ if(prices[i]>0){
+  if(owner[i]===-1){pending=i;log(p.name+' وصل إلى '+names[i]+'. سعر الشراء $'+prices[i])}
+  else if(owner[i]!==pi){const multipliers=[1,1.8,2.8,4,5.5];let rent=Math.round(prices[i]*.18*multipliers[houses[i]]);p.cash-=rent;players[owner[i]].cash+=rent;log(p.name+' دفع إيجار $'+rent+' إلى '+players[owner[i]].name+(houses[i]?' (مع '+houses[i]+' بيت)':''));if(p.cash<0)bankrupt(pi)}
+ }else if(i===4){
+  const tax=Math.round(p.cash*.05);p.cash-=tax;log(p.name+' دفع ضريبة الدخل 5%: $'+tax);if(p.cash<0)bankrupt(pi);
+ }else if(i===19){
+  let propertyValue=0,houseValue=0;
+  for(let k=0;k<24;k++)if(owner[k]===pi){propertyValue+=prices[k]*.05;houseValue+=houses[k]*houseCost*.10}
+  const tax=Math.round(propertyValue+houseValue);p.cash-=tax;log(p.name+' دفع ضريبة العقار (5% من أسعار العقارات و10% من قيمة البيوت): $'+tax);if(p.cash<0)bankrupt(pi);
+ }else if(i===12){
+  let fee=0,owned=0,built=0;
+  for(let k=0;k<24;k++)if(owner[k]===pi){owned++;fee+=prices[k]*.02;built+=houses[k];fee+=houses[k]*houseCost*.05}
+  fee=Math.round(fee);p.cash-=fee;log(p.name+' دفع رسوم الكهرباء (2% من العقارات و5% من البيوت): $'+fee);if(p.cash<0)bankrupt(pi);
+ }else if(i===2||i===7||i===17||i===22){
+  const card=chanceCards[Math.floor(Math.random()*chanceCards.length)];p.cash+=card.amount;
+  log(p.name+' سحب بطاقة: '+card.title+' ('+(card.amount>=0?'+':'-')+'$'+Math.abs(card.amount)+')');
+  if(p.cash<0)bankrupt(pi);
+  await showDecisionModal(i===2||i===17?'صندوق الحظ':'فرصة','<div class="card-face"><div class="card-symbol">🎴</div><strong>'+card.title+'</strong><p>'+card.text+'</p><p>'+(card.amount>=0?'تحصل على':'تدفع')+' $'+Math.abs(card.amount)+'</p></div>',[{label:'متابعة اللعب',value:'ok'}]);
+ }else if(i===10){
+  p.jailed=true;p.jailWait=1;
+  log(p.name+' دخل السجن. يمكنه دفع 50 دينار أو انتظار دوره ومحاولة إخراج نفسه برمية 6.');
+  if(!p.ai){const choice=await showDecisionModal('دخلت السجن','هل تريد دفع غرامة 50 دينار للخروج فوراً، أم تنتظر دورك القادم وتحاول ظهور الرقم 6؟',[{label:'دفع 50 دينار',value:'pay'},{label:'انتظار الدور',value:'wait'}]);if(choice==='pay'){p.cash-=50;p.jailed=false;p.jailWait=0;log(p.name+' دفع غرامة 50 دينار وخرج من السجن.');if(p.cash<0)bankrupt(pi)}else log(p.name+' اختار انتظار دوره في السجن.')}
+ }else log(p.name+' في '+names[i]);
+ render();
+}
 function buyProperty(pi){let i=pending,p=players[pi];if(i<0||p.cash<prices[i])return;p.cash-=prices[i];owner[i]=pi;log(p.name+' اشترى '+names[i]+' مقابل $'+prices[i]);pending=-1;render()}
 function bankrupt(i){players[i].bankrupt=true;log(players[i].name+' أعلن الإفلاس وخرج من اللعبة');if(players.filter(p=>!p.bankrupt).length===1){showModal('انتهت اللعبة','الفائز هو '+players.find(p=>!p.bankrupt).name);busy=true}}
 function nextTurn(){pending=-1;rolled=false;turn=(turn+1)%players.length;if(turn===0)round++;render();if(players[turn].ai)setTimeout(aiAction,650)}
-async function aiAction(){if(busy||!players[turn]?.ai)return;busy=true;render();let a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6);await rollVisual([a,b]);$('diceText').textContent='نتيجة الكمبيوتر: '+a+' + '+b+' = '+(a+b);await movePlayer(turn,a+b,()=>{rolled=true;busy=false;resolveTile(turn);let i=pending,p=players[turn],diff=$('difficulty').value,willing=diff==='easy'?.35:diff==='hard'?.9:.65;if(i>=0&&p.cash>=prices[i]&&Math.random()<willing)buyProperty(turn);else if(i>=0)pending=-1;render();setTimeout(nextTurn,700)})}
-async function rollDice(){if(rolled||busy)return;busy=true;render();let a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6);await rollVisual([a,b]);$('diceText').textContent='النتيجة: '+a+' + '+b+' = '+(a+b);await movePlayer(turn,a+b,()=>{rolled=true;busy=false;resolveTile(turn);render()})}
+async function aiAction(){if(busy||!players[turn]?.ai)return;busy=true;render();let a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6);await rollVisual([a,b]);$('diceText').textContent='نتيجة الكمبيوتر: '+a+' + '+b+' = '+(a+b);
+ if(players[turn].jailed){if(a===6||b===6){players[turn].jailed=false;players[turn].jailWait=0;log(players[turn].name+' خرج من السجن بعد ظهور الرقم 6.');await movePlayer(turn,a+b,async()=>{rolled=true;busy=false;await resolveTile(turn);render();setTimeout(nextTurn,700)})}else{players[turn].jailed=false;players[turn].jailWait=0;rolled=true;busy=false;log(players[turn].name+' انتظر دوراً كاملاً في السجن ولم يظهر الرقم 6.');render();setTimeout(nextTurn,700)}return}
+ await movePlayer(turn,a+b,async()=>{rolled=true;busy=false;await resolveTile(turn);let i=pending,p=players[turn],diff=$('difficulty').value,willing=diff==='easy'?.35:diff==='hard'?.9:.65;if(i>=0&&p.cash>=prices[i]&&Math.random()<willing)buyProperty(turn);else if(i>=0)pending=-1;render();setTimeout(nextTurn,700)})}
+async function rollDice(){if(rolled||busy)return;busy=true;render();let a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6);await rollVisual([a,b]);$('diceText').textContent='النتيجة: '+a+' + '+b+' = '+(a+b);
+ if(players[turn].jailed){if(a===6||b===6){players[turn].jailed=false;players[turn].jailWait=0;log('ظهر الرقم 6 وخرجت من السجن.');await movePlayer(turn,a+b,async()=>{rolled=true;busy=false;await resolveTile(turn);render()})}else{players[turn].jailed=false;players[turn].jailWait=0;rolled=true;busy=false;log('لم يظهر الرقم 6؛ انتظرت دوراً كاملاً وخرجت من السجن.');render();setTimeout(nextTurn,700)}return}
+ await movePlayer(turn,a+b,async()=>{rolled=true;busy=false;await resolveTile(turn);render()})}
 $('roll').onclick=rollDice;$('buy').onclick=()=>buyProperty(turn);$('build').onclick=()=>buildHouse(turn);$('end').onclick=nextTurn;
 buildBoard();initTokenScene();initDice();
 </script></body></html>
