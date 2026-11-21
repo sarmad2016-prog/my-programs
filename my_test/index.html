@@ -3,9 +3,12 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#123f32"><title>لعبة بغداد</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{--green:#174c3b;--gold:#d6ad55;--ink:#18352b}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 0,#326b54,#102e27 75%);color:#fff;font-family:Tahoma,Arial,sans-serif;min-height:100vh}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 0,#326b54,#102e27 75%);color:#fff;font-family:'Cairo',Tahoma,Arial,sans-serif;min-height:100vh}
 header{padding:15px;text-align:center}h1{margin:0;color:#f2d48a;font-size:clamp(22px,5vw,34px)}header p{margin:6px 0;color:#d8e8dd;font-size:13px}
 main{max-width:1050px;margin:auto;padding:10px;display:grid;gap:14px}.panel{background:#f7f0df;color:var(--ink);border:2px solid var(--gold);border-radius:18px;padding:14px;box-shadow:0 12px 30px #071b1680}
 .controls{display:flex;flex-wrap:wrap;gap:9px;align-items:center;justify-content:center}button,select,input{font:inherit;border-radius:11px;border:1px solid #c5b27d;padding:10px 13px}
@@ -80,7 +83,7 @@ function initTokenScene(){
 }
 function resizeToken(){if(!tokenRenderer)return;const b=$('board'),w=b.clientWidth,h=b.clientHeight;tokenRenderer.setSize(w,h,false);tokenCamera.left=-3.5;tokenCamera.right=3.5;tokenCamera.top=3.5*h/w;tokenCamera.bottom=-3.5*h/w;tokenCamera.updateProjectionMatrix()}
 function animateTokens(){requestAnimationFrame(animateTokens);if(tokenRenderer)tokenRenderer.render(tokenScene,tokenCamera)}
-function createTokens(){tokenObjects.forEach(o=>tokenScene.remove(o));tokenObjects=[];players.forEach((p,i)=>{const o=makeToken(i,playerColors[i]);o.scale.setScalar(.86);tokenScene.add(o);tokenObjects.push(o);const q=tileAt(p.pos);o.position.set(q.x,.02,q.z)})}
+function createTokens(){tokenObjects.forEach(o=>tokenScene.remove(o));tokenObjects=[];players.forEach((p,i)=>{const o=makeToken(i,playerColors[i]);o.scale.setScalar(.72);tokenScene.add(o);tokenObjects.push(o);const q=tileAt(p.pos);o.position.set(q.x,.02,q.z)})}
 function syncTokens(){players.forEach((p,i)=>{const o=tokenObjects[i];if(o&&!o.userData.moving){const q=tileAt(p.pos);o.position.set(q.x,.02,q.z)}})}
 function makeHouse(){const g=new THREE.Group(),wall=mat(0xf1dfb5,.18,.48),roof=mat(0x9b342b,.35,.32),dark=mat(0x4b3023,.12,.6),glass=mat(0x83c9d8,.35,.2);addMesh(g,new THREE.BoxGeometry(.34,.28,.34),wall,0,.16,0);addMesh(g,new THREE.ConeGeometry(.29,.24,4),roof,0,.42,0,0,Math.PI/4,0);addMesh(g,new THREE.BoxGeometry(.075,.15,.018),dark,0,.075,.176);for(const x of [-.105,.105])addMesh(g,new THREE.BoxGeometry(.075,.07,.018),glass,x,.2,.178);addMesh(g,new THREE.CylinderGeometry(.23,.25,.035,24),mat(0xd6b45e,.7,.24),0,.02,0);return g}
 function updateHouseModels(){houseObjects.forEach(o=>tokenScene.remove(o));houseObjects=[];houses.forEach((count,i)=>{if(!count)return;const q=tileAt(i);for(let h=0;h<count;h++){const o=makeHouse();o.scale.setScalar(.58);const across=Math.abs(q.x)>Math.abs(q.z);const spread=(h-(count-1)/2)*.19;o.position.set(q.x*.68+(across?0:spread),.04,q.z*.68+(across?spread:0));tokenScene.add(o);houseObjects.push(o)}})}
@@ -102,8 +105,26 @@ function resizeDice(){if(!diceRenderer)return;const r=$('diceStage').getBounding
 function animateDice(){requestAnimationFrame(animateDice);if(diceRenderer)diceRenderer.render(diceScene,diceCamera)}
 function orientationForFace(v){const normal={1:new THREE.Vector3(0,0,1),6:new THREE.Vector3(0,0,-1),2:new THREE.Vector3(1,0,0),5:new THREE.Vector3(-1,0,0),3:new THREE.Vector3(0,1,0),4:new THREE.Vector3(0,-1,0)}[v];const q=new THREE.Quaternion().setFromUnitVectors(normal,new THREE.Vector3(0,0,1));const twist=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),Math.random()*Math.PI*2);return q.multiply(twist)}
 let diceAudioContext=null;
-function playDiceSound(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;if(!diceAudioContext)diceAudioContext=new AC();const ctx=diceAudioContext;if(ctx.state==='suspended')ctx.resume();const now=ctx.currentTime,duration=4.5;const noiseBuffer=ctx.createBuffer(1,Math.ceil(ctx.sampleRate*duration),ctx.sampleRate),samples=noiseBuffer.getChannelData(0);for(let i=0;i<samples.length;i++){const t=i/ctx.sampleRate;const fade=Math.max(0,1-t/duration);samples[i]=(Math.random()*2-1)*(.18+.18*Math.sin(t*31))*fade}const noise=ctx.createBufferSource();noise.buffer=noiseBuffer;const band=ctx.createBiquadFilter();band.type='bandpass';band.frequency.setValueAtTime(1450,now);band.frequency.linearRampToValueAtTime(620,now+duration);band.Q.value=.7;const ng=ctx.createGain();ng.gain.setValueAtTime(.0001,now);ng.gain.linearRampToValueAtTime(.19,now+.1);ng.gain.setValueAtTime(.13,now+3.8);ng.gain.exponentialRampToValueAtTime(.0001,now+duration);noise.connect(band);band.connect(ng);ng.connect(ctx.destination);noise.start(now);noise.stop(now+duration);for(let k=0;k<34;k++){const at=now+.06+k*.125+Math.random()*.075,amp=(.045+Math.random()*.12)*(1-k/42),osc=ctx.createOscillator(),og=ctx.createGain(),filter=ctx.createBiquadFilter();osc.type='triangle';osc.frequency.setValueAtTime(115+Math.random()*210,at);osc.frequency.exponentialRampToValueAtTime(55+Math.random()*45,at+.085);filter.type='lowpass';filter.frequency.value=900;og.gain.setValueAtTime(.0001,at);og.gain.exponentialRampToValueAtTime(amp,at+.009);og.gain.exponentialRampToValueAtTime(.0001,at+.12);osc.connect(filter);filter.connect(og);og.connect(ctx.destination);osc.start(at);osc.stop(at+.13);const click=ctx.createBufferSource(),cg=ctx.createGain(),cf=ctx.createBiquadFilter();click.buffer=noiseBuffer;cf.type='highpass';cf.frequency.value=1700+Math.random()*900;cg.gain.setValueAtTime(.0001,at);cg.gain.linearRampToValueAtTime(amp*.25,at+.003);cg.gain.exponentialRampToValueAtTime(.0001,at+.035);click.connect(cf);cf.connect(cg);cg.connect(ctx.destination);click.start(at,Math.random()*.3,.035)}const at=now+4.22,thump=ctx.createOscillator(),tg=ctx.createGain();thump.type='sine';thump.frequency.setValueAtTime(92,at);thump.frequency.exponentialRampToValueAtTime(38,at+.2);tg.gain.setValueAtTime(.0001,at);tg.gain.exponentialRampToValueAtTime(.22,at+.012);tg.gain.exponentialRampToValueAtTime(.0001,at+.25);thump.connect(tg);tg.connect(ctx.destination);thump.start(at);thump.stop(at+.26)}catch(e){console.warn('Dice sound unavailable',e)}}
-function rollVisual(values){return new Promise(resolve=>{if(diceBusy){resolve();return}diceBusy=true;playDiceSound();const starts=diceObjects.map(d=>d.quaternion.clone()),targets=values.map(orientationForFace),dur=4500,start=performance.now();diceObjects.forEach((d,i)=>{d.userData.spin=new THREE.Vector3(9+Math.random()*5,11+Math.random()*6,7+Math.random()*5);d.userData.target=targets[i]});function frame(now){let t=Math.min(1,(now-start)/dur),ease=t<.72?t/.72:1-Math.pow(1-(t-.72)/.28,3);diceObjects.forEach((d,i)=>{if(t<.72){const s=d.userData.spin;d.rotation.set(s.x*ease*2.2,s.y*ease*2.1,s.z*ease*1.9)}else{const k=(t-.72)/.28;d.quaternion.copy(starts[i]).slerp(targets[i],k)}});if(t<1)requestAnimationFrame(frame);else{diceObjects.forEach((d,i)=>d.quaternion.copy(targets[i]));diceBusy=false;resolve()}}requestAnimationFrame(frame)})}
+function playDiceSound(){
+ try{
+  const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+  if(!diceAudioContext)diceAudioContext=new AC();
+  const ctx=diceAudioContext;if(ctx.state==='suspended')ctx.resume();
+  const start=ctx.currentTime;
+  // نفس أسلوب النغمات القصيرة المستخدم في لعبة الحية والدرج
+  for(let k=0;k<20;k++){
+   const at=start+k*.11,freq=250+(k%4)*55+(Math.random()*24),dur=.085;
+   const osc=ctx.createOscillator(),gain=ctx.createGain();
+   osc.type='sine';osc.frequency.setValueAtTime(freq,at);
+   gain.gain.setValueAtTime(.0001,at);
+   gain.gain.linearRampToValueAtTime(.12,at+.008);
+   gain.gain.exponentialRampToValueAtTime(.001,at+dur);
+   osc.connect(gain);gain.connect(ctx.destination);
+   osc.start(at);osc.stop(at+dur);
+  }
+ }catch(e){console.warn('Dice sound unavailable',e)}
+}
+function rollVisual(values){return new Promise(resolve=>{if(diceBusy){resolve();return}diceBusy=true;playDiceSound();const starts=diceObjects.map(d=>d.quaternion.clone()),targets=values.map(orientationForFace),dur=2250,start=performance.now();diceObjects.forEach((d,i)=>{d.userData.spin=new THREE.Vector3(9+Math.random()*5,11+Math.random()*6,7+Math.random()*5);d.userData.target=targets[i]});function frame(now){let t=Math.min(1,(now-start)/dur),ease=t<.72?t/.72:1-Math.pow(1-(t-.72)/.28,3);diceObjects.forEach((d,i)=>{if(t<.72){const s=d.userData.spin;d.rotation.set(s.x*ease*2.2,s.y*ease*2.1,s.z*ease*1.9)}else{const k=(t-.72)/.28;d.quaternion.copy(starts[i]).slerp(targets[i],k)}});if(t<1)requestAnimationFrame(frame);else{diceObjects.forEach((d,i)=>d.quaternion.copy(targets[i]));diceBusy=false;resolve()}}requestAnimationFrame(frame)})}
 function buildBoard(){const b=$('board');b.querySelectorAll('.tile').forEach(x=>x.remove());names.forEach((n,i)=>{let d=document.createElement('div');d.className='tile';d.style.gridColumn=positions[i][0];d.style.gridRow=positions[i][1];d.title=n+(prices[i]?' • السعر $'+prices[i]:'');d.innerHTML='<div class="band" style="background:'+colors[i]+'"></div><div class="name">'+n.replace(' – ','<br>')+'</div><div class="price">'+(prices[i]?'$'+prices[i]:'')+'</div>';if(houses[i])d.classList.add('has-house');b.insertBefore(d,$('tokenLayer'))})}
 function log(t){let d=document.createElement('div');d.textContent=t;$('log').prepend(d)}
 function buildTarget(pi){if(players[pi].cash<houseCost)return -1;for(const group of propertyGroups){if(!group.every(t=>owner[t]===pi))continue;const min=Math.min(...group.map(t=>houses[t]));const target=group.find(t=>houses[t]===min&&houses[t]<4);if(target!==undefined)return target}return -1}
