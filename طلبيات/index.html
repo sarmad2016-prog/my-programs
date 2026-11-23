@@ -274,7 +274,7 @@ tr:hover td,.suggest-item:hover{background:#f8f3e5!important}
     <div class="field"><label>السعر</label><input id="mPrice"></div>
     <div class="modal-actions">
       <button class="btn btn-primary" onclick="saveMaterialModal()">حفظ</button>
-      <button class="btn btn-gray" onclick="closeModal('materialModal')">إلغاء</button>
+      <button class="btn btn-gray" onclick="cancelMaterialModal()">إلغاء</button>
     </div>
   </div>
 </div>
@@ -393,6 +393,11 @@ function openMaterialModal(id){
   document.getElementById('materialModal').classList.add('open');
 }
 var addingMaterialToOrder=false;
+function cancelMaterialModal(){
+  addingMaterialToOrder=false;
+  editingMaterialId=null;
+  closeModal('materialModal');
+}
 function addNewOrderMaterial(){
   addingMaterialToOrder=true;
   openMaterialModal();
