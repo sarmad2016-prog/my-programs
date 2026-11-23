@@ -50,6 +50,12 @@ th{background:linear-gradient(135deg,#a855f7,#c084fc);color:#fff;padding:10px 8p
 td{padding:8px;border-bottom:1px solid #e2e8f0;text-align:center;font-size:14px}
 tr:hover td{background:#faf5ff}
 td input{min-width:80px;width:90px;padding:5px}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield;appearance:textfield}
+.export-choice{width:420px;max-width:95vw}
+.export-choice p{line-height:1.8;color:#475569}
+.export-choice .modal-actions{justify-content:center}
+.export-choice .modal-actions .btn{min-width:105px}
 td select{min-width:140px;max-width:220px;padding:5px}
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
 .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
@@ -236,7 +242,7 @@ tr:hover td,.suggest-item:hover{background:#f8f3e5!important}
                  onblur="setTimeout(hideSuggestions,250)">
           <div class="suggest-box" id="suggestBox"></div>
         </div>
-        <button class="btn btn-primary" onclick="addItemFromSearch()">➕ إضافة للطلبية</button>
+        <button class="btn btn-primary" onclick="addNewOrderMaterial()">➕ إضافة صنف جديد</button>
       </div>
       <div class="table-wrap">
       <table>
@@ -304,6 +310,17 @@ tr:hover td,.suggest-item:hover{background:#f8f3e5!important}
   </div>
 </div>
 
+<div class="modal-bg" id="exportChoiceModal">
+  <div class="modal export-choice">
+    <h3>📊 إعدادات تصدير الفاتورة</h3>
+    <p>هل تريد تنزيل الفاتورة مع أسعار المنتجات؟</p>
+    <div class="modal-actions">
+      <button class="btn btn-green" onclick="confirmExportChoice(true)">نعم، مع الأسعار</button>
+      <button class="btn btn-primary" onclick="confirmExportChoice(false)">لا، بدون أسعار</button>
+      <button class="btn btn-gray" onclick="cancelExportChoice()">إلغاء</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -375,10 +392,16 @@ function openMaterialModal(id){
   document.getElementById('mPrice').value=m?m.price:'';
   document.getElementById('materialModal').classList.add('open');
 }
+var addingMaterialToOrder=false;
+function addNewOrderMaterial(){
+  addingMaterialToOrder=true;
+  openMaterialModal();
+}
 function saveMaterialModal(){
   var name=document.getElementById('mName').value.trim();
   if(!name){alert('أدخل اسم المادة');return;}
   var data={name:name,barcode:document.getElementById('mBarcode').value.trim(),shad:document.getElementById('mShad').value.trim(),weight:document.getElementById('mWeight').value.trim(),price:document.getElementById('mPrice').value.trim()};
+  var newMaterial=null;
   if(editingMaterialId){
     for(var i=0;i<state.materials.length;i++){
       if(state.materials[i].id===editingMaterialId){state.materials[i].name=data.name;state.materials[i].barcode=data.barcode;state.materials[i].shad=data.shad;state.materials[i].weight=data.weight;state.materials[i].price=data.price;}
@@ -387,8 +410,15 @@ function saveMaterialModal(){
       if(state.orders[j].items[k].materialId===editingMaterialId){state.orders[j].items[k].name=data.name;state.orders[j].items[k].barcode=data.barcode;}
     }
     toast('تم تعديل المادة');
-  }else{data.id=uid();state.materials.push(data);toast('تمت إضافة المادة');}
+  }else{
+    data.id=uid();state.materials.push(data);newMaterial=data;toast('تمت إضافة المادة');
+  }
   persist();closeModal('materialModal');renderMaterials();
+  if(addingMaterialToOrder&&!editingMaterialId&&newMaterial){
+    var o=findOrder(currentOrderId);
+    if(o){o.items.push({materialId:newMaterial.id,name:newMaterial.name,barcode:newMaterial.barcode,qtyP:'',freeP:'',qtyC:'',freeC:''});persist();renderOrderItems();focusPieceQuantity(o.items.length-1);}
+  }
+  addingMaterialToOrder=false;
 }
 function deleteMaterial(id){
   if(!confirm('هل تريد حذف هذه المادة؟'))return;
@@ -712,6 +742,9 @@ function showSuggestions(){
   }
   box.innerHTML=html;box.style.display='block';
 }
+function focusPieceQuantity(index){
+  setTimeout(function(){var el=document.getElementById('qtyP_'+index);if(el){el.focus();if(el.select)el.select();}},60);
+}
 function pickMaterial(id){
   var m=null;
   for(var i=0;i<state.materials.length;i++)if(state.materials[i].id===id)m=state.materials[i];
@@ -721,6 +754,7 @@ function pickMaterial(id){
   persist();renderOrderItems();
   document.getElementById('itemSearch').value='';
   hideSuggestions();
+  focusPieceQuantity(o.items.length-1);
   toast('تمت إضافة: '+m.name);
 }
 function addItemFromSearch(){
@@ -735,6 +769,7 @@ function addItemFromSearch(){
   persist();renderOrderItems();
   document.getElementById('itemSearch').value='';
   hideSuggestions();
+  focusPieceQuantity(o.items.length-1);
   toast('تمت الإضافة يدوياً');
 }
 
@@ -747,10 +782,10 @@ function renderOrderItems(){
   for(var i=0;i<o.items.length;i++){
     var it=o.items[i];
     html+='<tr><td>'+esc(it.name)+(it.materialId?'':' <small style="color:#94a3b8">(يدوي)</small>')+'</td>'
-      +'<td><input type="number" min="0" value="'+esc(it.qtyP)+'" oninput="updateItem('+i+',\'qtyP\',this.value)"></td>'
-      +'<td><input type="number" min="0" value="'+esc(it.freeP)+'" oninput="updateItem('+i+',\'freeP\',this.value)"></td>'
-      +'<td><input type="number" min="0" value="'+esc(it.qtyC)+'" oninput="updateItem('+i+',\'qtyC\',this.value)"></td>'
-      +'<td><input type="number" min="0" value="'+esc(it.freeC)+'" oninput="updateItem('+i+',\'freeC\',this.value)"></td>'
+      +'<td><input id="qtyP_'+i+'" type="number" min="0" value="'+esc(it.qtyP)+'" oninput="updateItem('+i+',\'qtyP\',this.value)"></td>'
+      +'<td><input id="freeP_'+i+'" type="number" min="0" value="'+esc(it.freeP)+'" oninput="updateItem('+i+',\'freeP\',this.value)"></td>'
+      +'<td><input id="qtyC_'+i+'" type="number" min="0" value="'+esc(it.qtyC)+'" oninput="updateItem('+i+',\'qtyC\',this.value)"></td>'
+      +'<td><input id="freeC_'+i+'" type="number" min="0" value="'+esc(it.freeC)+'" oninput="updateItem('+i+',\'freeC\',this.value)"></td>'
       +'<td>'+esc(it.barcode)+'</td>'
       +'<td><button class="btn btn-sm btn-red" onclick="removeItem('+i+')">🗑️</button></td></tr>';
   }
@@ -813,46 +848,69 @@ function preloadExcelJS(){
   return excelJsPromise;
 }
 setTimeout(function(){preloadExcelJS().catch(function(){});},1200);
-function buildXlsxFile(fname){
+function buildXlsxFile(fname,includePrices){
   var o=findOrder(currentOrderId);
+  var fields=[
+    {key:'name',label:'اسم المادة',width:42,always:true},
+    {key:'qtyP',label:'الكمية (قطعة)',width:20},
+    {key:'freeP',label:'المجاني (قطعة)',width:20},
+    {key:'qtyC',label:'الكمية (كارتون)',width:20},
+    {key:'freeC',label:'المجاني (كارتون)',width:20},
+    {key:'barcode',label:'الباركود',width:26},
+    {key:'price',label:'السعر',width:18,price:true}
+  ];
+  var cols=fields.filter(function(f){
+    if(f.price&&!includePrices)return false;
+    if(f.always)return true;
+    return o.items.some(function(it){
+      var value=f.price?getMaterialPrice(it.materialId):it[f.key];
+      return String(value===undefined||value===null?'':value).trim()!=='';
+    });
+  });
   var thin={style:'thin',color:{argb:'FF94A3B8'}};
   var border={top:thin,left:thin,bottom:thin,right:thin};
   var center={horizontal:'center',vertical:'middle',wrapText:true};
   var wb=new ExcelJS.Workbook();
   var ws=wb.addWorksheet('الطلبية',{views:[{rightToLeft:true}]});
-  ws.columns=[{width:42},{width:20},{width:20},{width:20},{width:20},{width:26}];
+  ws.columns=cols.map(function(f){return {width:f.width};});
   var t=ws.addRow(['طلبية: '+o.customer+' — '+o.date]);
-  ws.mergeCells(1,1,1,6);
+  ws.mergeCells(1,1,1,cols.length);
   t.getCell(1).font={size:18,bold:true,color:{argb:'FF0000FF'}};
   t.getCell(1).alignment=center;
-  var h=ws.addRow(HEADERS);
+  var h=ws.addRow(cols.map(function(f){return f.label;}));
   h.height=32;
   h.eachCell(function(c,n){
-    c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+HDR_COLORS[n-1].slice(1).toUpperCase()}};
+    c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+HDR_COLORS[(n-1)%HDR_COLORS.length].slice(1).toUpperCase()}};
     c.font={size:18,bold:true,color:{argb:'FFFFFFFF'}};
     c.alignment=center;c.border=border;
   });
   for(var i=0;i<o.items.length;i++){
     var it=o.items[i];
-    var vals=[it.name,it.qtyP,it.freeP,it.qtyC,it.freeC,it.barcode];
+    var vals=cols.map(function(f){return f.price?getMaterialPrice(it.materialId):it[f.key];});
     for(var k=0;k<vals.length;k++){
-      var s=String(vals[k]===undefined||vals[k]===null?'':vals[k]).trim();
-      if(k>0&&/^\d+(\.\d+)?$/.test(s)&&s.length<=15)vals[k]=Number(s);
-      else vals[k]=s;
+      var value=vals[k];
+      var st=String(value===undefined||value===null?'':value).trim();
+      if(k>0&&/^\d+(\.\d+)?$/.test(st)&&st.length<=15)vals[k]=Number(st);
+      else vals[k]=st;
     }
-    var r=ws.addRow(vals);
-    r.height=28;
-    r.eachCell({includeEmpty:true},function(c,n){
+    var row=ws.addRow(vals);
+    row.height=28;
+    row.eachCell({includeEmpty:true},function(c,n){
       c.font={size:18,color:{argb:'FF0000FF'}};
       c.alignment=center;c.border=border;
-      if(typeof c.value==='number')c.numFmt=(n===6?'0':'General');
+      if(typeof c.value==='number')c.numFmt='General';
     });
   }
   return wb.xlsx.writeBuffer().then(function(buf){return new File([buf],fname,{type:XLSX_MIME});});
 }
+function getMaterialPrice(materialId){
+  if(!materialId)return '';
+  for(var i=0;i<state.materials.length;i++)if(state.materials[i].id===materialId)return state.materials[i].price||'';
+  return '';
+}
 /* لا ننشئ ملفاً بامتداد Excel إلا إذا كان XLSX حقيقياً */
-function getExportFile(base){
-  return preloadExcelJS().then(function(){return buildXlsxFile(base+'.xlsx');});
+function getExportFile(base,includePrices){
+  return preloadExcelJS().then(function(){return buildXlsxFile(base+'.xlsx',!!includePrices);});
 }
 /* تجهيز ملف الإكسل عند الضغط على حفظ فقط، والاحتفاظ به مؤقتاً في الذاكرة */
 var cachedExport={sig:'',file:null,promise:null};
@@ -877,49 +935,50 @@ window.addEventListener('pagehide',function(){
   cachedExport.sig='';
   savedExportSig='';
 });
-function shareExcelWhatsApp(){
+var pendingExportAction=null;
+function askExportChoice(action){
   var o=findOrder(currentOrderId);
-  if(!o||!o.items||!o.items.length){alert('الفاتورة فارغة');return;}
-  var sig=orderSig();
-  if(savedExportSig!==sig){
-    alert('احفظ الفاتورة أولاً من زر 💾 حفظ، وبعدها اضغط إرسال عبر واتساب.');
-    return;
-  }
-  if(cachedExport.sig!==sig||!cachedExport.file){
-    alert('ملف الإكسل لم يجهز بعد. انتظر اكتمال الحفظ ثم اضغط إرسال مرة ثانية.');
-    return;
-  }
-  var file=cachedExport.file;
+  if(!o||!o.items.length){alert('الفاتورة فارغة');return;}
+  pendingExportAction=action;
+  document.getElementById('exportChoiceModal').classList.add('open');
+}
+function cancelExportChoice(){
+  pendingExportAction=null;
+  closeModal('exportChoiceModal');
+}
+function confirmExportChoice(includePrices){
+  var action=pendingExportAction;
+  pendingExportAction=null;
+  closeModal('exportChoiceModal');
+  if(action==='share')performShareExcel(includePrices);
+  else if(action==='download')performDownloadExcel(includePrices);
+}
+function shareExcelWhatsApp(){askExportChoice('share');}
+function downloadExcel(){askExportChoice('download');}
+function performShareExcel(includePrices){
   if(typeof navigator.share!=='function'){
-    alert('المتصفح الحالي لا يدعم إرسال الملفات مباشرة. لم يتم تنزيل أي ملف.');
+    alert('المتصفح الحالي لا يدعم إرسال الملفات مباشرة.');
     return;
   }
-  var data={files:[file]};
-  if(typeof navigator.canShare==='function'){
-    var ok=false;
-    try{ok=!!navigator.canShare(data);}catch(e){ok=false;}
-    if(!ok){
-      alert('المتصفح الحالي لا يدعم مشاركة ملف الإكسل مباشرة. لم يتم تنزيل أي ملف.');
+  getExportFile(fileBase(),includePrices).then(function(file){
+    var data={files:[file]};
+    if(typeof navigator.canShare==='function'&&!navigator.canShare(data)){
+      alert('المتصفح الحالي لا يدعم مشاركة ملف الإكسل مباشرة.');
       return;
     }
-  }
-  try{
-    var pr=navigator.share(data);
-    if(pr&&typeof pr.catch==='function')pr.catch(function(err){
-      if(err&&err.name!=='AbortError')console.warn('WhatsApp file sharing failed:',err);
+    return navigator.share(data).catch(function(err){
+      if(err&&err.name!=='AbortError')alert('تعذر فتح نافذة المشاركة. حاول مرة ثانية.');
     });
-  }catch(e){
-    console.warn('WhatsApp file sharing failed:',e);
-  }
+  }).catch(function(){
+    alert('تعذر إنشاء ملف Excel حقيقي. تأكد من اتصال الإنترنت ثم حاول مرة ثانية.');
+  });
 }
-function downloadExcel(){
-  var o=findOrder(currentOrderId);
-  if(!o||!o.items.length){alert('الطلبية فارغة');return;}
+function performDownloadExcel(includePrices){
   var btn=document.querySelector('button[onclick="downloadExcel()"]');
   if(btn){btn.disabled=true;btn.textContent='⏳ جاري تجهيز Excel...';}
-  getExportFile(fileBase()).then(function(file){
+  getExportFile(fileBase(),includePrices).then(function(file){
     downloadBlobAs(file,file.name);
-    toast('تم تنزيل ملف Excel Workbook حقيقي (.xlsx) ✅');
+    toast(includePrices?'تم تنزيل الفاتورة مع الأسعار ✅':'تم تنزيل الفاتورة بدون أسعار ✅');
   }).catch(function(){
     alert('تعذر إنشاء ملف Excel حقيقي. تأكد من اتصال الإنترنت ثم اضغط تنزيل إكسل مرة ثانية.');
   }).then(function(){
@@ -947,6 +1006,19 @@ function exportPDF(){
   w.document.close();
 }
 
+/* التنقل بين حقول الإدخال بزر Enter */
+document.addEventListener('keydown',function(event){
+  if(event.key!=='Enter'||event.defaultPrevented)return;
+  var current=event.target;
+  if(!current||!(/^(INPUT|SELECT)$/.test(current.tagName)))return;
+  if(current.id==='itemSearch')return;
+  event.preventDefault();
+  var fields=Array.prototype.slice.call(document.querySelectorAll('input:not([type="hidden"]):not([disabled]),select:not([disabled])')).filter(function(el){
+    return el.offsetParent!==null&&!el.readOnly;
+  });
+  var index=fields.indexOf(current);
+  if(index>=0&&index<fields.length-1){fields[index+1].focus();if(fields[index+1].select)fields[index+1].select();}
+});
 updateHomeBadge();
 
 /* تثبيت البرنامج كتطبيق مستقل */
