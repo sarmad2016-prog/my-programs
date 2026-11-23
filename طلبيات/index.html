@@ -821,8 +821,8 @@ function bodyCells(it){
 }
 function fileBase(){
   var o=findOrder(currentOrderId);
-  var cust=((o&&o.customer)?o.customer:'طلبية').replace(/[\\/:*?"<>|]/g,'-').trim();
-  return cust+'-'+((o&&o.date)?o.date:todayStr());
+  var cust=((o&&o.customer)?o.customer:'بدون اسم').replace(/[\\/:*?"<>|]/g,'-').trim()||'بدون اسم';
+  return 'طلبية-'+cust+'-'+((o&&o.date)?o.date:todayStr());
 }
 function buildExcelBlob(){
   var o=findOrder(currentOrderId);
