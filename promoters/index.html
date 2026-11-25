@@ -59,7 +59,7 @@ button:active{transform:scale(.97)}
 .mng-row{display:flex;gap:6px;margin:6px 0;align-items:center}
 .mng-row input{flex:1;padding:9px}
 .mng-row input.mng-sec{font-weight:bold;color:#4a1f7a;background:#f6f2ff}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#4a1f7a,#7b3fbf);color:#fff;padding:12px 18px;border-radius:12px;display:none;z-index:10;box-shadow:0 4px 14px #0004}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#4a1f7a,#7b3fbf);color:#fff;padding:12px 18px;border-radius:12px;display:none;z-index:1000;box-shadow:0 4px 14px #0004;max-width:min(92vw,620px);white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;-webkit-user-select:text;line-height:1.65}
 .app-footer{text-align:center;padding:16px 10px 24px;color:#65788a;font-size:13px;font-weight:bold}
 .app-footer b{color:#4a1f7a}
 .history-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:12px 0}
@@ -298,8 +298,9 @@ const $=id=>document.getElementById(id);
 const todayLocal=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
 const uid=()=>Date.now()+"-"+Math.random().toString(36).slice(2,7);
 const storageKey=()=>"visits_"+currentRep+"_"+currentDate;
-const allVisits=()=>{try{return JSON.parse(localStorage.getItem(storageKey())||"[]")}catch(e){return[]}};
-const readKey=k=>{try{return JSON.parse(localStorage.getItem(k)||"[]")}catch(e){return[]}};
+const asVisitArray=v=>Array.isArray(v)?v:(v&&Array.isArray(v.visits)?v.visits:[]);
+const allVisits=()=>{try{return asVisitArray(JSON.parse(localStorage.getItem(storageKey())||"[]"))}catch(e){return[]}};
+const readKey=k=>{try{return asVisitArray(JSON.parse(localStorage.getItem(k)||"[]"))}catch(e){return[]}};
 const saveAll=v=>localStorage.setItem(storageKey(),JSON.stringify(v));
 const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
 /* المزامنة على قاعدة البيانات المشتركة mandoub1979
@@ -1063,7 +1064,7 @@ function logout(){
 function toast(t){
  $("toast").textContent=t;$("toast").style.display="block";
  clearTimeout(toastTimer);
- toastTimer=setTimeout(()=>$("toast").style.display="none",1800);
+ toastTimer=setTimeout(()=>$("toast").style.display="none",10000);
 }
 /* تهيئة: دخول تلقائي ثم مزامنة فورية (زيارات + المواد + الإشعارات) */
 autoLogin();
