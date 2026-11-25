@@ -359,7 +359,7 @@ async function syncNow(silent){
  if(syncing){syncAgain=true;return}
  if(silent&&Date.now()<blockedUntil()){setSync("limit");return}
  /* مزامنة تلقائية: إن لم يوجد شيء للرفع وفُحصت السحابة قبل أقل من 10 دقائق فلا نرسل أي طلب */
- if(silent){const pdx=pendingDeletes();if(!localKeys().some(k=>isDirty(k,pdx))&&Object.keys(pdx).length===0&&Date.now()-(+localStorage.getItem("syncCheckAt")||0)<10*60*1000){setSync("on");return}}
+ if(silent){const pdx=pendingDeletes();if(!localKeys().some(k=>isDirty(k,pdx))&&Object.keys(pdx).length===0&&Date.now()-(+localStorage.getItem("syncCheckAt")||0)<2*60*1000){setSync("on");return}}
  syncing=true;syncAgain=false;setSync("sync");setSyncButtons("sync");
  const errors=[];let pushed=0,pulled=0;
  try{
@@ -955,5 +955,9 @@ autoLogin();
 syncNow(true);
 syncProducts();
 window.addEventListener("online",()=>{syncNow(true);syncProducts()});
+/* فحص دوري للتغييرات القادمة من الأجهزة الأخرى، مع الفحص فور العودة إلى التطبيق */
+setInterval(()=>{if(!document.hidden){syncNow(true);syncProducts()}},2*60*1000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden){syncNow(true);syncProducts()}});
+window.addEventListener("focus",()=>{syncNow(true);syncProducts()});
 </script>
 </body></html>
