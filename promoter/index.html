@@ -266,7 +266,7 @@ const todayLocal=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.get
 const uid=()=>Date.now()+"-"+Math.random().toString(36).slice(2,7);
 const storageKey=()=>"visits_"+currentRep+"_"+currentDate;
 const allVisits=()=>{try{return JSON.parse(localStorage.getItem(storageKey())||"[]")}catch(e){return[]}};
-const readKey=k=>{try{return JSON.parse(localStorage.getItem(k)||"[]")}catch(e){return[]}};
+const readKey=k=>{try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}};
 const saveAll=v=>localStorage.setItem(storageKey(),JSON.stringify(v));
 const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
 
@@ -355,7 +355,6 @@ function applyIndexPatch(index,patch){
  return index;
 }
 async function syncNow(silent){
- purgeLocal();
  if(syncing){syncAgain=true;return}
  if(silent&&Date.now()<blockedUntil()){setSync("limit");return}
  /* مزامنة تلقائية: إن لم يوجد شيء للرفع وفُحصت السحابة قبل أقل من 10 دقائق فلا نرسل أي طلب */
@@ -363,6 +362,7 @@ async function syncNow(silent){
  syncing=true;syncAgain=false;setSync("sync");setSyncButtons("sync");
  const errors=[];let pushed=0,pulled=0;
  try{
+  purgeLocal();
   const now=Date.now();
   const index=(await cGet("_index"))||{};          /* طلب واحد فقط عند عدم وجود تغييرات */
   const meta=syncMeta(),pd0=pendingDeletes(),purged=purgedMap();
