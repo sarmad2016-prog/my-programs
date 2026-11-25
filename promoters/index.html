@@ -314,24 +314,44 @@ const daysAgoISO=n=>{const d=new Date();d.setDate(d.getDate()-n);return d.getFul
 const blockedUntil=()=>+(localStorage.getItem("syncBlockedUntil")||0);
 function countReq(){try{const t=todayLocal();let s=JSON.parse(localStorage.getItem("reqStat")||"{}");if(s.d!==t)s={d:t,n:0};s.n++;localStorage.setItem("reqStat",JSON.stringify(s))}catch(e){}}
 const reqToday=()=>{try{const s=JSON.parse(localStorage.getItem("reqStat")||"{}");return s.d===todayLocal()?s.n:0}catch(e){return 0}};
-function httpErr(status){const er=new Error(status?"HTTP "+status:"NETWORK");er.status=status;return er}
+function httpErr(status,detail){
+ const er=new Error(detail|| (status?"HTTP "+status:"NETWORK"));
+ er.status=status;
+ er.detail=detail||"";
+ return er;
+}
+async function responseErr(r){
+ let detail="";
+ try{detail=(await r.text()).slice(0,500)}catch(e){}
+ return httpErr(r.status,detail||("HTTP "+r.status));
+}
 async function cFetch(path,opts){
- let r;countReq();
- try{r=await fetch(path.indexOf("http")===0?path:CBASE+path,opts)}catch(e){throw httpErr(0)}
+ countReq();
+ let r;
+ try{r=await fetch(path.indexOf("http")===0?path:CBASE+path,opts)}
+ catch(e){throw httpErr(0,e&&e.message?e.message:"تعذر الاتصال بخدمة السحابة")}
  if(r.status===429)localStorage.setItem("syncBlockedUntil",String(Date.now()+BLOCK_MS));
  return r;
 }
-async function cGet(path){const r=await cFetch(path,{headers:{Accept:"application/json"}});if(r.status===404)return null;if(!r.ok)throw httpErr(r.status);return r.json()}
-async function cPut(path,obj){const r=await cFetch(path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(obj)});if(!r.ok)throw httpErr(r.status)}
-async function cPatch(path,obj){const r=await cFetch(path,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(obj)});if(!r.ok)throw httpErr(r.status)}
-async function cDel(path){const r=await cFetch(path,{method:"DELETE"});if(!r.ok&&r.status!==404)throw httpErr(r.status)}
+async function cGet(path){
+ const r=await cFetch(path,{headers:{Accept:"application/json"}});
+ if(r.status===404)return null;
+ if(!r.ok)throw await responseErr(r);
+ try{return await r.json()}catch(e){throw httpErr(r.status,"استجابة غير صالحة من السحابة: "+(e&&e.message||"JSON"))}
+}
+async function cPut(path,obj){const r=await cFetch(path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(obj)});if(!r.ok)throw await responseErr(r)}
+async function cPatch(path,obj){const r=await cFetch(path,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(obj)});if(!r.ok)throw await responseErr(r)}
+async function cDel(path){const r=await cFetch(path,{method:"DELETE"});if(!r.ok&&r.status!==404)throw await responseErr(r)}
 function explainErr(e){
- const s=e&&e.status;
- if(s===429)return"تجاوزت السحابة المجانية حدّها اليومي (10,000 طلب كل 24 ساعة لكل الأجهزة معاً)";
- if(s===413)return"حجم سجل يوم لأحد المروجين تجاوز 64KB (حد السحابة)";
- if(s===0)return"لا يوجد اتصال بالإنترنت أو أن خدمة السحابة لا تستجيب";
- if(s>=500)return"خطأ في خادم السحابة (رمز "+s+") — حاول لاحقاً";
- return"السحابة رفضت العملية (رمز "+s+") — قد يكون السبب امتلاء حد 100 مدخل";
+ const s=e&&e.status,detail=e&&(e.detail||e.message)||"خطأ غير معروف";
+ if(s===429)return"تجاوزت السحابة حد الطلبات اليومي (429)";
+ if(s===413)return"حجم السجل تجاوز الحد المسموح (413)";
+ if(s===0)return"تعذر الاتصال: "+detail;
+ if(s>=500)return"خطأ في خادم السحابة (HTTP "+s+"): "+detail;
+ if(s===400||s===403||s===404||s===409||s===413)
+  return"السحابة رفضت الطلب (HTTP "+s+"): "+detail;
+ if(s!=null)return"خطأ من السحابة (HTTP "+s+"): "+detail;
+ return"خطأ برمجي أو استجابة غير متوقعة: "+detail;
 }
 const pendingDeletes=()=>{try{return JSON.parse(localStorage.getItem("pendingDeletes")||"{}")}catch(e){return{}}};
 const addPendingDelete=(key,id)=>{const d=pendingDeletes();(d[key]=d[key]||[]).push(id);localStorage.setItem("pendingDeletes",JSON.stringify(d))};
@@ -539,18 +559,25 @@ function renderSyncDetail(){
   `<div>طلبات هذا الجهاز اليوم: <b>${reqToday()}</b> (الحد المجاني 10,000 لكل الأجهزة معاً)</div>`;
 }
 async function runDiagnose(){
- const box=$("diagBox");box.innerHTML="<p class='muted'>جارٍ الفحص...</p>";
- const lines=[];let cause="";
- const step=async(label,fn)=>{try{const r=await fn();lines.push("✅ "+label+(r?" — "+r:""));return{ok:true}}catch(e){lines.push("❌ "+label+" — "+(e.status===0?"لا اتصال":"رمز "+e.status));return{ok:false,status:e.status}}};
- const a=await step("قراءة الفهرس",async()=>{const x=await cGet("_index");return x?Object.keys(x).reduce((s,r)=>s+Object.keys(x[r]).length,0)+" سجل يوم":"فارغ"});
- let cnt=null;
- try{const r=await cFetch(LISTURL,{headers:{Accept:"application/json"}});if(r.ok){const j=await r.json();cnt=(j.entries||[]).length;lines.push("ℹ️ عدد المدخلات في السحابة: "+cnt+" من 100")}else lines.push("ℹ️ تعذر عرض قائمة المدخلات (رمز "+r.status+")")}catch(e){}
- const b=await step("اختبار كتابة مدخل جديد",async()=>{await cPut("_ping",{t:Date.now()});await cDel("_ping").catch(()=>{});return"سليم"});
- if(a.status===429||b.status===429)cause="السبب: تجاوز حد الطلبات اليومي للسحابة المجانية (10,000/24 ساعة لكل الأجهزة). سيعود العمل تلقائياً عند انخفاض الاستهلاك — هذه النسخة تقلّل الطلبات كثيراً. على كل أجهزة المروجين استخدام نفس النسخة.";
- else if(a.status===0)cause="السبب: لا يوجد اتصال بالإنترنت، أو أن خدمة mantledb متوقفة/محجوبة على هذه الشبكة.";
- else if(a.ok&&!b.ok)cause="السبب المرجّح: امتلأ حد 100 مدخل في السحابة فترفض أي سجل جديد. اضغط «إصلاح السحابة» لإعادة ترتيبها.";
- else if(a.ok&&b.ok)cause="السحابة تعمل بشكل سليم الآن. اضغط «مزامنة الآن».";
- else cause="تعذر تحديد السبب — أرسل لي الرموز الظاهرة أعلاه.";
+ const box=$("diagBox");box.innerHTML="<p class='muted'>جارٍ فحص الاتصال والقراءة دون تعديل أي بيانات...</p>";
+ const lines=[];
+ const step=async(label,fn)=>{try{const r=await fn();lines.push("✅ "+label+(r?" — "+r:""));return{ok:true}}catch(e){lines.push("❌ "+label+" — "+explainErr(e));return{ok:false,status:e&&e.status,error:explainErr(e)}}};
+ const a=await step("قراءة فهرس السحابة",async()=>{const x=await cGet("_index");return x?Object.keys(x).reduce((n,r)=>n+Object.keys(x[r]||{}).length,0)+" سجل يوم":"الفهرس فارغ"});
+ const b=await step("قراءة قائمة المدخلات",async()=>{
+  const r=await cFetch(LISTURL,{headers:{Accept:"application/json"}});
+  if(!r.ok)throw await responseErr(r);
+  const j=await r.json(),entries=j.entries||[];
+  lines.push("ℹ️ عدد المدخلات المسجلة بالخدمة: "+entries.length+" من 100");
+  const ping=entries.find(x=>x.path==="_ping");
+  if(ping)lines.push("⚠️ يوجد مدخل تشخيص قديم باسم _ping؛ لم نحذفه ولم نغيّر أي بيانات.");
+  return entries.length>=100?"المساحة ممتلئة":entries.length+" مدخل";
+ });
+ let cause="";
+ if(a.status===429||b.status===429)cause="الخدمة رفضت الطلب بسبب حدّ الطلبات (429).";
+ else if(a.status===0||b.status===0)cause="تعذر الاتصال بخدمة السحابة من هذا الجهاز.";
+ else if(!a.ok||!b.ok)cause="تعذر إكمال الفحص. التفاصيل أعلاه تحدد رد الخدمة أو الخطأ البرمجي.";
+ else if(b.ok&&b.error)cause="تمت قراءة السحابة مع وجود ملاحظة.";
+ else cause="اكتمل الفحص دون إجراء أي كتابة أو حذف. إذا استمر فشل المزامنة، اضغط مزامنة الآن ثم أرسل لي رسالة الخطأ الجديدة.";
  box.innerHTML="<div class='visit'>"+lines.map(esc).join("<br>")+"<div style='margin-top:8px;font-weight:bold;color:#4a1f7a'>"+esc(cause)+"</div></div>";
  renderSyncDetail();
 }
