@@ -59,7 +59,8 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}input[type=num
 .mu{color:var(--mut);font-size:13px}details{border-bottom:1px solid var(--bd);padding:6px 0}summary{cursor:pointer;padding:4px 0}
 .dng{background:var(--dn);color:#fff;border-color:var(--dn)}
 .mo{position:fixed;inset:0;background:#0007;display:flex;align-items:center;justify-content:center;z-index:9}.mo .card{width:min(92vw,380px);margin:0}.ft{text-align:center;color:var(--mut);font-size:10px;margin:18px 0 6px}.lg{width:56px;height:56px;flex:none;display:block}.lg img{width:100%;height:100%;display:block}
-@media print{:root{padding:0}body>*:not(#pa){display:none!important}#pa{display:block}#pa img{width:210mm;height:297mm;display:block;break-after:page}@page{size:A4;margin:0}}
+@media print{:root{padding:0}body>*:not(#pa){display:none!important}#pa{display:block}#pa img{width:210mm;height:297mm;display:block;break-after:page}#pa.landscape img{width:297mm;height:210mm}}
+<style id="printOrientation">@page{size:A4 portrait;margin:0}</style>
 </style>
 </head>
 <body>
@@ -101,6 +102,8 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}input[type=num
 <label class="rd"><input type="radio" name="ty" value="det">تفصيلي</label></div>
 <div class="rw"><b>خيارات:</b><label class="rd"><input type="checkbox" id="ot" checked>إظهار إجمالي التقرير</label><label class="rd"><input type="checkbox" id="os" disabled>إظهار إجمالي كل موظف (تفصيلي)</label></div>
 <div class="rw report-font-controls"><b>حجم خط التقرير:</b><button type="button" id="fontDown" aria-label="تصغير الخط">−</button><output id="reportFontSize" aria-live="polite">18</output><button type="button" id="fontUp" aria-label="تكبير الخط">+</button></div>
+<div class="rw"><b>اتجاه التقرير:</b><label class="rd"><input type="radio" name="reportOrientation" value="portrait" checked>عمودي</label><label class="rd"><input type="radio" name="reportOrientation" value="landscape">أفقي</label></div>
+<div class="rw"><b>صيغة التاريخ:</b><label class="rd"><input type="radio" name="reportDateFormat" value="full" checked>يوم / شهر / سنة</label><label class="rd"><input type="radio" name="reportDateFormat" value="short">يوم / شهر</label></div>
 <div class="rw"><button class="pri" id="pr">🖨 طباعة</button><button id="pdf">تصدير PDF</button><button id="xl">تصدير Excel</button></div>
 </section>
 <div id="pv"></div>
@@ -324,9 +327,14 @@ function show(t){document.querySelectorAll('nav button').forEach(x=>x.classList.
 
 /* ---------- التقارير ---------- */
 const fl=()=>$('[name=fl]:checked').value,ty=()=>$('[name=ty]:checked').value;
+const reportOrientation=()=>$('[name=reportOrientation]:checked')?.value||'portrait';
+const reportDateFormat=()=>$('[name=reportDateFormat]:checked')?.value||'full';
+function formatReportDate(value){const m=String(value||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!m)return String(value||'');return reportDateFormat()==='short'?`${m[3]}/${m[2]}`:`${m[3]}/${m[2]}/${m[1]}`}
+const savedOrientation=localStorage.getItem('reportOrientation');if(savedOrientation&&document.querySelector(`[name=reportOrientation][value="${savedOrientation}"]`))document.querySelector(`[name=reportOrientation][value="${savedOrientation}"]`).checked=true;
+const savedDateFormat=localStorage.getItem('reportDateFormat');if(savedDateFormat&&document.querySelector(`[name=reportDateFormat][value="${savedDateFormat}"]`))document.querySelector(`[name=reportDateFormat][value="${savedDateFormat}"]`).checked=true;
 function spec(){
   const f=fl(),t=ty(),sub=[];let L=P.slice();
-  if(f=='date'){L=L.filter(x=>x.date>=$('#d1').value&&x.date<=$('#d2').value);sub.push(`الفترة: من ${ltr($('#d1').value)} إلى ${ltr($('#d2').value)}`)}
+  if(f=='date'){L=L.filter(x=>x.date>=$('#d1').value&&x.date<=$('#d2').value);sub.push(`الفترة: من ${ltr(formatReportDate($('#d1').value))} إلى ${ltr(formatReportDate($('#d2').value))}`)}
   else if(f=='sup'){const s=$('#ss').value;L=L.filter(x=>nm(x.supervisor)==nm(s));sub.push('المشرف: '+s)}
   else sub.push('كل الموظفين');
   const tot=L.reduce((a,x)=>a+x.amount,0),key=x=>nm(x.employee);let rows,cols;
@@ -339,7 +347,7 @@ function spec(){
     let n=0,i=0;
     while(i<L.length){
       const k=key(L[i]);let sum=0,j=i;
-      for(;j<L.length&&key(L[j])==k;j++){sum+=L[j].amount;rows.push([++n,L[j].employee,L[j].amount,L[j].reason,L[j].date])}
+      for(;j<L.length&&key(L[j])==k;j++){sum+=L[j].amount;rows.push([++n,L[j].employee,L[j].amount,L[j].reason,formatReportDate(L[j].date)])}
       if($('#os').checked){const r=['','إجمالي: '+L[i].employee,sum,'',''];r.sub=1;rows.push(r)}
       i=j;
     }
@@ -350,13 +358,13 @@ function spec(){
 
 async function pages(sp){
   await Promise.all([document.fonts.load('400 14px Cairo','عربي 123'),document.fonts.load('700 14px Cairo','عربي 123')]).catch(()=>{});
-  const W=794,H=1123,S=2,M=40,RH=Math.max(34,Math.ceil(reportFontSize*1.8)),F='Cairo,"Segoe UI",Tahoma,sans-serif';
+  const landscape=reportOrientation()==='landscape',W=landscape?1123:794,H=landscape?794:1123,S=2,M=40,RH=Math.max(34,Math.ceil(reportFontSize*1.8)),F='Cairo,"Segoe UI",Tahoma,sans-serif';
   const all=sp.rows;
   const c1=Math.floor((H-60-150-RH)/RH),cN=Math.floor((H-60-60-RH)/RH),ch=[];
   for(let k=0;k<all.length||!ch.length;){const c=ch.length?cN:c1;ch.push(all.slice(k,k+c));k+=c}
   return ch.map((rs,p)=>{
     const cv=document.createElement('canvas');cv.width=W*S;cv.height=H*S;
-    cv.style.cssText='width:100%;max-width:794px;height:auto;display:block;margin:0 auto 12px;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.3)';
+    cv.style.cssText=`width:100%;max-width:${W}px;height:auto;display:block;margin:0 auto 12px;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.3)`;
     const x=cv.getContext('2d');x.scale(S,S);x.fillStyle='#fff';x.fillRect(0,0,W,H);x.direction='rtl';x.textBaseline='middle';
     const fit=(t,w)=>{t=String(t);if(x.measureText(t).width<=w)return t;while(t.length>1&&x.measureText(t+'…').width>w)t=t.slice(0,-1);return t+'…'};
     const txt=(t,X,Y,al,font,col)=>{x.font=font;x.fillStyle=col;x.textAlign=al;x.fillText(t,X,Y)};
@@ -365,15 +373,16 @@ async function pages(sp){
       txt(sp.title,W-M,58,'right',`700 22px ${F}`,'#111');
       sp.sub.forEach((s,i)=>txt(s,W-M,88+i*22,'right',`400 16px ${F}`,'#555'));
       if(sp.totLine)txt(sp.totLine,W-M,88+sp.sub.length*22,'right',`700 ${reportFontSize}px ${F}`,'#111');
-      txt('تاريخ الطباعة: '+ltr(today()),M,58,'left',`400 12px ${F}`,'#555');y=150;
+      txt('تاريخ الطباعة: '+ltr(formatReportDate(today())),M,58,'left',`400 12px ${F}`,'#555');y=150;
     }
+    const colScale=(W-2*M)/sp.cols.reduce((a,c)=>a+c.w,0);
     const row=(vals,yy,bold,fill)=>{
       if(fill){x.fillStyle=fill;x.fillRect(M,yy,W-2*M,RH)}
       let xr=W-M;
       sp.cols.forEach((c,i)=>{
         const v=vals[i],t=c.n&&typeof v=='number'?fmt(v):String(v==null?'':v),f=`${bold?700:400} ${reportFontSize}px ${F}`;x.font=f;
-        const s=fit(t,c.w-14);
-        c.c?txt(s,xr-c.w/2,yy+RH/2,'center',f,'#111'):txt(s,xr-8,yy+RH/2,'right',f,'#111');xr-=c.w;
+        const cw=c.w*colScale,s=fit(t,cw-14);
+        c.c?txt(s,xr-cw/2,yy+RH/2,'center',f,'#111'):txt(s,xr-8,yy+RH/2,'right',f,'#111');xr-=cw;
       });
       x.strokeStyle='#ccc';x.lineWidth=1;x.beginPath();x.moveTo(M,yy+RH);x.lineTo(W-M,yy+RH);x.stroke();
     };
@@ -419,6 +428,7 @@ disableBrowserAutocomplete();
 $('#sv').onclick=submit;$('#cn').onclick=resetForm;
 $('#fontDown').onclick=()=>setReportFontSize(reportFontSize-1);
 $('#fontUp').onclick=()=>setReportFontSize(reportFontSize+1);
+document.querySelectorAll('[name=reportOrientation],[name=reportDateFormat]').forEach(e=>e.onchange=()=>{localStorage.setItem(e.name,e.value);prev()});
 
 ['emp','sup','amt','rsn','dt'].forEach(i=>$('#'+i).addEventListener('keydown',e=>{if(e.key=='Enter')submit()}));
 $('#q').oninput=renderAll;
@@ -442,14 +452,17 @@ $('#sy').onclick=$('#sy2').onclick=()=>syncNow(false);
 document.querySelectorAll('[name=fl],[name=ty],#d1,#d2,#ss,#ot,#os').forEach(e=>e.onchange=()=>{$('#os').disabled=ty()!='det';$('#fd').hidden=fl()!='date';$('#fs').hidden=fl()!='sup';prev()});
 $('#pr').onclick=()=>{
   if(!curCv.length)return;
+  $('#pa').classList.toggle('landscape',reportOrientation()==='landscape');
+  document.getElementById('printOrientation').textContent='@page{size:A4 '+(reportOrientation()==='landscape'?'landscape':'portrait')+';margin:0}';
   $('#pa').innerHTML=curCv.map(c=>`<img src="${c.toDataURL('image/jpeg',.92)}">`).join('');
   const done=()=>{$('#pa').innerHTML='';window.removeEventListener('afterprint',done)};window.addEventListener('afterprint',done);
   window.print();
 };
 $('#pdf').onclick=()=>{
   if(!curCv.length||!window.jspdf)return toast('تعذر تحميل مكتبة PDF (تحتاج إنترنت)');
-  const d=new window.jspdf.jsPDF({unit:'pt',format:'a4'});
-  curCv.forEach((c,i)=>{if(i)d.addPage();d.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,595.28,841.89)});
+  const landscape=reportOrientation()==='landscape',pw=landscape?841.89:595.28,ph=landscape?595.28:841.89;
+  const d=new window.jspdf.jsPDF({orientation:landscape?'landscape':'portrait',unit:'pt',format:'a4'});
+  curCv.forEach((c,i)=>{if(i)d.addPage();d.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,pw,ph)});
   save(rname()+'.pdf',d.output('arraybuffer'));
 };
 $('#xl').onclick=()=>{if(cur)xlsx([['التقرير',[...(cur.totLine?[[cur.totLine],[]]:[]),cur.cols.map(c=>c.h),...cur.rows,[],[CREDIT]]]],rname())};
