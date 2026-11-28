@@ -4,6 +4,7 @@
 <meta name="theme-color" content="#174f39"><meta name="description" content="كتالوج المنتجات والأسعار والعروض">
 <link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.svg">
 <title>كتالوج المنتجات</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 :root{--green:#174f39;--green2:#287653;--gold:#d4ad55;--cream:#f8f5eb;--ink:#20342a;--muted:#748078;--line:#e5e9e2;--card:#fff;--bg:#f2f5ef;--shadow:0 10px 28px #173d2810}
@@ -23,7 +24,7 @@ input,select,textarea{width:100%;padding:11px 12px;border:1px solid var(--line);
 <section id="login" class="panel login">
  <h2 style="margin-top:0">أهلاً بيك</h2><p class="muted">سجّل الدخول حتى تشوف المواد والأسعار المخصصة إلك.</p>
  <div class="notice">نسخة تأسيس وتجربة محلية: البيانات حالياً تُحفظ بهذا المتصفح فقط. تسجيل الدخول والمزامنة المشتركة بين الأجهزة تحتاج ربط Supabase قبل الاستخدام الفعلي.</div>
- <div class="field"><label>اسم المستخدم</label><input id="loginUser" autocomplete="username" placeholder="اسم المستخدم"></div>
+ <div class="field"><label>البريد الإلكتروني</label><input id="loginUser" type="email" autocomplete="username" placeholder="البريد الإلكتروني"></div>
  <div class="field"><label>كلمة المرور</label><input id="loginPass" type="password" autocomplete="current-password" placeholder="كلمة المرور"></div>
  <button style="width:100%" onclick="login()">دخول</button>
  <p class="muted" style="text-align:center;margin-bottom:0">لإنشاء المسؤول لأول مرة اضغط <a href="#" onclick="setupAdmin();return false">تهيئة المسؤول</a></p>
@@ -43,7 +44,7 @@ input,select,textarea{width:100%;padding:11px 12px;border:1px solid var(--line);
    <div class="field wide"><label>صورة المادة (اختيار من الجهاز أو كاميرا الهاتف)</label><input id="fImage" type="file" accept="image/*" capture="environment" onchange="previewImage(this)"><img id="imagePreview" class="hidden" style="max-width:150px;max-height:130px;object-fit:contain;border-radius:10px"></div>
    <div class="field"><label>عرض سعر جميلة</label><input id="fOfferBeautiful" placeholder="عرض جميلة"></div><div class="field"><label>عرض سعر الجملة</label><input id="fOfferWholesale" placeholder="عرض الجملة"></div><div class="field wide"><label>عرض سعر ماركت</label><input id="fOfferMarket" placeholder="عرض ماركت"></div>
   </div><div class="toolbar"><button onclick="saveProduct()">حفظ المادة</button><button class="secondary" onclick="clearForm()">إلغاء</button></div></div>
-  <div class="panel"><h3>المستخدمون والصلاحيات</h3><div class="formgrid"><div class="field"><label>اسم المستخدم</label><input id="uName"></div><div class="field"><label>كلمة المرور</label><input id="uPass" type="password"></div><div class="field"><label>اسم المندوب</label><input id="uDisplay"></div><div class="field"><label>السعر المسموح</label><select id="uPrice"><option value="beautiful">جميلة</option><option value="wholesale">الجملة</option><option value="market">ماركت</option></select></div><div class="field wide"><label>التصنيفات المسموحة (اتركها فارغة للسماح بكل التصنيفات)</label><input id="uCats" placeholder="مثال: كيري، ألبان، عصائر"></div></div><button onclick="saveUser()">إضافة مستخدم</button><div id="usersList" class="tablewrap" style="margin-top:12px"></div></div>
+  <div class="panel"><h3>المستخدمون والصلاحيات</h3><div class="formgrid"><div class="field wide"><label>حسابات المندوبين تُنشأ من لوحة Supabase Authentication ثم تُضاف صلاحياتها في قاعدة البيانات.</label></div><div class="field"><label>اسم المندوب</label><input id="uDisplay"></div><div class="field"><label>السعر المسموح</label><select id="uPrice"><option value="beautiful">جميلة</option><option value="wholesale">الجملة</option><option value="market">ماركت</option></select></div><div class="field wide"><label>التصنيفات المسموحة (اتركها فارغة للسماح بكل التصنيفات)</label><input id="uCats" placeholder="مثال: كيري، ألبان، عصائر"></div></div><button class="secondary" onclick="renderCloudProfiles()">تحديث قائمة الحسابات</button><div id="usersList" class="tablewrap" style="margin-top:12px"></div></div>
   <div class="panel"><h3>العروض</h3><p class="muted">تقدر تحدد العرض والسعر لكل مادة، ويظهر للمندوب حسب السعر المسموح لحسابه.</p><div id="offersList"></div></div>
   <div class="panel"><h3>النسخ الاحتياطي</h3><div class="toolbar"><button class="secondary" onclick="backup()">تنزيل نسخة احتياطية</button><button class="secondary" onclick="document.getElementById('restoreFile').click()">استعادة نسخة</button><input id="restoreFile" hidden type="file" accept=".json" onchange="restore(this)"></div></div>
  </section>
@@ -92,4 +93,105 @@ if(localStorage.getItem("catalogTheme")==="dark")document.body.classList.add("da
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e;$("installBtn").classList.remove("hidden")});$("installBtn").onclick=async()=>{if(!installPrompt)return;installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$("installBtn").classList.add("hidden")};
 ready().then(async()=>{const s=(await all("settings"))[0];if(s?.theme==="dark")document.body.classList.add("dark")});
 if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+
+/* Supabase cloud connection */
+const SUPABASE_URL = "https://csakeghvanblrkjhezbb.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_KOAsdw_IdGwE3NlSu7Wlzg_WsxBiEZA";
+const cloud = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+let cloudPrices = [], cloudProducts = [];
+async function login(){
+  const email=$("loginUser").value.trim(), password=$("loginPass").value;
+  if(!email || !password){alert("اكتب البريد الإلكتروني وكلمة المرور");return}
+  const {data,error}=await cloud.auth.signInWithPassword({email,password});
+  if(error){alert("تعذر تسجيل الدخول: "+error.message);return}
+  const {data:profile,error:pe}=await cloud.from("catalog_profiles").select("*").eq("user_id",data.user.id).single();
+  if(pe || !profile || !profile.is_active){
+    await cloud.auth.signOut();
+    alert("هذا الحساب غير مفعّل في كتالوج المنتجات. تواصل مع المسؤول.");
+    return;
+  }
+  me={id:data.user.id,role:profile.role,display:profile.display_name||email,price:profile.allowed_price||"beautiful",cats:profile.allowed_categories||[]};
+  $("login").classList.add("hidden");$("app").classList.remove("hidden");
+  $("welcome").textContent="أهلاً "+me.display;
+  $("roleLabel").textContent=me.role==="admin"?"نسخة المسؤول — متصلة بالسحابة":"نسخة المندوب — عرض حسب الصلاحيات";
+  $("adminView").classList.toggle("hidden",me.role!=="admin");
+  $("priceSelect").value=me.role==="admin"?"beautiful":me.price;
+  $("priceSelect").disabled=me.role!=="admin";
+  $("tabs").innerHTML=me.role==="admin"?'<button class="active" onclick="showTab(\'catalog\',this)">الكتالوج</button><button onclick="showTab(\'admin\',this)">الإدارة</button>':'<button class="active">الكتالوج</button>';
+  await renderAll();
+}
+async function logout(){await cloud.auth.signOut();me=null;$("app").classList.add("hidden");$("login").classList.remove("hidden");$("loginPass").value=""}
+async function renderAll(){
+  const {data:ps,error}=await cloud.from("catalog_products").select("*").eq("active",true).order("sort_order").order("name");
+  if(error){alert("تعذر تحميل المنتجات: "+error.message);return}
+  const {data:prices,error:priceError}=await cloud.from("catalog_prices").select("*");
+  if(priceError){alert("تعذر تحميل الأسعار المسموحة: "+priceError.message);return}
+  cloudProducts=ps||[];cloudPrices=prices||[];
+  const cats=[...new Set(cloudProducts.map(p=>p.category).filter(Boolean))];
+  $("statProducts").textContent=cloudProducts.length;$("statCats").textContent=cats.length;
+  $("statOffers").textContent=cloudPrices.filter(p=>p.offer_text).length;
+  $("catList").innerHTML=cats.map(x=>'<option value="'+esc(x)+'">').join("");
+  $("categoryChips").innerHTML=["الكل",...cats].filter(x=>me.role==="admin"||!me.cats.length||me.cats.includes(x)).map(x=>'<button class="'+(activeCat===x?'active':'')+'" onclick="setCat('+JSON.stringify(x).replace(/"/g,'&quot;')+')">'+esc(x)+'</button>').join("");
+  await renderProducts();
+  if(me.role==="admin"){await renderAdmin(cloudProducts);await renderCloudProfiles();await renderOffers(cloudProducts)}
+}
+async function renderProducts(){
+  const q=$("search").value.trim().toLowerCase(),type=$("priceSelect").value;
+  let rows=cloudProducts.filter(p=>(activeCat==="الكل"||p.category===activeCat)&&(!q||[p.name,p.barcode,p.category].join(" ").toLowerCase().includes(q)));
+  if(me.role!=="admin"&&me.cats.length)rows=rows.filter(p=>me.cats.includes(p.category));
+  const html=[];
+  for(const p of rows){
+    const pr=cloudPrices.find(x=>x.product_id===p.id&&x.price_type===type);
+    let image="";
+    if(p.image_path){const {data}=await cloud.storage.from("catalog-images").createSignedUrl(p.image_path,3600);image=data?.signedUrl||""}
+    html.push('<article class="product"><div class="photo">'+(image?'<img src="'+image+'">':'▧')+'</div><div class="pbody"><span class="tag">'+esc(p.category||"بدون تصنيف")+'</span><h3>'+esc(p.name)+'</h3><div class="muted">'+(p.barcode?'باركود: '+esc(p.barcode):'')+'</div>'+(pr?.offer_text?'<div class="offer">'+esc(pr.offer_text)+'</div>':'')+'<div class="price">'+fmt(pr?.amount)+'</div></div></article>');
+  }
+  $("products").innerHTML=html.length?html.join(""):'<div class="empty">ماكو مواد مطابقة للبحث حالياً</div>';
+}
+async function renderAdmin(ps){
+  $("adminProducts").innerHTML='<table><thead><tr><th>المادة</th><th>الباركود</th><th>التصنيف</th><th>جميلة</th><th>جملة</th><th>ماركت</th><th>إجراء</th></tr></thead><tbody>'+ps.map(p=>{
+    const val=t=>{const x=cloudPrices.find(z=>z.product_id===p.id&&z.price_type===t);return fmt(x?.amount)};
+    return '<tr><td>'+esc(p.name)+'</td><td>'+esc(p.barcode)+'</td><td>'+esc(p.category)+'</td><td>'+val("beautiful")+'</td><td>'+val("wholesale")+'</td><td>'+val("market")+'</td><td><button class="small secondary" onclick="editCloudProduct('+JSON.stringify(p.id)+')">تعديل</button> <button class="small danger" onclick="deleteProduct('+JSON.stringify(p.id)+')">حذف</button></td></tr>'
+  }).join("")+'</tbody></table>';
+}
+async function editCloudProduct(id){
+  const p=cloudProducts.find(x=>x.id===id);if(!p)return;
+  editing=id;
+  $("fName").value=p.name||"";$("fBarcode").value=p.barcode||"";$("fCategory").value=p.category||"";
+  $("fPack").value=p.pack||"";$("fWeight").value=p.weight||"";
+  for(const t of ["beautiful","wholesale","market"]){const x=cloudPrices.find(z=>z.product_id===id&&z.price_type===t);$("f"+t[0].toUpperCase()+t.slice(1)).value=x?.amount??"";$("fOffer"+t[0].toUpperCase()+t.slice(1)).value=x?.offer_text||""}
+  imageData="";$("imagePreview").classList.add("hidden");$("productFormTitle").textContent="تعديل مادة";
+  document.getElementById("productFormTitle").scrollIntoView({behavior:"smooth"});
+}
+async function saveProduct(){
+  const name=$("fName").value.trim();if(!name){alert("اكتب اسم المادة");return}
+  const payload={name,barcode:$("fBarcode").value.trim()||null,category:$("fCategory").value.trim(),pack:$("fPack").value.trim(),weight:$("fWeight").value.trim(),updated_at:new Date().toISOString(),updated_by:me.id};
+  let id=editing;
+  let result;
+  if(id){result=await cloud.from("catalog_products").update(payload).eq("id",id).select().single()}
+  else{result=await cloud.from("catalog_products").insert(payload).select().single()}
+  if(result.error){alert("تعذر حفظ المادة: "+result.error.message);return}
+  id=result.data.id;
+  for(const t of ["beautiful","wholesale","market"]){
+    const field=t[0].toUpperCase()+t.slice(1);
+    const amount=$("f"+field).value;
+    const offer=$("fOffer"+field).value.trim();
+    const {error}=await cloud.from("catalog_prices").upsert({product_id:id,price_type:t,amount:amount===""?null:Number(amount),offer_text:offer,updated_at:new Date().toISOString(),updated_by:me.id},{onConflict:"product_id,price_type"});
+    if(error){alert("تم حفظ المادة لكن تعذر حفظ أحد الأسعار: "+error.message);return}
+  }
+  clearForm();editing=null;await renderAll();alert("تم حفظ المادة في قاعدة البيانات السحابية");
+}
+async function deleteProduct(id){
+  if(!confirm("تأكيد حذف المادة؟"))return;
+  const {error}=await cloud.from("catalog_products").delete().eq("id",id);
+  if(error){alert("تعذر الحذف: "+error.message);return}
+  await renderAll();
+}
+async function renderCloudProfiles(){
+  const {data,error}=await cloud.from("catalog_profiles").select("user_id,display_name,role,allowed_price,allowed_categories,is_active");
+  if(error){$("usersList").innerHTML='<p class="muted">تعذر تحميل المستخدمين: '+esc(error.message)+'</p>';return}
+  $("usersList").innerHTML='<p class="muted">إنشاء حسابات الدخول يتم من Authentication → Users في Supabase. بعد إنشاء الحساب، أضف ملفه وصلاحياته هنا لاحقاً. الحسابات الحالية:</p><table><tr><th>الاسم</th><th>الدور</th><th>الحالة</th><th>السعر</th><th>التصنيفات</th></tr>'+data.map(u=>'<tr><td>'+esc(u.display_name)+'</td><td>'+esc(u.role)+'</td><td>'+(u.is_active?"فعال":"موقوف")+'</td><td>'+esc(u.allowed_price||"كل الأسعار")+'</td><td>'+esc((u.allowed_categories||[]).join("، ")||"الكل")+'</td></tr>').join("")+'</table>';
+}
+async function renderOffers(){const rows=cloudPrices.filter(x=>x.offer_text);$("offersList").innerHTML=rows.length?rows.map(x=>{const p=cloudProducts.find(y=>y.id===x.product_id);return p?'<div class="toolbar"><b>'+esc(p.name)+'</b><span class="offer">'+esc(x.price_type)+' · '+esc(x.offer_text)+'</span></div>':''}).join(""):'<p class="muted">لا توجد عروض مضافة.</p>'}
+
 </script></body></html>
