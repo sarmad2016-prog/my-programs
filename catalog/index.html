@@ -194,4 +194,58 @@ async function renderCloudProfiles(){
 }
 async function renderOffers(){const rows=cloudPrices.filter(x=>x.offer_text);$("offersList").innerHTML=rows.length?rows.map(x=>{const p=cloudProducts.find(y=>y.id===x.product_id);return p?'<div class="toolbar"><b>'+esc(p.name)+'</b><span class="offer">'+esc(x.price_type)+' · '+esc(x.offer_text)+'</span></div>':''}).join(""):'<p class="muted">لا توجد عروض مضافة.</p>'}
 
+
+async function saveProduct(){
+  const name=$("fName").value.trim();if(!name){alert("اكتب اسم المادة");return}
+  const payload={name,barcode:$("fBarcode").value.trim()||null,category:$("fCategory").value.trim(),pack:$("fPack").value.trim(),weight:$("fWeight").value.trim(),updated_at:new Date().toISOString(),updated_by:me.id};
+  let result=editing?await cloud.from("catalog_products").update(payload).eq("id",editing).select().single():await cloud.from("catalog_products").insert(payload).select().single();
+  if(result.error){alert("تعذر حفظ المادة: "+result.error.message);return}
+  const id=result.data.id;
+  if(imageData){
+    const blob=await (await fetch(imageData)).blob(),path=id+"-"+Date.now()+".jpg";
+    const up=await cloud.storage.from("catalog-images").upload(path,blob,{contentType:"image/jpeg",upsert:true});
+    if(up.error){alert("تم حفظ المادة لكن تعذر رفع الصورة: "+up.error.message);return}
+    const im=await cloud.from("catalog_products").update({image_path:path}).eq("id",id);
+    if(im.error){alert("تم رفع الصورة لكن تعذر ربطها بالمادة: "+im.error.message);return}
+  }
+  for(const t of ["beautiful","wholesale","market"]){
+    const field=t[0].toUpperCase()+t.slice(1),amount=$("f"+field).value,offer=$("fOffer"+field).value.trim();
+    const {error}=await cloud.from("catalog_prices").upsert({product_id:id,price_type:t,amount:amount===""?null:Number(amount),offer_text:offer,updated_at:new Date().toISOString(),updated_by:me.id},{onConflict:"product_id,price_type"});
+    if(error){alert("تم حفظ المادة لكن تعذر حفظ أحد الأسعار: "+error.message);return}
+  }
+  clearForm();editing=null;await renderAll();alert("تم حفظ المادة والصورة والأسعار سحابياً");
+}
+async function confirmImport(){
+  const rows=window.pendingImport||[];if(!rows.length)return;
+  let added=0,updated=0;
+  for(const x of rows){
+    let old=null;
+    if(x.barcode){const q=await cloud.from("catalog_products").select("id").eq("barcode",x.barcode).maybeSingle();if(q.error){alert(q.error.message);return}old=q.data}
+    else{const q=await cloud.from("catalog_products").select("id").eq("name",x.name).maybeSingle();if(q.error){alert(q.error.message);return}old=q.data}
+    const payload={name:x.name,barcode:x.barcode||null,category:x.category||"",pack:String(x.pack||""),weight:String(x.weight||""),updated_at:new Date().toISOString(),updated_by:me.id};
+    const saved=old?await cloud.from("catalog_products").update(payload).eq("id",old.id).select().single():await cloud.from("catalog_products").insert(payload).select().single();
+    if(saved.error){alert("خطأ باستيراد "+x.name+": "+saved.error.message);return}
+    const id=saved.data.id;
+    for(const t of ["beautiful","wholesale","market"]){
+      const amount=x[t],offer=x["offer"+t[0].toUpperCase()+t.slice(1)]||"";
+      const {error}=await cloud.from("catalog_prices").upsert({product_id:id,price_type:t,amount:amount===""||amount==null?null:Number(amount),offer_text:String(offer),updated_at:new Date().toISOString(),updated_by:me.id},{onConflict:"product_id,price_type"});
+      if(error){alert("تعذر استيراد سعر "+t+" للمادة "+x.name+": "+error.message);return}
+    }
+    if(old)updated++;else added++;
+  }
+  window.pendingImport=null;$("importPreview").innerHTML="";await renderAll();alert("اكتمل الاستيراد السحابي: "+added+" جديد، "+updated+" تحديث");
+}
+async function restoreCloudSession(){
+  const {data}=await cloud.auth.getSession();const user=data?.session?.user;if(!user)return;
+  const {data:profile,error}=await cloud.from("catalog_profiles").select("*").eq("user_id",user.id).single();
+  if(error||!profile||!profile.is_active){await cloud.auth.signOut();return}
+  me={id:user.id,role:profile.role,display:profile.display_name||user.email,price:profile.allowed_price||"beautiful",cats:profile.allowed_categories||[]};
+  $("login").classList.add("hidden");$("app").classList.remove("hidden");$("welcome").textContent="أهلاً "+me.display;
+  $("roleLabel").textContent=me.role==="admin"?"نسخة المسؤول — متصلة بالسحابة":"نسخة المندوب — عرض حسب الصلاحيات";
+  $("adminView").classList.toggle("hidden",me.role!=="admin");$("priceSelect").value=me.price;$("priceSelect").disabled=me.role!=="admin";
+  $("tabs").innerHTML=me.role==="admin"?'<button class="active" onclick="showTab(\'catalog\',this)">الكتالوج</button><button onclick="showTab(\'admin\',this)">الإدارة</button>':'<button class="active">الكتالوج</button>';
+  await renderAll();
+}
+restoreCloudSession();
+
 </script></body></html>
