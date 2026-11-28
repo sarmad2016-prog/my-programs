@@ -154,21 +154,54 @@ using (
   )
 );
 
+-- صلاحيات الصور: تحقق مباشر من ملف المسؤول لتفادي رفض الرفع بسبب سياسة التخزين.
 drop policy if exists "admin upload catalog images" on storage.objects;
 create policy "admin upload catalog images" on storage.objects
 for insert to authenticated
-with check (bucket_id = 'catalog-images' and public.catalog_is_admin());
+with check (
+  bucket_id = 'catalog-images'
+  and exists (
+    select 1 from public.catalog_profiles p
+    where p.user_id = (select auth.uid())
+      and p.role = 'admin'
+      and p.is_active = true
+  )
+);
 
 drop policy if exists "admin update catalog images" on storage.objects;
 create policy "admin update catalog images" on storage.objects
 for update to authenticated
-using (bucket_id = 'catalog-images' and public.catalog_is_admin())
-with check (bucket_id = 'catalog-images' and public.catalog_is_admin());
+using (
+  bucket_id = 'catalog-images'
+  and exists (
+    select 1 from public.catalog_profiles p
+    where p.user_id = (select auth.uid())
+      and p.role = 'admin'
+      and p.is_active = true
+  )
+)
+with check (
+  bucket_id = 'catalog-images'
+  and exists (
+    select 1 from public.catalog_profiles p
+    where p.user_id = (select auth.uid())
+      and p.role = 'admin'
+      and p.is_active = true
+  )
+);
 
 drop policy if exists "admin delete catalog images" on storage.objects;
 create policy "admin delete catalog images" on storage.objects
 for delete to authenticated
-using (bucket_id = 'catalog-images' and public.catalog_is_admin());
+using (
+  bucket_id = 'catalog-images'
+  and exists (
+    select 1 from public.catalog_profiles p
+    where p.user_id = (select auth.uid())
+      and p.role = 'admin'
+      and p.is_active = true
+  )
+);
 
 grant usage on schema public to authenticated;
 grant select, insert, update, delete on public.catalog_profiles to authenticated;
